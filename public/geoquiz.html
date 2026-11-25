@@ -236,7 +236,9 @@ h1{font-size:24px;line-height:1.2}
 .resume .rbtns{display:flex;gap:6px}.resume .btn{width:auto;margin:0;padding:10px 14px;font-size:14px}
 .daily.kflag{background:linear-gradient(135deg,#ff9a44,#fc6076);padding:22px 16px}
 .daily.kcap{background:linear-gradient(135deg,#43cea2,#185a9d);padding:22px 16px}
-.daily.kflag b,.daily.kcap b{font-size:20px}
+.daily.kcontinent{background:linear-gradient(135deg,#22a06b,#2b7a78);padding:22px 16px}
+.daily.klandmark{background:linear-gradient(135deg,#a555a6,#6654c0);padding:22px 16px}
+.daily.kflag b,.daily.kcap b,.daily.kcontinent b,.daily.klandmark b{font-size:20px}
 #kids header{justify-content:flex-start;align-items:center}
 .fl.kid{font-size:90px}
 .fl.kid img{height:120px;width:auto;border-radius:10px;box-shadow:0 3px 14px rgba(0,0,0,.2)}
@@ -350,7 +352,10 @@ h1{font-size:24px;line-height:1.2}
 /* Паспорт: аватар персонажа на странице владельца */
 .pp-photo{position:relative;overflow:hidden;cursor:pointer}
 .pp-photo .char-mini{position:absolute;inset:-8px -18px -56px -18px}
+.pp-photo .char-mini.f{inset:-11px auto auto 50%;width:322px;height:432px;transform:translateX(-50%)}
 .pp-photo .char-mini img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;pointer-events:none}
+.z-bot{z-index:1}.z-sho{z-index:2}.z-top{z-index:3}.z-hed{z-index:4}
+.straight-shoes .z-bot{clip-path:inset(0 0 9% 0)}
 
 /* Экран магазина и персонажа */
 #shop header{justify-content:flex-start;align-items:center;margin-bottom:12px}
@@ -365,22 +370,35 @@ h1{font-size:24px;line-height:1.2}
 .stage-box{position:relative;height:290px;border-radius:16px;background:radial-gradient(circle at 50% 42%,rgba(47,124,246,.12),rgba(128,128,128,.04) 70%);display:flex;align-items:center;justify-content:center;overflow:hidden}
 @media (prefers-color-scheme: dark){.stage-box{background:radial-gradient(circle at 50% 42%,rgba(56,189,248,.14),rgba(255,255,255,.02) 70%)}}
 .char-doll{position:relative;width:210px;height:282px;flex-shrink:0}
-.char-doll img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;pointer-events:none;transition:opacity .15s}
-.char-doll .z-bot{z-index:1}.char-doll .z-sho{z-index:2}.char-doll .z-top{z-index:3}.char-doll .z-hed{z-index:4}
+.char-doll img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;pointer-events:none}
 .stage-side{position:absolute;top:10px;bottom:10px;width:54px;display:flex;flex-direction:column;justify-content:center;gap:8px;z-index:6}
-.stage-side.l{left:8px}.stage-side.r{right:8px}
+.stage-side.r{right:8px}
+.char-mini,.char-doll{container-type:size}
+.avatar-accessories{position:absolute;z-index:5;top:50%;left:50%;width:min(100%,74.6667cqh);aspect-ratio:448/600;transform:translate(-50%,-50%);pointer-events:none}
+.avatar-accessories img{inset:auto;transform:translate(-50%,-50%);height:auto}
+.avatar-accessories .avatar-glasses{left:50%;top:13.4%;width:10.8%}
+.avatar-accessories .avatar-glasses.g_goggles{width:11.8%}
+.avatar-accessories .avatar-glasses.g_glasses_rect{width:11.1%}
+.avatar-accessories .avatar-glasses.g_glasses_cateye{width:12.4%}
+.avatar-accessories.f .avatar-glasses{top:14%}
+.avatar-accessories .avatar-watch{left:67.2%;top:54.1%;width:5.4%;transform:translate(-50%,-50%) rotate(9deg) scaleY(.75)}
+.avatar-accessories .avatar-bag{left:72%;top:62%;width:22%;max-height:23%;object-fit:contain}
+.avatar-accessories.f .avatar-bag{left:70%;top:62%;width:13.5%;max-height:12%}
+.avatar-accessories .avatar-carryon{left:70%;top:76%;width:27%;height:39%;object-fit:contain}
+.avatar-accessories .avatar-camera{left:30%;top:60%;width:14%;transform:translate(-50%,-50%) rotate(-9deg)}
 .slot-ico{width:48px;height:48px;border-radius:12px;background:var(--bg);border:1px solid rgba(128,128,128,.16);display:flex;align-items:center;justify-content:center;padding:5px;position:relative;cursor:pointer}
 .slot-ico img{width:100%;height:100%;object-fit:contain}
 .slot-ico.empty{opacity:.45;font-size:18px;border-style:dashed}
 .slot-ico.gold{border-color:#e6a100;box-shadow:0 0 12px rgba(255,177,0,.4);background:linear-gradient(135deg,rgba(255,230,130,.28),var(--bg))}
-.preview-bar{display:flex;align-items:center;gap:8px;margin-top:10px;padding:10px 12px;border-radius:14px;background:var(--bg);border:1px solid rgba(47,124,246,.35)}
-.preview-bar div{flex:1;min-width:0}
-.preview-bar b{display:block;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.preview-bar small{display:block;font-size:12px;color:var(--hint)}
-.preview-bar .btn{width:auto;margin:0;padding:9px 14px;font-size:13px;white-space:nowrap}
+.preview-bar{display:flex;flex-direction:column;gap:8px;margin-top:10px;padding:10px 12px;border-radius:14px;background:var(--bg);border:1px solid rgba(47,124,246,.35)}
+.preview-info{min-width:0}
+.preview-info b{display:block;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.preview-info small{display:block;font-size:12px;color:var(--hint);margin-top:1px}
+.preview-btns{display:grid;grid-template-columns:1fr 1.4fr;gap:8px}
+.preview-btns .btn{width:100%;margin:0;padding:9px 10px;font-size:13px;white-space:nowrap;border-radius:11px}
 
-.shop-tabs{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;background:var(--bg2);padding:4px;border-radius:14px}
-.shop-tabs button{border:0;background:none;color:var(--hint);font-size:11.5px;font-weight:700;padding:9px 2px;border-radius:10px;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.shop-tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;background:var(--bg2);padding:4px;border-radius:14px}
+.shop-tabs button{border:0;background:none;color:var(--hint);font-size:12px;font-weight:700;padding:8px 4px;border-radius:10px;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .shop-tabs button.on{background:var(--bg);color:var(--text);box-shadow:0 1px 4px rgba(0,0,0,.1)}
 
 .sub-tabs{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
@@ -399,6 +417,9 @@ h1{font-size:24px;line-height:1.2}
 .sitem.r-leg{box-shadow:inset 0 0 0 1px rgba(234,179,8,.55)}
 .sitem-img{width:88px;height:88px;display:flex;align-items:center;justify-content:center;margin:2px 0 6px;position:relative}
 .sitem-img img{max-width:100%;max-height:100%;object-fit:contain;filter:drop-shadow(0 3px 6px rgba(0,0,0,.12))}
+.food-zoom{border:0;padding:0;background:none;cursor:zoom-in}
+.food-zoom[aria-pressed="true"]{cursor:zoom-out}
+.food-zoom[aria-pressed="true"] img{transform:scale(1.2)}
 .sitem.locked .sitem-img img{filter:grayscale(.9) opacity(.5)}
 .sitem-name{font-size:13.5px;font-weight:700;line-height:1.25;margin-bottom:3px}
 .sitem-sub{font-size:11.5px;color:var(--hint);line-height:1.25;margin-bottom:6px}
@@ -441,6 +462,20 @@ h1{font-size:24px;line-height:1.2}
 .ad-box b{display:block;font-size:18px;margin:8px 0 6px}
 .ad-box p{font-size:13.5px;color:var(--hint);margin-bottom:14px;line-height:1.4}
 
+/* Гардероб и просмотр блюда в Кухне */
+.ward-h{display:flex;align-items:center;justify-content:space-between;font-size:13px;font-weight:700;color:var(--hint);margin:12px 2px 6px}
+.ward-h:first-child{margin-top:2px}
+.ward-reset{border:0;background:var(--bg2);color:var(--accent);font-size:12px;font-weight:700;padding:5px 10px;border-radius:8px;cursor:pointer}
+.ward-empty{background:var(--bg2);border-radius:16px;padding:22px 16px;text-align:center;color:var(--hint);font-size:14px;line-height:1.45}
+.ward-empty b{display:block;color:var(--text);font-size:16px;margin-bottom:6px}
+.ward-empty .btn{margin-top:12px}
+.food-exp{display:inline-block;margin-top:4px;font-size:11px;font-weight:700;color:var(--ok);background:rgba(34,165,90,.12);padding:2px 7px;border-radius:7px}
+.food-pop-img{width:152px;height:152px;margin:0 auto 10px;display:flex;align-items:center;justify-content:center;background:var(--bg2);border-radius:20px;padding:12px}
+.food-pop-img img{max-width:100%;max-height:100%;object-fit:contain;filter:drop-shadow(0 6px 12px rgba(0,0,0,.16))}
+.food-pop-meta{display:flex;align-items:center;justify-content:center;gap:6px;flex-wrap:wrap;font-size:13px;color:var(--hint);margin:4px 0 8px}
+.food-pop-btns{display:flex;flex-direction:column;gap:8px;margin-top:10px}
+.food-pop-btns .btn{margin:0}
+
 /* Широкий экран для магазина: персонаж слева, каталог справа */
 @media (min-width:768px){
   .wrap.wide-shop{max-width:980px}
@@ -472,6 +507,7 @@ h1{font-size:24px;line-height:1.2}
 <div class="praise" id="praise"></div>
 <div class="ach-banner" id="achBanner"></div>
 <div class="ad-modal" id="adModal"><div class="ad-box" id="adBox"></div></div>
+<div class="ad-modal" id="foodModal"><div class="ad-box" id="foodBox"></div></div>
 
 <script>
 // ===== НАСТРОЙКИ =====
@@ -748,11 +784,13 @@ const I18N = {
     ppSecC: 'Страны и столицы', ppSecS: 'Моря и реки', ppSecR: 'Курорты', ppGet: n => `Сдай экзамен:<br>${n}`, ppStamp: '🛂 Поставить штамп в паспорт', ppNewOne: '🛂 Новый штамп!', exGo: 'Продолжить', exNew: 'Заново',
     tCountries: 'Страны', tCountriesSub: 'Столицы, флаги, контуры, блиц', tSeas: 'Моря и реки', tSeasSub: 'Реки, моря, заливы', tRes: 'Курорты', tResSub: 'Пляжи, острова, горы', tKids: 'Детям', tKidsSub: 'Флаги и столицы',
     kidsTitle: 'Для детей', kidsSub: 'Самые известные страны мира', kidsNote: 'Без очков, таймера и рекордов — просто играем и учимся 🙂',
-    kFlags: '🚩 Угадай флаг', kCaps: '🏙 Угадай столицу', kCount: n => `${n} стран · 10 вопросов`,
+    kFlags: '🚩 Угадай флаг', kCaps: '🏙 Угадай столицу', kCount: n => `${n} вопросов`,
+    kContinents: '🌍 Части света', kLandmarks: '🏛 Известные места',
+    kQContinent: 'Где находится эта страна?', kQLandmark: 'В какой стране это находится?',
     kQFlag: 'Какая это страна?', kQCap: 'Какая столица у страны',
     kPraise: ['Умница! 🌟', 'Правильно! 🎉', 'Молодец! 👏', 'Ура! 🥳', 'Супер! ⭐', 'Отлично! 🙌'],
     kAlmost: 'Почти! Правильно —', kDone: (s, n) => `${s} из ${n}`,
-    kGreat: 'Молодец! Ты отлично знаешь страны 🎉', kTry: 'Хорошо получилось! Давай ещё раз — будет ещё лучше 💪',
+    kGreat: 'Молодец! Отличный результат 🎉', kTry: 'Хорошо получилось! Давай ещё раз — будет ещё лучше 💪',
     kAgain: 'Играть ещё', kBack: 'К детскому разделу',
     back: 'Назад', gotXp: n => `+${n} XP`, ach: 'Достижения', achNew: 'Новое достижение!', achGot: 'Получено в этой игре',
     timeLine: (t, a) => `⏱ Время: ${t} · в среднем ${a} с на вопрос`, bestTime: 'Лучшее время без ошибок',
@@ -761,7 +799,7 @@ const I18N = {
     checkinTitle: n => n > 1 ? `Ежедневный бонус · день ${n}` : 'Ежедневный бонус',
     checkinSub: 'Заходи каждый день — награда растёт до 60 монет',
     checkinClaim: c => `+${c} 🪙`, checkinGot: c => `🪙 +${c} монет за вход!`,
-    tabWear: 'Одежда', tabGear: 'Вещи', tabFood: 'Кухня', tabSuper: 'Трофеи', tabEarn: 'Монеты',
+    tabWear: 'Одежда', tabGear: 'Гаджеты', tabAccessories: 'Аксессуары', tabBags: 'Сумки', tabWardrobe: 'Гардероб', tabFood: 'Кухня', tabSuper: 'Трофеи', tabEarn: 'Монеты',
     zHead: 'Голова', zTop: 'Верх', zBot: 'Низ', zShoes: 'Обувь',
     gMan: '👨 Парень', gGirl: '👩 Девушка',
     rareCommon: 'Обычная', rareRare: 'Редкая', rareEpic: 'Эпическая', rareLeg: 'Легендарная',
@@ -771,6 +809,9 @@ const I18N = {
     freezeName: 'Заморозка серии', freezeDesc: 'Спасёт серию дней, если пропустишь один день',
     freezeHave: n => `В запасе: ${n}/3`, freezeUsed: '❄️ Серия дней спасена заморозкой!',
     foodLocked: c => `Угадай страну: ${c}`, foodShelf: 'На полке ✓', foodDesc: 'Сувенир национальной кухни',
+    foodExpireNote: 'Хранится на полке 5 дней, затем исчезает', foodLeft: (d, h) => d > 1 ? `⏳ Осталось ${d} дн.` : h > 1 ? `⏳ Осталось ${h} ч.` : '⏳ Менее 1 ч.',
+    foodNeedGuess: c => `Чтобы купить блюдо, сначала угадай страну: ${c}`, foodGoCountry: 'Угадать страну', close: 'Закрыть',
+    wardEmptyTitle: 'В гардеробе пока пусто', wardEmptySub: 'Купи одежду, гаджеты или блюда — они появятся здесь для быстрого доступа', wardGoShop: 'Перейти к одежде', wardReset: 'Базовый образ',
     superNote: 'Купить нельзя — выдаются только за сданный экзамен «Весь мир». На A+ становятся золотыми!',
     superLocked: req => `Сдай экзамен: ${req}`, superGot: g => `Получено (${g}) · сдай на A+ для золота`,
     superGold: '★ Золотой трофей (A+)', superNew: name => `🏆 Новый суператрибут: ${name}!`,
@@ -778,8 +819,8 @@ const I18N = {
     earnDaily: 'Ежедневный вход', earnDailySub: '10 монет + 5 за каждый день серии (до 60)', earnDone: 'Получено ✓',
     earnExam: 'Экзамены', earnExamSub: 'Регион: C 50 · B 75 · A 100 · A+ 150 · Весь мир: 500', earnExamBtn: 'К экзаменам',
     earnAd: 'Короткая реклама', earnAdSub: (u, m) => `15 монет за просмотр · сегодня ${u}/${m}`, earnAdBtn: 'Смотреть +15',
-    earnRef: 'Пригласить друга', earnRefSub: 'Поделись ссылкой — +100 монет за приглашение', earnRefBtn: 'Позвать +100',
-    refShared: 'Ссылка готова! +100 🪙 начислены за приглашение', refDone: 'Бонус получен ✓',
+    earnRef: 'Пригласить друга', earnRefSub: 'Поделись ссылкой — +50 монет за приглашение', earnRefBtn: 'Позвать +50',
+    refShared: 'Ссылка готова! +50 🪙 начислены за приглашение', refDone: 'Бонус получен ✓',
     adTitle: 'Рекламный слот (AdsGram)', adWait: s => `Награда +15 🪙 через ${s} с…`, adReady: 'Забрать +15 🪙',
     adLimit: 'Лимит на сегодня (5/5)',
     combosCount: n => `${n} образов`
@@ -845,11 +886,13 @@ const I18N = {
     ppSecC: 'Countries & capitals', ppSecS: 'Seas & rivers', ppSecR: 'Resorts', ppGet: n => `Pass the exam:<br>${n}`, ppStamp: '🛂 Stamp my passport', ppNewOne: '🛂 New stamp!', exGo: 'Continue', exNew: 'Restart',
     tCountries: 'Countries', tCountriesSub: 'Capitals, flags, map, blitz', tSeas: 'Seas & rivers', tSeasSub: 'Rivers, seas, gulfs', tRes: 'Resorts', tResSub: 'Beaches, islands, ski', tKids: 'Kids', tKidsSub: 'Flags and capitals',
     kidsTitle: 'For kids', kidsSub: 'The best-known countries of the world', kidsNote: 'No points, timer or records — just play and learn 🙂',
-    kFlags: '🚩 Guess the flag', kCaps: '🏙 Guess the capital', kCount: n => `${n} countries · 10 questions`,
+    kFlags: '🚩 Guess the flag', kCaps: '🏙 Guess the capital', kCount: n => `${n} questions`,
+    kContinents: '🌍 Continents', kLandmarks: '🏛 Famous places',
+    kQContinent: 'Where is this country?', kQLandmark: 'Which country is this in?',
     kQFlag: 'Which country is this?', kQCap: 'What is the capital of',
     kPraise: ['Clever! 🌟', 'Correct! 🎉', 'Well done! 👏', 'Hooray! 🥳', 'Super! ⭐', 'Great! 🙌'],
     kAlmost: 'Almost! The answer is', kDone: (s, n) => `${s} of ${n}`,
-    kGreat: 'Well done! You know your countries 🎉', kTry: 'Nice try! Play again — it will be even better 💪',
+    kGreat: 'Well done! Great result 🎉', kTry: 'Nice try! Play again — it will be even better 💪',
     kAgain: 'Play again', kBack: 'Back to kids',
     back: 'Back', gotXp: n => `+${n} XP`, ach: 'Achievements', achNew: 'Achievement unlocked!', achGot: 'Unlocked this game',
     timeLine: (t, a) => `⏱ Time: ${t} · ${a} s per question on average`, bestTime: 'Best flawless time',
@@ -858,7 +901,7 @@ const I18N = {
     checkinTitle: n => n > 1 ? `Daily check-in · day ${n}` : 'Daily check-in',
     checkinSub: 'Come back daily — reward grows up to 60 coins',
     checkinClaim: c => `+${c} 🪙`, checkinGot: c => `🪙 +${c} daily coins!`,
-    tabWear: 'Outfits', tabGear: 'Gear', tabFood: 'Cuisine', tabSuper: 'Trophies', tabEarn: 'Coins',
+    tabWear: 'Outfits', tabGear: 'Gadgets', tabAccessories: 'Accessories', tabBags: 'Bags', tabWardrobe: 'Wardrobe', tabFood: 'Cuisine', tabSuper: 'Trophies', tabEarn: 'Coins',
     zHead: 'Head', zTop: 'Top', zBot: 'Bottom', zShoes: 'Shoes',
     gMan: '👨 Guy', gGirl: '👩 Girl',
     rareCommon: 'Common', rareRare: 'Rare', rareEpic: 'Epic', rareLeg: 'Legendary',
@@ -868,6 +911,9 @@ const I18N = {
     freezeName: 'Streak Freeze', freezeDesc: 'Protects your day streak if you miss one day',
     freezeHave: n => `In stock: ${n}/3`, freezeUsed: '❄️ Day streak saved by Streak Freeze!',
     foodLocked: c => `Guess country: ${c}`, foodShelf: 'On shelf ✓', foodDesc: 'World cuisine souvenir',
+    foodExpireNote: 'Stays on the shelf for 5 days, then disappears', foodLeft: (d, h) => d > 1 ? `⏳ ${d}d left` : h > 1 ? `⏳ ${h}h left` : '⏳ <1h left',
+    foodNeedGuess: c => `Guess this country first to unlock: ${c}`, foodGoCountry: 'Guess country', close: 'Close',
+    wardEmptyTitle: 'Your wardrobe is empty', wardEmptySub: 'Buy outfits, gadgets or cuisine — they will appear here for quick access', wardGoShop: 'Browse outfits', wardReset: 'Default look',
     superNote: 'Cannot be bought — earned only by passing a full “Whole world” exam. Pass with A+ for Gold!',
     superLocked: req => `Pass exam: ${req}`, superGot: g => `Earned (${g}) · get A+ for Gold`,
     superGold: '★ Gold Trophy (A+)', superNew: name => `🏆 New Super-Attribute: ${name}!`,
@@ -875,8 +921,8 @@ const I18N = {
     earnDaily: 'Daily check-in', earnDailySub: '10 coins + 5 per streak day (up to 60)', earnDone: 'Claimed ✓',
     earnExam: 'Exams', earnExamSub: 'Region: C 50 · B 75 · A 100 · A+ 150 · Whole world: 500', earnExamBtn: 'To exams',
     earnAd: 'Short ad', earnAdSub: (u, m) => `15 coins per view · today ${u}/${m}`, earnAdBtn: 'Watch +15',
-    earnRef: 'Invite a friend', earnRefSub: 'Share your link — +100 coins reward', earnRefBtn: 'Invite +100',
-    refShared: 'Link ready! +100 🪙 invite bonus added', refDone: 'Bonus claimed ✓',
+    earnRef: 'Invite a friend', earnRefSub: 'Share your link — +50 coins reward', earnRefBtn: 'Invite +50',
+    refShared: 'Link ready! +50 🪙 invite bonus added', refDone: 'Bonus claimed ✓',
     adTitle: 'Rewarded Ad Slot (AdsGram)', adWait: s => `+15 🪙 reward in ${s}s…`, adReady: 'Claim +15 🪙',
     adLimit: 'Daily limit reached (5/5)',
     combosCount: n => `${n} looks`
@@ -954,7 +1000,10 @@ const inTg = !!(tg && tg.initData);
 if (tg) {
   tg.ready(); tg.expand();
   if (tgv('7.7') && tg.disableVerticalSwipes) tg.disableVerticalSwipes();
-  if (tgv('6.1')) tg.BackButton.onClick(() => { endGame(); go('home'); });
+  if (tgv('6.1')) tg.BackButton.onClick(() => {
+    if (foodModalId) { closeFoodModal(); return; }
+    endGame(); go('home');
+  });
 }
 function haptic(type) {
   try { if (tgv('6.1')) tg.HapticFeedback.notificationOccurred(type); } catch (e) {}
@@ -963,24 +1012,44 @@ function haptic(type) {
 // ===== ХРАНИЛИЩЕ (localStorage + облако Telegram) =====
 const cloudOk = () => tgv('6.9') && tg.CloudStorage;
 // В облаке Telegram одно значение — максимум 4096 символов, поэтому режем на куски cq_<k>_0, cq_<k>_1… и пишем их число в cq_<k>_n
-const CHUNK = 3800, cloudTimers = {}, cloudLast = {};
+const CHUNK = 3800, cloudTimers = {}, cloudLast = {}, cloudPending = {};
 function cloudPut(k, s) {
+  delete cloudPending[k];
   if (!cloudOk() || cloudLast[k] === s) return;
-  cloudLast[k] = s;
   try {
     const n = Math.max(1, Math.ceil(s.length / CHUNK)), cs = tg.CloudStorage;
-    for (let i = 0; i < n; i++) cs.setItem(`cq_${k}_${i}`, s.slice(i * CHUNK, (i + 1) * CHUNK));
-    cs.setItem(`cq_${k}_n`, String(n));
-  } catch (e) {}
+    let left = n + 1, ok = true;
+    const done = err => {
+      if (err) ok = false;
+      if (--left === 0) {
+        if (ok) cloudLast[k] = s;
+        else cloudPending[k] = s;
+      }
+    };
+    for (let i = 0; i < n; i++) cs.setItem(`cq_${k}_${i}`, s.slice(i * CHUNK, (i + 1) * CHUNK), done);
+    cs.setItem(`cq_${k}_n`, String(n), done);
+  } catch (e) { cloudPending[k] = s; }
 }
+function flushCloud() {
+  Object.keys(cloudTimers).forEach(k => { clearTimeout(cloudTimers[k]); delete cloudTimers[k]; });
+  Object.entries(cloudPending).forEach(([k, s]) => cloudPut(k, s));
+}
+window.addEventListener('pagehide', flushCloud);
+window.addEventListener('beforeunload', flushCloud);
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') flushCloud(); });
+try { if (tg && tg.onEvent) tg.onEvent('deactivated', flushCloud); } catch (e) {}
+
 const store = {
   get(k, d) { try { const v = localStorage.getItem('cq_' + k); return v ? JSON.parse(v) : d; } catch (e) { return d; } },
-  set(k, v, local) {
+  set(k, v, local, immediate) {
     const s = JSON.stringify(v);
     try { localStorage.setItem('cq_' + k, s); } catch (e) {}
     if (local || !cloudOk()) return;
-    clearTimeout(cloudTimers[k]); // не дёргаем облако на каждый ответ — пишем через секунду тишины
-    cloudTimers[k] = setTimeout(() => cloudPut(k, s), 1000);
+    cloudPending[k] = s;
+    clearTimeout(cloudTimers[k]);
+    delete cloudTimers[k];
+    if (immediate) cloudPut(k, s);
+    else cloudTimers[k] = setTimeout(() => { delete cloudTimers[k]; cloudPut(k, s); }, 1000);
   },
   del(k) { try { localStorage.removeItem('cq_' + k); } catch (e) {} }
 };
@@ -1010,9 +1079,11 @@ function detectLang() {
   const lc = ((tg && tg.initDataUnsafe && tg.initDataUnsafe.user && tg.initDataUnsafe.user.language_code) || navigator.language || 'en').toLowerCase();
   return /^(ru|uk|be|kk)/.test(lc) ? 'ru' : 'en';
 }
+const hadLocalStats = (() => { try { return !!localStorage.getItem('cq_stats'); } catch (e) { return false; } })();
 let settings = store.get('settings', {});
 let stats = store.get('stats', {});
 let mistakes = store.get('mistakes', []);
+const FOOD_TTL = 5 * 24 * 60 * 60 * 1000;
 // Приводим старые/кривые данные к текущему формату
 function fixSettings() {
   if (!settings || typeof settings !== 'object') settings = {};
@@ -1048,44 +1119,111 @@ function fixSettings() {
 }
 function fixStats() {
   if (!stats || typeof stats !== 'object') stats = {};
-  const d = { played: 0, answered: 0, correct: 0, bestStreak: 0, best: {}, daily: {}, xp: 0, known: [], ach: {}, blitzBest: 0, shapeOk: 0, bestTime: {}, resKnown: [], resBest: {}, resBestTime: {}, genBest: {}, genBestTime: {}, seaOk: 0, dip: {}, quests: {}, dstr: {}, stampD: {}, since: '', ppNo: '', ppSeen: 0, coins: 0, checkin: '', freezes: 0, adDay: '', adN: 0, refClaimed: 0, gender: 'm', owned: [], foodOwned: [], equip: {}, gearEquip: {}, examCoinDip: {} };
+  const d = { played: 0, answered: 0, correct: 0, bestStreak: 0, best: {}, daily: {}, xp: 0, known: [], ach: {}, blitzBest: 0, shapeOk: 0, bestTime: {}, resKnown: [], resBest: {}, resBestTime: {}, genBest: {}, genBestTime: {}, seaOk: 0, dip: {}, quests: {}, dstr: {}, stampD: {}, since: '', ppNo: '', ppSeen: 0, coins: 0, checkin: '', freezes: 0, adDay: '', adN: 0, refClaimed: 0, gender: 'm', owned: [], foodOwned: [], foodExp: {}, equip: {}, gearEquip: {}, examCoinDip: {}, rev: 0 };
   for (const k in d) if (stats[k] == null || typeof stats[k] !== typeof d[k]) stats[k] = d[k];
   if (!Array.isArray(stats.known)) stats.known = [];
   if (!Array.isArray(stats.resKnown)) stats.resKnown = [];
   if (!Array.isArray(stats.owned)) stats.owned = [];
   if (!Array.isArray(stats.foodOwned)) stats.foodOwned = [];
+  if (!stats.foodExp || typeof stats.foodExp !== 'object') stats.foodExp = {};
   if (!stats.equip || typeof stats.equip !== 'object') stats.equip = {};
   if (!stats.gearEquip || typeof stats.gearEquip !== 'object') stats.gearEquip = {};
+  if (stats.owned.includes('g_bag_messenger')) {
+    stats.owned = [...new Set(stats.owned.map(id => id === 'g_bag_messenger' ? 'g_bag_carryon' : id))];
+  }
+  if (stats.gearEquip.bag_m === 'g_bag_messenger') stats.gearEquip.bag_m = 'g_bag_carryon';
+  if (stats.owned.includes('g_glasses_hearts')) {
+    stats.owned = [...new Set(stats.owned.map(id => id === 'g_glasses_hearts' ? 'g_glasses_rect' : id))];
+  }
+  if (stats.gearEquip.glasses_f === 'g_glasses_hearts') stats.gearEquip.glasses_f = 'g_glasses_rect';
   if (!stats.examCoinDip || typeof stats.examCoinDip !== 'object') stats.examCoinDip = {};
+  if (!Number.isFinite(stats.rev) || stats.rev < 0) stats.rev = 0;
   if (stats.gender !== 'm' && stats.gender !== 'f') stats.gender = 'm';
+  const glassWear = [];
   ['m', 'f'].forEach(g => {
     if (!stats.equip[g] || typeof stats.equip[g] !== 'object') stats.equip[g] = { head: 'base', top: 'base', bottom: 'base', shoes: 'base' };
+    if (stats.equip[g].glasses && stats.equip[g].glasses !== 'base') glassWear.push(stats.equip[g].glasses);
+    if (stats.equip[g].head === 'goggles') stats.equip[g].head = 'base';
+    delete stats.equip[g].glasses;
     ['head', 'top', 'bottom', 'shoes'].forEach(z => { if (!stats.equip[g][z]) stats.equip[g][z] = 'base'; });
   });
+  const legacyMove = {
+    glasses_wayfarer: ['g_wayfarer', 'glasses'],
+    glasses_aviator:  ['g_aviator',  'glasses'],
+    glasses_goggles:  ['g_goggles',  'glasses'],
+    head_goggles:     ['g_goggles',  'glasses'],
+    g_softshell:      ['top_softshell', 'wear', 'top', 'softshell'],
+    g_parka:          ['top_parka',     'wear', 'top', 'parka'],
+    g_ski:            ['top_ski',       'wear', 'top', 'ski']
+  };
+  Object.keys(legacyMove).forEach(oldId => {
+    if (stats.owned.includes(oldId)) {
+      const m = legacyMove[oldId], newId = m[0];
+      if (!stats.owned.includes(newId)) stats.owned.push(newId);
+      if (m[1] === 'glasses') {
+        const fl = oldId.replace(/^(glasses|head)_/, '');
+        if (!stats.gearEquip.glasses && (glassWear.includes(fl) || stats.gearEquip.glasses === oldId)) stats.gearEquip.glasses = newId;
+      } else if (stats.gearEquip.pack === oldId) {
+        ['m', 'f'].forEach(g => { stats.equip[g][m[2]] = m[3]; });
+      }
+      stats.owned = stats.owned.filter(x => x !== oldId);
+    }
+  });
+  delete stats.gearEquip.pack;
+  // 5-дневный срок годности купленной еды
+  const now = Date.now(), fKeep = [];
+  stats.foodOwned.forEach(id => {
+    if (!stats.foodExp[id]) stats.foodExp[id] = now + FOOD_TTL;
+    if (stats.foodExp[id] > now) fKeep.push(id);
+    else delete stats.foodExp[id];
+  });
+  stats.foodOwned = fKeep;
+  Object.keys(stats.foodExp).forEach(id => { if (!fKeep.includes(id)) delete stats.foodExp[id]; });
   if (!Array.isArray(mistakes)) mistakes = [];
   stats.known = stats.known.filter(id => BY_ID[id]);
   if (!stats.since) stats.since = new Date().toISOString().slice(0, 10);
   mistakes = mistakes.filter(id => BY_ID[id]);
 }
 fixSettings(); fixStats();
-function saveAll() { store.set('settings', settings); store.set('stats', stats); store.set('mistakes', mistakes); }
+function saveAll(immediate = false) {
+  stats.rev = (stats.rev || 0) + 1;
+  store.set('settings', settings, false, immediate);
+  store.set('stats', stats, false, immediate);
+  store.set('mistakes', mistakes, false, immediate);
+}
 
 // Подтягиваем прогресс из облака Telegram (синхронизация между устройствами).
-// Берём облако, только если там прогресс не меньше, чем на этом устройстве (старое облако могло не сохраниться из-за лимита 4 КБ)
+// Никогда не затираем свежие локальные покупки/дипломы с тем же или большим числом ответов!
 if (cloudOk()) {
+  const bootRev = stats.rev || 0;
   try {
     cloudLoad(['settings', 'stats', 'mistakes'], c => {
       const cs = c.stats, cloudAns = cs && typeof cs === 'object' ? (cs.answered || 0) : -1;
-      if (cloudAns >= (stats.answered || 0) && cloudAns > 0) {
+      const cloudRev = cs && typeof cs === 'object' ? (cs.rev || 0) : 0;
+      const cloudHasData = !!(cs && typeof cs === 'object' && (cloudAns > 0 || cloudRev > 0 || (cs.coins || 0) > 0 || (cs.played || 0) > 0));
+      const sameSession = (stats.rev || 0) === bootRev;
+      const takeCloud = sameSession && cs && typeof cs === 'object' && (
+        (!hadLocalStats && cloudHasData) ||
+        cloudAns > (stats.answered || 0) ||
+        (cloudAns === (stats.answered || 0) && cloudRev > (stats.rev || 0))
+      );
+      if (takeCloud) {
         if (c.settings) settings = c.settings;
         stats = cs;
         if (c.mistakes) mistakes = c.mistakes;
         fixSettings(); fixStats();
-        try { if (document.getElementById('home').classList.contains('active')) renderHome(); } catch (e) {}
+        store.set('settings', settings, true);
+        store.set('stats', stats, true);
+        store.set('mistakes', mistakes, true);
+        try {
+          if (document.getElementById('home').classList.contains('active')) renderHome();
+          else if (document.getElementById('shop').classList.contains('active')) renderShop();
+          else if (document.getElementById('passport').classList.contains('active')) renderPassport();
+        } catch (e) {}
       }
-      saveAll();
-      // сразу пишем облако в новом формате и только потом удаляем старые ключи
-      cloudPut('settings', JSON.stringify(settings)); cloudPut('stats', JSON.stringify(stats)); cloudPut('mistakes', JSON.stringify(mistakes));
+      cloudPut('settings', JSON.stringify(settings));
+      cloudPut('stats', JSON.stringify(stats));
+      cloudPut('mistakes', JSON.stringify(mistakes));
       try { tg.CloudStorage.removeItems(['cq_settings', 'cq_stats', 'cq_mistakes']); } catch (e) {}
     });
   } catch (e) {}
@@ -1521,7 +1659,7 @@ function questsToday() {
 }
 function qProg(id, val, max) {
   const Q = questsToday(), it = Q.list.find(x => x.id === id);
-  if (!it || it.done) return;
+  if (!it || it.done) return false;
   it.p = max ? Math.max(it.p, val) : it.p + val;
   if (it.p >= Q_BY[id].need) {
     it.p = Q_BY[id].need; it.done = true; stats.xp += QUEST_XP;
@@ -1532,21 +1670,25 @@ function qProg(id, val, max) {
       if (game) game.xp += QUEST_ALL_XP;
       setTimeout(() => { toast(T().qBonus); confetti(40); sfx('win'); }, 1700);
     }
+    return true;
   }
+  return false;
 }
 // после каждого ответа
 function questAnswer(ok) {
-  if (!game) return;
-  if (ok && game.kind === 'errors') qProg('errors3', 1);
-  qProg('streak7', game.streak, true);
+  if (!game) return false;
+  let completed = false;
+  if (ok && game.kind === 'errors') completed = qProg('errors3', 1) || completed;
+  completed = qProg('streak7', game.streak, true) || completed;
   if (game.gen) {
-    if (game.sec === 'res') { game.qRun = ok ? (game.qRun || 0) + 1 : 0; qProg('res5', game.qRun, true); }
-    if (game.sec === 'sea' && ok) qProg('sea15', 1);
+    if (game.sec === 'res') { game.qRun = ok ? (game.qRun || 0) + 1 : 0; completed = qProg('res5', game.qRun, true) || completed; }
+    if (game.sec === 'sea' && ok) completed = qProg('sea15', 1) || completed;
   } else if (ok) {
-    if (game.mode === 'flag') qProg('flag10', 1);
-    else if (game.mode === 'shape') qProg('shape5', 1);
-    else qProg('cap15', 1);
+    if (game.mode === 'flag') completed = qProg('flag10', 1) || completed;
+    else if (game.mode === 'shape') completed = qProg('shape5', 1) || completed;
+    else completed = qProg('cap15', 1) || completed;
   }
+  return completed;
 }
 // в конце игры
 function questFinish() {
@@ -1969,8 +2111,10 @@ function resolve(ok, close) {
   if (game.type === 'exam') { const e = document.querySelector('#game .errs'); if (e) e.textContent = t.examErr(game.wrong.length, game.limit); }
   $('#reveal').innerHTML = (game.mode === 'flag' ? `${flag(q.c.id, 'sm')} <b>${esc(nm(q.c))}</b>` : `${flag(q.c.id, 'sm')} <b>${esc(cp(q.c))}</b> — ${t.capOf} ${esc(nm(q.c))}`) + (gain ? ` <span class="gain">+${gain} XP</span>` : '');
   if (game.type === 'lives') { const l = document.querySelector('#game .lives'); if (l) l.textContent = hearts(game.lives); }
+  const hadAch = game.newAch.length;
   checkAch(game);
-  questAnswer(ok); saveAll(); examSave(); hotMode(); ghost();
+  const qDone = questAnswer(ok);
+  saveAll(qDone || game.newAch.length > hadAch); examSave(); hotMode(); ghost();
   if (game.type === 'lives' && game.lives <= 0) { stopTimer(); failFx(); setTimeout(finish, 1700); return; }
   if (game.type === 'exam' && game.wrong.length > game.limit) { game.failed = true; stopTimer(); praise('❌', 'minus'); failFx(); setTimeout(finish, 1700); return; }
   const delay = game.type === 'blitz' ? (ok ? 350 : 2500) : (ok ? 900 : 1900);
@@ -2067,7 +2211,7 @@ function finish() {
     while (keys.length > 30) delete stats.daily[keys.shift()];
   }
   checkAch(game);
-  saveAll();
+  saveAll(true);
   const rankUp = rankIdx(stats.xp) > game.rank0;
   renderResult(record, best, rankUp, fastRec);
   go('result');
@@ -2920,8 +3064,10 @@ function resolveGen(ok, close) {
   $('#reveal').innerHTML = `${q.reveal}${gain ? ` <span class="gain">+${gain} XP</span>` : ''}`;
   if (game.type === 'lives') { const l = document.querySelector('#game .lives'); if (l) l.textContent = hearts(game.lives); }
   if (game.type === 'exam') { const e = document.querySelector('#game .errs'); if (e) e.textContent = t.examErr(game.wrong.length, game.limit); }
+  const hadAch = game.newAch.length;
   checkAch(game);
-  questAnswer(ok); saveAll(); examSave(); hotMode(); ghost();
+  const qDone = questAnswer(ok);
+  saveAll(qDone || game.newAch.length > hadAch); examSave(); hotMode(); ghost();
   if (game.type === 'lives' && game.lives <= 0) { stopTimer(); failFx(); setTimeout(finishGen, 1700); return; }
   if (game.type === 'exam' && game.wrong.length > game.limit) { game.failed = true; stopTimer(); praise('❌', 'minus'); failFx(); setTimeout(finishGen, 1700); return; }
   setTimeout(nextGenQ, game.type === 'blitz' ? (ok ? 350 : 2500) : (ok ? 900 : 1900));
@@ -2989,7 +3135,7 @@ function finishGen() {
   if (!game.exam && game.score > prev) { stats.genBest[game.key] = game.score; record = true; }
   if (game.type === 'blitz') stats.blitzBest = Math.max(stats.blitzBest, game.score);
   checkAch(game);
-  saveAll();
+  saveAll(true);
   const rankUp = rankIdx(stats.xp) > game.rank0;
   renderGenResult(record, rankUp, fastRec);
   go('result');
@@ -3028,9 +3174,34 @@ function renderGenResult(record, rankUp, fastRec) {
 
 // ===== ДЕТСКИЙ РЕЖИМ (без опыта, таймера и рекордов) =====
 const KIDS_IDS = ('RU BY FR DE IT ES PT ENG IE NL PL GR FI NO SE DK LT EE ' +
-  'CN JP IN TR TH VN KZ KR KP EG ZA MA US CA MX BR AR CU CL AU NZ').split(' ');
+  'CN JP IN TR TH VN KZ KR KP EG ZA MA US CA MX BR AR CU CL AU NZ ' +
+  'AT BE CH CZ HR HU IS LV RO UA ID MY PH SG AE SA LK NP MN KE TZ MG NG PE CO UY PA JM CR FJ').split(' ');
 const ENGLAND = { id: 'ENG', r: 'eu', en: { n: 'England', c: 'London' }, ru: { n: 'Англия', c: 'Лондон' } };
 const kidC = id => id === 'ENG' ? ENGLAND : BY_ID[id];
+const KID_LENGTH = 15;
+const KID_MODES = { flag: 'kFlags', cap: 'kCaps', sea: 'kSea', continent: 'kContinents', landmark: 'kLandmarks' };
+const KID_CONTINENTS = [
+  { ru: 'Европа', en: 'Europe', countries: 'FR DE IT ES PT ENG IE NO SE FI PL GR AT CH' },
+  { ru: 'Азия', en: 'Asia', countries: 'CN JP IN TH VN KR ID PH SG NP MN SA' },
+  { ru: 'Африка', en: 'Africa', countries: 'ZA MA KE TZ MG NG' },
+  { ru: 'Северная Америка', en: 'North America', countries: 'CA US MX CU JM CR PA' },
+  { ru: 'Южная Америка', en: 'South America', countries: 'BR AR CL PE CO UY' },
+  { ru: 'Австралия и Океания', en: 'Australia and Oceania', countries: 'AU NZ FJ' }
+];
+const KID_CONTINENT_POOL = KID_CONTINENTS.flatMap((part, right) =>
+  part.countries.split(' ').map(id => ({ c: kidC(id), right })));
+const KID_LANDMARKS = [
+  ['FR', 'Эйфелева башня', 'Eiffel Tower'], ['IT', 'Колизей', 'Colosseum'],
+  ['CN', 'Великая Китайская стена', 'Great Wall of China'], ['IN', 'Тадж-Махал', 'Taj Mahal'],
+  ['EG', 'Пирамиды Гизы', 'Pyramids of Giza'], ['US', 'Статуя Свободы', 'Statue of Liberty'],
+  ['BR', 'Статуя Христа в Рио', 'Christ the Redeemer'], ['AU', 'Сиднейский оперный театр', 'Sydney Opera House'],
+  ['GB', 'Биг-Бен', 'Big Ben'], ['ES', 'Саграда Фамилия', 'Sagrada Familia'],
+  ['PE', 'Мачу-Пикчу', 'Machu Picchu'], ['KH', 'Ангкор-Ват', 'Angkor Wat'],
+  ['DE', 'Бранденбургские ворота', 'Brandenburg Gate'], ['JP', 'Гора Фудзи', 'Mount Fuji'],
+  ['GR', 'Афинский Акрополь', 'Acropolis of Athens'], ['AE', 'Бурдж-Халифа', 'Burj Khalifa'],
+  ['MX', 'Чичен-Ица', 'Chichen Itza'], ['JO', 'Древний город Петра', 'Ancient city of Petra'],
+  ['RU', 'Собор Василия Блаженного', 'Saint Basil’s Cathedral'], ['SG', 'Парк «Сады у залива»', 'Gardens by the Bay']
+];
 // Детские моря: 4 океана и 9 морей
 const KIDW = 'pacific atlantic indian arctic black med red baltic caribbean japan caspian barents white'.split(' ');
 function kidSea(c) {
@@ -3042,33 +3213,47 @@ function kidSea(c) {
   return { right, opts: shuffle([right, ...shuffle(KIDW.filter(id => !ban.has(id))).slice(0, 3)]) };
 }
 const KIDS_FLAGS = KIDS_IDS.map(kidC).filter(Boolean);
-const KIDS_CAPS = KIDS_FLAGS; // все 39 стран и во флагах, и в столицах
 function kidFlag(c, cls) {
   const code = c.id === 'ENG' ? 'gb-eng' : c.id.toLowerCase();
   const emo = c.id === 'ENG' ? '🏴' : emojiFlag(c.id);
   return `<span class="fl ${cls}"><img src="https://flagcdn.com/w320/${code}.png" alt="" onerror="this.parentNode.textContent='${emo}'"></span>`;
 }
 let kgame = null;
+const kidTitle = (t, mode) => t[KID_MODES[mode]];
+function kidAnswerLabel(mode, id) {
+  const lang = settings.lang;
+  if (mode === 'sea') return wName(W[id]);
+  if (mode === 'continent') return KID_CONTINENTS[id][lang];
+  const country = kidC(id)[lang];
+  return mode === 'cap' ? country.c : country.n;
+}
+const kidOptions = (right, options) => shuffle([right, ...shuffle(options.filter(id => id !== right)).slice(0, 3)]);
 
 function renderKids() {
   const t = T();
   $('#kids').innerHTML = `
     <header><button class="back" data-act="home">‹ ${t.back}</button><div style="flex:1"><h1>👶 ${t.kidsTitle}</h1><div class="sub">${t.kidsSub}</div></div></header>
-    <button class="daily kflag" data-act="kstart" data-v="flag"><b>${t.kFlags}</b><span>${t.kCount(KIDS_FLAGS.length)}</span></button>
-    <button class="daily kcap" data-act="kstart" data-v="cap"><b>${t.kCaps}</b><span>${t.kCount(KIDS_CAPS.length)}</span></button>
-    <button class="daily ksea" data-act="kstart" data-v="sea"><b>${t.kSea}</b><span>${t.kCount(KIDS_FLAGS.filter(c => kidSea(c)).length)}</span></button>
+    ${Object.keys(KID_MODES).map(mode => `<button class="daily k${mode}" data-act="kstart" data-v="${mode}"><b>${kidTitle(t, mode)}</b><span>${t.kCount(KID_LENGTH)}</span></button>`).join('')}
     <div class="type-hint" style="text-align:center;margin-top:6px">${t.kidsNote}</div>`;
 }
 
 function startKids(mode) {
+  if (!Object.prototype.hasOwnProperty.call(KID_MODES, mode)) return;
   endGame();
-  let qs;
+  let pool;
   if (mode === 'sea') {
-    qs = shuffle(KIDS_FLAGS.filter(c => kidSea(c))).slice(0, 10).map(c => Object.assign({ c }, kidSea(c)));
+    pool = KIDS_FLAGS.flatMap(c => { const sea = kidSea(c); return sea ? [{ c, ...sea }] : []; });
+  } else if (mode === 'continent') {
+    const parts = KID_CONTINENTS.map((_, i) => i);
+    pool = KID_CONTINENT_POOL.map(q => ({ ...q, opts: kidOptions(q.right, parts) }));
+  } else if (mode === 'landmark') {
+    const countries = KID_LANDMARKS.map(([id]) => id);
+    pool = KID_LANDMARKS.map(([id, ru, en]) => ({ c: kidC(id), place: { ru, en }, right: id, opts: kidOptions(id, countries) }));
   } else {
-    const pool = mode === 'flag' ? KIDS_FLAGS : KIDS_CAPS;
-    qs = shuffle(pool).slice(0, 10).map(c => ({ c, right: c.id, opts: shuffle([c, ...shuffle(pool.filter(x => x.id !== c.id)).slice(0, 3)]).map(x => x.id) }));
+    const countries = KIDS_FLAGS.map(c => c.id);
+    pool = KIDS_FLAGS.map(c => ({ c, right: c.id, opts: kidOptions(c.id, countries) }));
   }
+  const qs = shuffle(pool).slice(0, KID_LENGTH);
   kgame = { mode, qs, i: 0, score: 0, locked: false, over: false };
   go('game');
   renderKidsQ();
@@ -3076,16 +3261,16 @@ function startKids(mode) {
 
 function renderKidsQ() {
   const t = T(), q = kgame.qs[kgame.i], c = q.c, n = kgame.qs.length, L = settings.lang;
-  const label = id => kgame.mode === 'sea' ? wName(W[id]) : kgame.mode === 'flag' ? kidC(id)[L].n : kidC(id)[L].c;
-  const qHtml = kgame.mode === 'flag'
-    ? `${kidFlag(c, 'kid')}<small>${t.kQFlag}</small>`
-    : `${kidFlag(c, 'kid')}<small>${kgame.mode === 'sea' ? t.kQSea : t.kQCap}</small><h2>${esc(c[L].n)}</h2>`;
+  const mode = kgame.mode;
+  const prompt = { flag: t.kQFlag, cap: t.kQCap, sea: t.kQSea, continent: t.kQContinent, landmark: t.kQLandmark }[mode];
+  const image = q.place ? '' : kidFlag(c, 'kid');
+  const subject = mode === 'flag' ? '' : `<h2>${esc(q.place ? q.place[L] : c[L].n)}</h2>`;
   $('#game').innerHTML = `
-    <div class="top"><span>👶 ${kgame.mode === 'flag' ? t.kFlags : kgame.mode === 'sea' ? t.kSea : t.kCaps}</span><span>${kgame.i + 1} / ${n}</span></div>
+    <div class="top"><span>👶 ${kidTitle(t, mode)}</span><span>${kgame.i + 1} / ${n}</span></div>
     <div class="bar"><i style="width:${kgame.i / n * 100}%"></i></div>
     <div class="top"><span>⭐ ${kgame.score}</span><span></span></div>
-    <div class="q">${qHtml}</div>
-    <div class="opts kid">${q.opts.map((id, k) => `<button class="opt" data-key="${k + 1}" data-act="kopt" data-id="${id}">${esc(label(id))}</button>`).join('')}</div>
+    <div class="q">${image}<small>${prompt}</small>${subject}</div>
+    <div class="opts kid">${q.opts.map((id, k) => `<button class="opt" data-key="${k + 1}" data-act="kopt" data-id="${id}">${esc(kidAnswerLabel(mode, id))}</button>`).join('')}</div>
     <div class="reveal" id="reveal"></div>
     <div class="tools"><button class="link" data-act="kquit">✕ ${t.quit}</button><span></span></div>`;
   kgame.locked = false;
@@ -3094,10 +3279,10 @@ function renderKidsQ() {
 function answerKids(id) {
   if (!kgame || kgame.locked || kgame.over) return;
   kgame.locked = true;
-  const t = T(), q = kgame.qs[kgame.i], ok = id === q.right, L = settings.lang;
+  const round = kgame, t = T(), q = round.qs[round.i], ok = id === String(q.right);
   document.querySelectorAll('.opt').forEach(b => {
     b.disabled = true;
-    if (b.dataset.id === q.right) b.classList.add('ok');
+    if (b.dataset.id === String(q.right)) b.classList.add('ok');
     else if (b.dataset.id === id) b.classList.add('soft'); // мягкая ошибка — без красного
   });
   if (ok) {
@@ -3105,10 +3290,10 @@ function answerKids(id) {
     praise(t.kPraise[Math.floor(Math.random() * t.kPraise.length)]);
     confetti(20); sfx('ok'); haptic('success');
   } else {
-    const right = kgame.mode === 'sea' ? wName(W[q.right]) : kgame.mode === 'flag' ? q.c[L].n : q.c[L].c;
+    const right = kidAnswerLabel(round.mode, q.right);
     $('#reveal').innerHTML = `${t.kAlmost} <b>${esc(right)}</b> ${kidFlag(q.c, 'sm')}`;
   }
-  setTimeout(nextKidsQ, ok ? 1100 : 2300);
+  setTimeout(() => { if (kgame === round) nextKidsQ(); }, ok ? 1100 : 2300);
 }
 
 function nextKidsQ() {
@@ -3120,16 +3305,17 @@ function nextKidsQ() {
 function finishKids() {
   kgame.over = true;
   const t = T(), s = kgame.score, n = kgame.qs.length;
-  const stars = s >= n ? '⭐⭐⭐' : s >= 7 ? '⭐⭐' : '⭐';
+  const good = s >= Math.ceil(n * 0.7);
+  const stars = s >= n ? '⭐⭐⭐' : good ? '⭐⭐' : '⭐';
   $('#result').innerHTML = `
-    <div class="top"><span>👶 ${kgame.mode === 'flag' ? t.kFlags : kgame.mode === 'sea' ? t.kSea : t.kCaps}</span><span></span></div>
+    <div class="top"><span>👶 ${kidTitle(t, kgame.mode)}</span><span></span></div>
     <div class="stars">${stars}</div>
     <div class="big-score">${t.kDone(s, n)}</div>
-    <div class="pct">${s >= 7 ? t.kGreat : t.kTry}</div>
+    <div class="pct">${good ? t.kGreat : t.kTry}</div>
     <button class="btn" data-act="kstart" data-v="${kgame.mode}">↻ ${t.kAgain}</button>
     <button class="btn sec" data-act="kids">👶 ${t.kBack}</button>`;
   go('result');
-  setTimeout(() => { confetti(s >= 7 ? 120 : 60); sfx('win'); haptic('success'); }, 250);
+  setTimeout(() => { confetti(good ? 120 : 60); sfx('win'); haptic('success'); }, 250);
 }
 
 // ===== СПРАВОЧНИК + 3D-ГЛОБУС =====
@@ -3448,7 +3634,7 @@ const WEAR_ITEMS = [
   { id: 'head_hoodie_red', z: 'head', file: 'hoodie_red', g: ['m'],     price: 150,  r: 'common', ru: 'Синяя кепка',       en: 'Navy cap' },
   { id: 'head_beach',      z: 'head', file: 'beach',      g: ['m','f'], price: 250,  r: 'rare',   ru: 'Панама и очки',     en: 'Bucket hat & shades' },
   { id: 'head_safari',     z: 'head', file: 'safari',     g: ['m','f'], price: 350,  r: 'rare',   ru: 'Шляпа сафари',      en: 'Safari hat' },
-  { id: 'head_exped',      z: 'head', file: 'exped',      g: ['m','f'], price: 450,  r: 'epic',   ru: 'Очки авиаторы',     en: 'Aviator shades' },
+  { id: 'head_exped',      z: 'head', file: 'exped',      g: ['m','f'], price: 420,  r: 'rare',   ru: 'Очки авиаторы',     en: 'Aviator shades' },
   { id: 'head_photo',      z: 'head', file: 'photo',      g: ['m'],     price: 520,  r: 'epic',   ru: 'Шляпа фотографа',   en: 'Explorer hat' },
   { id: 'head_captain',    z: 'head', file: 'captain',    g: ['m','f'], price: 800,  r: 'leg',    ru: 'Фуражка капитана',  en: 'Captain cap' },
   // Верх
@@ -3456,8 +3642,11 @@ const WEAR_ITEMS = [
   { id: 'top_hoodie_blue', z: 'top',  file: 'hoodie_blue',g: ['m','f'], price: 200,  r: 'common', ru: 'Синее худи с рюкзаком', en: 'Navy hoodie & pack' },
   { id: 'top_hoodie_red',  z: 'top',  file: 'hoodie_red', g: ['m'],     price: 220,  r: 'common', ru: 'Красное худи',      en: 'Red hoodie' },
   { id: 'top_beach',       z: 'top',  file: 'beach',      g: ['m','f'], price: 320,  r: 'rare',   ru: 'Гавайская рубашка', en: 'Hawaiian shirt' },
+  { id: 'top_softshell',   z: 'top',  file: 'softshell',  g: ['m','f'], price: 420,  r: 'rare',   ru: 'Куртка софтшелл',   en: 'Softshell jacket' },
   { id: 'top_safari',      z: 'top',  file: 'safari',     g: ['m','f'], price: 450,  r: 'rare',   ru: 'Жилет сафари',      en: 'Safari vest' },
   { id: 'top_photo',       z: 'top',  file: 'photo',      g: ['m'],     price: 600,  r: 'epic',   ru: 'Набор фотографа',   en: 'Photographer pack' },
+  { id: 'top_ski',         z: 'top',  file: 'ski',        g: ['m','f'], price: 620,  r: 'epic',   ru: 'Горнолыжная куртка',en: 'Ski jacket' },
+  { id: 'top_parka',       z: 'top',  file: 'parka',      g: ['m','f'], price: 680,  r: 'epic',   ru: 'Парка полярника',   en: 'Polar parka' },
   { id: 'top_exped',       z: 'top',  file: 'exped',      g: ['m','f'], price: 750,  r: 'epic',   ru: 'Куртка экспедиции', en: 'Expedition jacket' },
   { id: 'top_captain',     z: 'top',  file: 'captain',    g: ['m','f'], price: 1000, r: 'leg',    ru: 'Китель капитана',   en: 'Captain coat' },
   // Низ
@@ -3466,11 +3655,14 @@ const WEAR_ITEMS = [
   { id: 'bot_hoodie_red',  z: 'bottom', file: 'hoodie_red', g: ['m'],     price: 200,  r: 'common', ru: 'Тёмные джинсы',    en: 'Dark jeans' },
   { id: 'bot_beach',       z: 'bottom', file: 'beach',      g: ['m','f'], price: 220,  r: 'common', ru: 'Пляжные шорты',    en: 'Beach shorts' },
   { id: 'bot_safari',      z: 'bottom', file: 'safari',     g: ['m','f'], price: 350,  r: 'rare',   ru: 'Брюки карго',      en: 'Cargo pants' },
+  { id: 'bot_winter',      z: 'bottom', file: 'winter',     g: ['m','f'], price: 380,  r: 'rare',   ru: 'Зимние брюки',      en: 'Winter pants' },
   { id: 'bot_photo',       z: 'bottom', file: 'photo',      g: ['m'],     price: 400,  r: 'rare',   ru: 'Хаки-карго',       en: 'Khaki cargo' },
+  { id: 'bot_ski',         z: 'bottom', file: 'ski',        g: ['m','f'], price: 460,  r: 'epic',   ru: 'Горнолыжные брюки', en: 'Ski pants' },
   { id: 'bot_exped',       z: 'bottom', file: 'exped',      g: ['m','f'], price: 480,  r: 'epic',   ru: 'Походные брюки',   en: 'Expedition pants' },
   { id: 'bot_captain',     z: 'bottom', file: 'captain',    g: ['m','f'], price: 650,  r: 'leg',    ru: 'Брюки капитана',   en: 'Captain trousers' },
   // Обувь
   { id: 'sho_base',        z: 'shoes', file: 'base',       g: ['m','f'], price: 0,    r: 'common', ru: 'Белые кеды',        en: 'White sneakers' },
+  { id: 'sho_blush',       z: 'shoes', file: 'blush',      g: ['f'],     price: 180,  r: 'common', ru: 'Пудровые кроссовки', en: 'Blush sneakers' },
   { id: 'sho_beach',       z: 'shoes', file: 'beach',      g: ['m','f'], price: 150,  r: 'common', ru: 'Пляжные сланцы',    en: 'Flip-flops' },
   { id: 'sho_safari',      z: 'shoes', file: 'safari',     g: ['m','f'], price: 320,  r: 'rare',   ru: 'Треккинговые ботинки', en: 'Hiking boots' },
   { id: 'sho_hoodie_red',  z: 'shoes', file: 'hoodie_red', g: ['m'],     price: 380,  r: 'rare',   ru: 'Ботинки-вездеходы', en: 'Trail boots' },
@@ -3478,25 +3670,41 @@ const WEAR_ITEMS = [
 ];
 const WEAR_BY = Object.fromEntries(WEAR_ITEMS.map(x => [x.id, x]));
 
-// Снаряжение и аксессуары (из нарезанных 3D-иконок art/items/)
+// Гаджеты и аксессуары — отображаются как пиктограммы на полочке у персонажа
 const GEAR_ITEMS = [
-  { id: 'g_phone_smart',   slot: 'tech',   img: 'phone_smart',      price: 150, r: 'common', ru: 'Смартфон',          en: 'Smartphone' },
-  { id: 'g_phone_rugged',  slot: 'tech',   img: 'phone_rugged',     price: 380, r: 'rare',   ru: 'Защищённый смартфон', en: 'Rugged phone' },
-  { id: 'g_ear_wired',     slot: 'audio',  img: 'earphones_wired',  price: 120, r: 'common', ru: 'Проводные наушники', en: 'Wired earphones' },
-  { id: 'g_earbuds',       slot: 'audio',  img: 'earbuds',          price: 300, r: 'rare',   ru: 'Беспроводные наушники', en: 'Wireless earbuds' },
-  { id: 'g_headphones',    slot: 'audio',  img: 'headphones',       price: 500, r: 'epic',   ru: 'Накладные наушники', en: 'Studio headphones' },
-  { id: 'g_watch_classic', slot: 'watch',  img: 'watch_classic',    price: 200, r: 'common', ru: 'Классические часы', en: 'Classic watch' },
-  { id: 'g_watch_gps',     slot: 'watch',  img: 'watch_gps',        price: 550, r: 'epic',   ru: 'GPS-часы туриста',  en: 'GPS expedition watch' },
-  { id: 'g_wayfarer',      slot: 'glasses',img: 'glasses_wayfarer', price: 180, r: 'common', ru: 'Солнечные очки',    en: 'Wayfarer shades' },
-  { id: 'g_aviator',       slot: 'glasses',img: 'glasses_aviator',  price: 340, r: 'rare',   ru: 'Авиаторы',          en: 'Aviator glasses' },
-  { id: 'g_goggles',       slot: 'glasses',img: 'goggles_ski',      price: 480, r: 'epic',   ru: 'Горнолыжная маска', en: 'Ski goggles' },
-  { id: 'g_softshell',     slot: 'pack',   img: 'jacket_softshell', price: 420, r: 'rare',   ru: 'Куртка софтшелл',   en: 'Softshell jacket' },
-  { id: 'g_parka',         slot: 'pack',   img: 'parka_polar',      price: 680, r: 'epic',   ru: 'Парка полярника',   en: 'Polar parka' },
-  { id: 'g_ski',           slot: 'pack',   img: 'jacket_ski',       price: 620, r: 'epic',   ru: 'Горнолыжная куртка',en: 'Ski jacket' }
+  { id: 'g_phone_smart',   slot: 'tech',    img: 'phone_smart',      price: 150, r: 'common', ru: 'Смартфон',              en: 'Smartphone' },
+  { id: 'g_phone_rugged',  slot: 'tech',    img: 'phone_rugged',     price: 380, r: 'rare',   ru: 'Защищённый смартфон',   en: 'Rugged phone' },
+  { id: 'g_ear_wired',     slot: 'audio',   img: 'earphones_wired',  price: 120, r: 'common', ru: 'Проводные наушники',    en: 'Wired earphones' },
+  { id: 'g_earbuds',       slot: 'audio',   img: 'earbuds',          price: 300, r: 'rare',   ru: 'Беспроводные наушники', en: 'Wireless earbuds' },
+  { id: 'g_headphones',    slot: 'audio',   img: 'headphones',       price: 500, r: 'epic',   ru: 'Накладные наушники',    en: 'Studio headphones' },
+  { id: 'g_watch_classic', slot: 'watch',   img: 'watch_classic',    price: 200, r: 'common', ru: 'Классические часы',     en: 'Classic watch' },
+  { id: 'g_watch_gps',     slot: 'watch',   img: 'watch_gps',        price: 550, r: 'epic',   ru: 'GPS-часы туриста',      en: 'GPS expedition watch' },
+  { id: 'g_wayfarer',      slot: 'glasses', img: 'glasses_wayfarer', price: 180, r: 'common', ru: 'Солнечные очки',        en: 'Wayfarer shades' },
+  { id: 'g_aviator',       slot: 'glasses', img: 'glasses_aviator',  price: 340, r: 'rare',   ru: 'Очки авиаторы',         en: 'Aviator shades' },
+  { id: 'g_goggles',       slot: 'glasses', img: 'goggles_ski',      price: 480, r: 'epic',   ru: 'Горнолыжная маска',     en: 'Ski goggles' },
+  { id: 'g_glasses_rect', slot: 'glasses', img: 'glasses_rect', g: 'f', price: 220, r: 'rare', ru: 'Узкие прямоугольные очки', en: 'Slim rectangle shades' },
+  { id: 'g_glasses_cateye', slot: 'glasses', img: 'glasses_metal', g: 'f', price: 360, r: 'epic', ru: 'Очки в металлической оправе', en: 'Metal-frame shades' },
+  { id: 'g_camera_film',   slot: 'camera',  img: 'camera_film',     price: 320, r: 'rare',   ru: 'Плёночный фотоаппарат', en: 'Film camera' }
 ];
-const GEAR_BY = Object.fromEntries(GEAR_ITEMS.map(x => [x.id, x]));
+const BAG_ITEMS = [
+  { id: 'g_bag_canvas', slot: 'bag_m', img: 'bag_canvas', price: 150, r: 'common', ru: 'Городская сумка', en: 'Canvas crossbody' },
+  { id: 'g_bag_carryon', slot: 'bag_m', img: 'bag_carryon', price: 420, r: 'epic', ru: 'Чемодан для ручной клади', en: 'Rolling carry-on' },
+  { id: 'g_bag_ivory', slot: 'bag_f', img: 'bag_ivory', price: 150, r: 'common', ru: 'Молочная мини-сумка', en: 'Ivory mini bag' },
+  { id: 'g_bag_rose', slot: 'bag_f', img: 'bag_rose', price: 280, r: 'rare', ru: 'Пудровая сумка-багет', en: 'Rose baguette bag' },
+  { id: 'g_bag_burgundy', slot: 'bag_f', img: 'bag_burgundy', price: 500, r: 'epic', ru: 'Бордовая сумка с цепочкой', en: 'Burgundy chain bag' },
+  { id: 'g_bag_emerald', slot: 'bag_f', img: 'bag_emerald', price: 720, r: 'leg', ru: 'Изумрудная сумка с золотой застёжкой', en: 'Emerald top-handle bag' }
+];
+const GEAR_BY = Object.fromEntries([...GEAR_ITEMS, ...BAG_ITEMS].map(x => [x.id, x]));
+const gearFits = (item, g) => (!item.g || item.g === g) && (!item.slot.startsWith('bag_') || item.slot === 'bag_' + g);
+const isAccessory = item => item.slot === 'glasses' || item.slot === 'watch';
+const gearEquipKey = (slot, g) => slot === 'glasses' && g === 'f' ? 'glasses_f' : slot;
+function equippedGearId(slot, g) {
+  const key = gearEquipKey(slot, g);
+  return Object.prototype.hasOwnProperty.call(stats.gearEquip, key) ? stats.gearEquip[key] : stats.gearEquip[slot];
+}
+const gearImage = item => item.slot === 'glasses' ? item.img + '_front' : item.img;
 
-// Кухня / сувениры мира (открываются после угадывания страны!)
+// Кухня / сувениры мира (открываются после угадывания страны, держатся 5 дней)
 const FOOD_ITEMS = [
   { id: 'food_croissant', c: 'FR', price: 90,  r: 'common', ru: 'Круассан',           en: 'Croissant' },
   { id: 'food_pizza',     c: 'IT', price: 90,  r: 'common', ru: 'Пицца Пепперони',    en: 'Pepperoni pizza' },
@@ -3512,6 +3720,31 @@ const FOOD_ITEMS = [
   { id: 'food_mate',      c: 'AR', price: 180, r: 'epic',   ru: 'Аргентинский мате',  en: 'Argentine mate' }
 ];
 const FOOD_BY = Object.fromEntries(FOOD_ITEMS.map(x => [x.id, x]));
+
+function pruneFood() {
+  const now = Date.now();
+  if (!stats.foodExp || typeof stats.foodExp !== 'object') stats.foodExp = {};
+  const keep = [];
+  let changed = false;
+  stats.foodOwned.forEach(id => {
+    if (!FOOD_BY[id]) { changed = true; return; }
+    if (!stats.foodExp[id]) { stats.foodExp[id] = now + FOOD_TTL; changed = true; }
+    if (stats.foodExp[id] > now) keep.push(id);
+    else { delete stats.foodExp[id]; changed = true; }
+  });
+  Object.keys(stats.foodExp).forEach(id => {
+    if (!keep.includes(id)) { delete stats.foodExp[id]; changed = true; }
+  });
+  if (changed) stats.foodOwned = keep;
+  return changed;
+}
+pruneFood();
+function foodRemainText(id) {
+  const exp = stats.foodExp && stats.foodExp[id];
+  if (!exp) return '';
+  const ms = Math.max(0, exp - Date.now());
+  return T().foodLeft(Math.ceil(ms / 86400000), Math.ceil(ms / 3600000));
+}
 
 // 5 суператрибутов: НЕЛЬЗЯ КУПИТЬ — только за полный экзамен «Весь мир» (обычный за сдачу, золотой за A+)
 const SUPER_ITEMS = [
@@ -3552,7 +3785,7 @@ function claimCheckin() {
   const amt = checkinAmount();
   stats.checkin = localDay();
   stats.coins = (stats.coins || 0) + amt;
-  saveAll();
+  saveAll(true);
   toast(T().checkinGot(amt));
   confetti(25); sfx('ok'); haptic('success');
   if ($('#home').classList.contains('active')) renderHome();
@@ -3564,25 +3797,48 @@ function checkinCard() {
   return `<button class="checkin" data-act="checkin"><i>🎁</i><div><b>${t.checkinTitle(n)}</b><span>${t.checkinSub}</span></div><em>${t.checkinClaim(amt)}</em></button>`;
 }
 
-// Сборка HTML слоёв персонажа (4 зоны: bottom -> shoes -> top -> head)
+// Сборка HTML слоёв персонажа (4 чистых слоя: bottom -> shoes -> top -> head)
 function curEquip(g, preview) {
   const eq = Object.assign({ head: 'base', top: 'base', bottom: 'base', shoes: 'base' }, stats.equip[g] || {});
-  if (preview && preview.z && preview.file) eq[preview.z] = preview.file;
+  if (preview && !preview.isGear && preview.z && preview.file) eq[preview.z] = preview.file;
   return eq;
 }
+const DRESS_STYLES = [
+  { file: 'dress', ru: 'Тёмно-синее платье', en: 'Navy dress' },
+  { file: 'dress_sage', ru: 'Шалфейное платье', en: 'Sage dress' }
+];
+function baseDressStyle(g, eq) {
+  if (g !== 'f' || eq.top !== 'base' || eq.bottom !== 'base' || eq.baseDress === false) return '';
+  return DRESS_STYLES.find(style => style.file === eq.baseDress)?.file || DRESS_STYLES[0].file;
+}
+function avatarBottomFile(eq, dress) {
+  if (dress) return eq.shoes === 'base' ? 'dress_sandals' : 'dress';
+  return eq.bottom;
+}
 function charLayersHtml(g, eq) {
+  const dress = baseDressStyle(g, eq);
+  const sandals = dress && eq.shoes === 'base';
   return `
-    <img class="z-bot" src="art/char/${g}/bottom_${eq.bottom}.webp" alt="" onerror="this.src='art/char/${g}/bottom_base.webp'">
-    <img class="z-sho" src="art/char/${g}/shoes_${eq.shoes}.webp" alt="" onerror="this.src='art/char/${g}/shoes_base.webp'">
-    <img class="z-top" src="art/char/${g}/top_${eq.top}.webp" alt="" onerror="this.src='art/char/${g}/top_base.webp'">
+    <img class="z-bot" src="art/char/${g}/bottom_${avatarBottomFile(eq, dress)}.webp" alt="" onerror="this.src='art/char/${g}/bottom_base.webp'">
+    <img class="z-sho" src="art/char/${g}/shoes_${sandals ? 'sandals' : eq.shoes}.webp" alt="" onerror="this.src='art/char/${g}/shoes_base.webp'">
+    <img class="z-top" src="art/char/${g}/top_${dress || eq.top}.webp" alt="" onerror="this.src='art/char/${g}/top_base.webp'">
     <img class="z-hed" src="art/char/${g}/head_${eq.head}.webp" alt="" onerror="this.src='art/char/${g}/head_base.webp'">`;
+}
+function avatarAccessoriesHtml(g, preview) {
+  return [['glasses', 'glasses'], ['watch', 'watch'], ['camera', 'camera'], ['bag_' + g, 'bag']].map(([slot, layer]) => {
+    const item = preview && preview.isGear && preview.slot === slot ? preview : GEAR_BY[equippedGearId(slot, g)];
+    const style = item?.id === 'g_bag_carryon' ? 'carryon' : layer;
+    if (!item || item.slot !== slot || !gearFits(item, g)) return '';
+    return `<img class="avatar-${style} ${item.id}" src="art/items/${gearImage(item)}.webp" alt="">`;
+  }).join('');
 }
 function charMiniHtml() {
   const g = stats.gender || 'm', eq = curEquip(g);
-  return `<div class="char-mini">${charLayersHtml(g, eq)}</div>`;
+  return `<div class="char-mini ${g}${eq.shoes === 'blush' ? ' straight-shoes' : ''}">${charLayersHtml(g, eq)}<div class="avatar-accessories ${g}">${avatarAccessoriesHtml(g)}</div></div>`;
 }
 
-let shopTab = 'wear', shopZone = 'head', shopPreview = null, adTimer = null;
+let shopTab = 'wear', shopZone = 'head', shopPreview = null, adTimer = null, shopBuilt = false, foodModalId = null;
+const charReady = new Set();
 function isWearOwned(item) { return item.price === 0 || stats.owned.includes(item.id); }
 function rarityText(r) {
   const t = T();
@@ -3592,33 +3848,68 @@ function combosTotal(g) {
   const cnt = z => WEAR_ITEMS.filter(x => x.z === z && x.g.includes(g)).length;
   return cnt('head') * cnt('top') * cnt('bottom') * cnt('shoes');
 }
+function swapDollLayer(img, src, fallback) {
+  if (!img || (img.dataset.want === src && img.dataset.cur === src)) return;
+  img.dataset.want = src;
+  if (charReady.has(src) || !img.dataset.cur) {
+    img.onerror = () => { img.src = fallback; img.dataset.cur = fallback; };
+    img.src = src;
+    img.dataset.cur = src;
+    charReady.add(src);
+    return;
+  }
+  const pre = new Image();
+  pre.onload = () => {
+    charReady.add(src);
+    if (img.dataset.want === src) {
+      img.onerror = () => { img.src = fallback; img.dataset.cur = fallback; };
+      img.src = src;
+      img.dataset.cur = src;
+    }
+  };
+  pre.onerror = () => {
+    if (img.dataset.want === src) {
+      img.src = fallback;
+      img.dataset.cur = fallback;
+    }
+  };
+  pre.src = src;
+}
+function preloadShopZone(g, z) {
+  WEAR_ITEMS.filter(x => x.z === z && x.g.includes(g)).forEach(it => {
+    const src = `art/char/${g}/${z}_${it.file}.webp`;
+    if (charReady.has(src)) return;
+    const im = new Image();
+    im.onload = () => charReady.add(src);
+    im.src = src;
+  });
+}
 
 function openShop(tab) {
   endGame();
+  if (pruneFood()) saveAll(true);
   if (tab) shopTab = tab;
   shopPreview = null;
   renderShop();
   go('shop');
 }
 
+function foodIconHtml(it, lang) {
+  const img = `<img src="art/items/${it.id}.webp" alt="${esc(it[lang])}" loading="lazy">`;
+  return it.id === 'food_croissant'
+    ? `<button type="button" class="sitem-img food-zoom" data-act="zoomfood" aria-pressed="false">${img}</button>`
+    : `<div class="sitem-img">${img}</div>`;
+}
+function toggleFoodZoom(button) {
+  if (button) button.setAttribute('aria-pressed', String(button.getAttribute('aria-pressed') !== 'true'));
+}
+
 function renderShop() {
+  if (pruneFood()) saveAll(true);
   const t = T(), L = settings.lang, g = stats.gender || 'm';
   const eq = curEquip(g, shopPreview);
   const supSt = superStatusAll();
   const supGotList = SUPER_ITEMS.filter(s => supSt[s.id]);
-
-  // Левая боковая полочка у персонажа: 3 слота экипировки (tech/audio, watch, glasses)
-  const sideSlotsL = [
-    { slot: 'tech', fallback: '📱' },
-    { slot: 'audio', fallback: '🎧' },
-    { slot: 'watch', fallback: '⌚' },
-    { slot: 'glasses', fallback: '🕶' }
-  ].map(s => {
-    const id = stats.gearEquip[s.slot], it = id && GEAR_BY[id];
-    return it
-      ? `<button class="slot-ico" data-act="shoptab" data-v="gear" title="${esc(it[L])}"><img src="art/items/${it.img}.webp" alt=""></button>`
-      : `<button class="slot-ico empty" data-act="shoptab" data-v="gear">${s.fallback}</button>`;
-  }).join('');
 
   // Правая боковая полочка: суператрибуты (до 3 верхних заработанных или заглушка)
   const sideSlotsR = (supGotList.length ? supGotList.slice(0, 3) : SUPER_ITEMS.slice(0, 3)).map(s => {
@@ -3630,27 +3921,40 @@ function renderShop() {
 
   const prevBar = shopPreview ? `
     <div class="preview-bar">
-      <div><b>${esc(shopPreview[L])}</b><small>${t.tryOn} · ${rarityText(shopPreview.r)}</small></div>
-      <button class="btn sec" data-act="tryclear">${t.resetTry}</button>
-      <button class="btn" data-act="buywear" data-id="${shopPreview.id}">${t.buyNow(shopPreview.price)}</button>
+      <div class="preview-info"><b>${esc(shopPreview[L])}</b><small>${t.tryOn} · ${rarityText(shopPreview.r)}</small></div>
+      <div class="preview-btns">
+        <button class="btn sec" data-act="tryclear">${t.resetTry}</button>
+        <button class="btn" data-act="${shopPreview.isGear ? 'buygear' : 'buywear'}" data-id="${shopPreview.id}">${t.buyNow(shopPreview.price)}</button>
+      </div>
     </div>` : '';
 
   let bodyHtml = '';
   if (shopTab === 'wear') {
     const zones = [['head', t.zHead], ['top', t.zTop], ['bottom', t.zBot], ['shoes', t.zShoes]];
     const list = WEAR_ITEMS.filter(x => x.z === shopZone && x.g.includes(g));
+    const dressOn = baseDressStyle(g, stats.equip[g]);
+    const dressCards = g === 'f' && shopZone === 'top' ? DRESS_STYLES.map(style => {
+      const selected = dressOn === style.file;
+      return `<div class="sitem${selected ? ' eq' : ''}" data-act="basedress" data-v="${style.file}">
+        <div class="sitem-img"><img src="art/thumbs/f_top_${style.file}.webp" alt="${style[L]}" loading="lazy"></div>
+        <div class="sitem-name">${style[L]}</div>
+        <button type="button" class="sitem-act${selected ? ' on' : ''}" data-act="basedress" data-v="${style.file}">${selected ? t.equipped : t.equip}</button>
+      </div>`;
+    }).join('') : '';
     bodyHtml = `
       <div class="sub-tabs">${zones.map(([zk, zl]) => `<button class="${shopZone === zk ? 'on' : ''}" data-act="shopzone" data-v="${zk}">${zl}</button>`).join('')}</div>
-      <div class="shop-grid">${list.map(it => {
-        const own = isWearOwned(it), isEq = stats.equip[g][it.z] === it.file, isTry = shopPreview && shopPreview.id === it.id;
+      <div class="shop-grid">${dressCards}${list.map(it => {
+        const own = isWearOwned(it), isEq = stats.equip[g][it.z] === it.file && !(dressOn && ['top', 'bottom'].includes(it.z)), isTry = shopPreview && shopPreview.id === it.id;
+        const sandals = dressOn && it.z === 'shoes' && it.file === 'base';
+        const name = sandals ? (L === 'ru' ? 'Босоножки' : 'Sandals') : it[L];
         return `<div class="sitem r-${it.r}${isEq ? ' eq' : ''}${isTry ? ' try' : ''}" data-act="pickwear" data-id="${it.id}">
-          <div class="sitem-img"><img src="art/thumbs/${g}_${it.z}_${it.file}.webp" alt="${esc(it[L])}" loading="lazy"></div>
-          <div class="sitem-name">${esc(it[L])}</div>
+          <div class="sitem-img"><img src="art/thumbs/${g}_${it.z}_${sandals ? 'sandals' : it.file}.webp" alt="${esc(name)}" loading="lazy"></div>
+          <div class="sitem-name">${esc(name)}</div>
           <div class="sitem-meta c-${it.r}">${rarityText(it.r)}</div>
           <button class="sitem-act ${isEq ? 'on' : own ? '' : 'buy'}" data-act="${own ? 'eqwear' : 'buywear'}" data-id="${it.id}">${isEq ? t.equipped : own ? t.equip : t.buy(it.price)}</button>
         </div>`;
       }).join('')}</div>`;
-  } else if (shopTab === 'gear') {
+  } else if (['gear', 'accessories', 'bags'].includes(shopTab)) {
     const frOwned = stats.freezes || 0;
     const freezeCard = `<div class="sitem r-rare">
       <div class="sitem-img" style="font-size:52px">❄️</div>
@@ -3659,24 +3963,76 @@ function renderShop() {
       <div class="sitem-meta c-rare">${t.freezeHave(frOwned)}</div>
       <button class="sitem-act buy" data-act="buyfreeze" ${frOwned >= 3 ? 'disabled' : ''}>${frOwned >= 3 ? t.bought : t.buy(150)}</button>
     </div>`;
-    bodyHtml = `<div class="shop-grid">${freezeCard}${GEAR_ITEMS.map(it => {
-      const own = stats.owned.includes(it.id), isEq = stats.gearEquip[it.slot] === it.id;
-      return `<div class="sitem r-${it.r}${isEq ? ' eq' : ''}" data-act="${own ? 'eqgear' : 'buygear'}" data-id="${it.id}">
-        <div class="sitem-img"><img src="art/items/${it.img}.webp" alt="${esc(it[L])}" loading="lazy"></div>
+    const catalog = shopTab === 'bags' ? BAG_ITEMS : GEAR_ITEMS.filter(it => isAccessory(it) === (shopTab === 'accessories'));
+    const items = catalog.filter(it => gearFits(it, g));
+    bodyHtml = `<div class="shop-grid">${shopTab === 'gear' ? freezeCard : ''}${items.map(it => {
+      const own = stats.owned.includes(it.id), isEq = equippedGearId(it.slot, g) === it.id;
+      const isTry = shopPreview && shopPreview.isGear && shopPreview.id === it.id;
+      return `<div class="sitem r-${it.r}${isEq ? ' eq' : ''}${isTry ? ' try' : ''}" data-act="pickgear" data-id="${it.id}">
+        <div class="sitem-img"><img src="art/items/${gearImage(it)}.webp" alt="${esc(it[L])}" loading="lazy"></div>
         <div class="sitem-name">${esc(it[L])}</div>
         <div class="sitem-meta c-${it.r}">${rarityText(it.r)}</div>
         <button class="sitem-act ${isEq ? 'on' : own ? '' : 'buy'}" data-act="${own ? 'eqgear' : 'buygear'}" data-id="${it.id}">${isEq ? t.equipped : own ? t.equip : t.buy(it.price)}</button>
       </div>`;
     }).join('')}</div>`;
+  } else if (shopTab === 'wardrobe') {
+    const ownedWear = WEAR_ITEMS.filter(x => x.price > 0 && x.g.includes(g) && stats.owned.includes(x.id));
+    const ownedGear = [...GEAR_ITEMS, ...BAG_ITEMS].filter(x => gearFits(x, g) && stats.owned.includes(x.id));
+    const ownedFood = FOOD_ITEMS.filter(x => stats.foodOwned.includes(x.id));
+    const hasCustom = ['head', 'top', 'bottom', 'shoes'].some(z => stats.equip[g][z] !== 'base') || Object.values(stats.gearEquip || {}).some(Boolean);
+    if (!ownedWear.length && !ownedGear.length && !ownedFood.length) {
+      bodyHtml = `<div class="ward-empty"><b>${t.wardEmptyTitle}</b><span>${t.wardEmptySub}</span><button class="btn" data-act="shoptab" data-v="wear">${t.wardGoShop}</button></div>`;
+    } else {
+      let wHtml = '';
+      if (ownedWear.length) {
+        wHtml += `<div class="ward-h"><span>👕 ${t.tabWear} (${ownedWear.length})</span>${hasCustom ? `<button class="ward-reset" data-act="resetwear">${t.wardReset}</button>` : ''}</div>
+        <div class="shop-grid">${ownedWear.map(it => {
+          const isEq = stats.equip[g][it.z] === it.file;
+          return `<div class="sitem r-${it.r}${isEq ? ' eq' : ''}" data-act="${isEq ? 'unwear' : 'pickwear'}" data-id="${it.id}">
+            <div class="sitem-img"><img src="art/thumbs/${g}_${it.z}_${it.file}.webp" alt="${esc(it[L])}" loading="lazy"></div>
+            <div class="sitem-name">${esc(it[L])}</div>
+            <div class="sitem-meta c-${it.r}">${rarityText(it.r)}</div>
+            <button class="sitem-act ${isEq ? 'on' : ''}" data-act="${isEq ? 'unwear' : 'eqwear'}" data-id="${it.id}">${isEq ? t.unequip : t.equip}</button>
+          </div>`;
+        }).join('')}</div>`;
+      }
+      if (ownedGear.length) {
+        wHtml += `<div class="ward-h"><span>⌚ ${t.tabGear} (${ownedGear.length})</span></div>
+        <div class="shop-grid">${ownedGear.map(it => {
+          const isEq = equippedGearId(it.slot, g) === it.id;
+          return `<div class="sitem r-${it.r}${isEq ? ' eq' : ''}" data-act="pickgear" data-id="${it.id}">
+            <div class="sitem-img"><img src="art/items/${gearImage(it)}.webp" alt="${esc(it[L])}" loading="lazy"></div>
+            <div class="sitem-name">${esc(it[L])}</div>
+            <div class="sitem-meta c-${it.r}">${rarityText(it.r)}</div>
+            <button class="sitem-act ${isEq ? 'on' : ''}" data-act="eqgear" data-id="${it.id}">${isEq ? t.unequip : t.equip}</button>
+          </div>`;
+        }).join('')}</div>`;
+      }
+      if (ownedFood.length) {
+        wHtml += `<div class="ward-h"><span>🥐 ${t.tabFood} (${ownedFood.length})</span></div>
+        <div class="shop-grid">${ownedFood.map(it => {
+          const c = BY_ID[it.c], left = foodRemainText(it.id);
+          return `<div class="sitem r-${it.r} eq" data-act="pickfood" data-id="${it.id}">
+            ${foodIconHtml(it, L)}
+            <div class="sitem-name">${esc(it[L])}</div>
+            <div class="sitem-sub">${flag(it.c, 'sm')} ${esc(nm(c))}</div>
+            ${left ? `<div class="food-exp">${left}</div>` : ''}
+          </div>`;
+        }).join('')}</div>`;
+      }
+      bodyHtml = wHtml;
+    }
   } else if (shopTab === 'food') {
     bodyHtml = `<div class="shop-grid">${FOOD_ITEMS.map(it => {
       const c = BY_ID[it.c], unlocked = stats.known.includes(it.c), own = stats.foodOwned.includes(it.id);
-      return `<div class="sitem r-${it.r}${own ? ' eq' : ''}${unlocked ? '' : ' locked'}" data-act="${unlocked ? (own ? 'noop' : 'buyfood') : 'foodgo'}" data-id="${it.id}">
-        <div class="sitem-img"><img src="art/items/${it.id}.webp" alt="${esc(it[L])}" loading="lazy"></div>
+      const left = own ? foodRemainText(it.id) : '';
+      return `<div class="sitem r-${it.r}${own ? ' eq' : ''}${unlocked ? '' : ' locked'}" data-act="pickfood" data-id="${it.id}">
+        ${foodIconHtml(it, L)}
         <div class="sitem-name">${esc(it[L])}</div>
         <div class="sitem-sub">${flag(it.c, 'sm')} ${esc(nm(c))}</div>
         <div class="sitem-meta c-${it.r}">${rarityText(it.r)}</div>
-        <button class="sitem-act ${own ? 'on' : unlocked ? 'buy' : ''}" data-act="${unlocked ? (own ? 'noop' : 'buyfood') : 'foodgo'}" data-id="${it.id}">${own ? t.foodShelf : unlocked ? t.buy(it.price) : t.foodLocked(nm(c))}</button>
+        ${left ? `<div class="food-exp">${left}</div>` : ''}
+        <button class="sitem-act ${own ? 'on' : unlocked ? 'buy' : ''}" data-act="${unlocked && !own ? 'buyfood' : 'fooddetails'}" data-id="${it.id}">${own ? t.foodShelf : unlocked ? t.buy(it.price) : t.foodLocked(nm(c))}</button>
       </div>`;
     }).join('')}</div>`;
   } else if (shopTab === 'super') {
@@ -3717,34 +4073,98 @@ function renderShop() {
       </div>`;
   }
 
-  const tabs = [['wear', t.tabWear], ['gear', t.tabGear], ['food', t.tabFood], ['super', t.tabSuper], ['earn', t.tabEarn]];
-  $('#shop').innerHTML = `
-    <header>
-      <button class="back" data-act="home">‹ ${t.back}</button>
-      <div style="flex:1"><h1>🛍 ${t.shopBtn}</h1></div>
-      <div class="shop-bal"><span class="coin-pill" data-act="shoptab" data-v="earn">🪙 ${(stats.coins || 0).toLocaleString('ru-RU')}</span></div>
-    </header>
-    <div class="shop-layout">
-      <div class="stage-card">
-        <div class="stage-top">
-          <div class="gender-seg">
-            <button class="${g === 'm' ? 'on' : ''}" data-act="gender" data-v="m">${t.gMan}</button>
-            <button class="${g === 'f' ? 'on' : ''}" data-act="gender" data-v="f">${t.gGirl}</button>
+  const tabs = [['wear', t.tabWear], ['accessories', t.tabAccessories], ['gear', t.tabGear], ['bags', t.tabBags], ['wardrobe', t.tabWardrobe], ['food', t.tabFood], ['super', t.tabSuper], ['earn', t.tabEarn]];
+  if (!shopBuilt) {
+    $('#shop').innerHTML = `
+      <header>
+        <button class="back" data-act="home" id="shopBack"></button>
+        <div style="flex:1"><h1 id="shopTitle"></h1></div>
+        <div class="shop-bal"><span class="coin-pill" data-act="shoptab" data-v="earn" id="shopBal"></span></div>
+      </header>
+      <div class="shop-layout">
+        <div class="stage-card">
+          <div class="stage-top">
+            <div class="gender-seg" id="shopGender"></div>
+            <span class="stage-meta" id="shopCombos"></span>
           </div>
-          <span class="stage-meta">${t.combosCount(combosTotal(g))}</span>
+          <div class="stage-box">
+            <div class="char-doll" id="shopDoll">
+              <img class="z-bot" alt="">
+              <img class="z-sho" alt="">
+              <img class="z-top" alt="">
+              <img class="z-hed" alt="">
+              <div class="avatar-accessories" id="shopAccessories"></div>
+            </div>
+            <div class="stage-side r" id="shopSlotsR"></div>
+          </div>
+          <div id="shopPrev"></div>
         </div>
-        <div class="stage-box">
-          <div class="stage-side l">${sideSlotsL}</div>
-          <div class="char-doll">${charLayersHtml(g, eq)}</div>
-          <div class="stage-side r">${sideSlotsR}</div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <div class="shop-tabs" id="shopTabs"></div>
+          <div id="shopBody"></div>
         </div>
-        ${prevBar}
-      </div>
-      <div style="display:flex;flex-direction:column;gap:10px">
-        <div class="shop-tabs">${tabs.map(([k, lb]) => `<button class="${shopTab === k ? 'on' : ''}" data-act="shoptab" data-v="${k}">${lb}</button>`).join('')}</div>
-        ${bodyHtml}
-      </div>
-    </div>`;
+      </div>`;
+    shopBuilt = true;
+  }
+
+  $('#shopBack').textContent = '‹ ' + t.back;
+  $('#shopTitle').textContent = '🛍 ' + t.shopBtn;
+  $('#shopBal').textContent = `🪙 ${(stats.coins || 0).toLocaleString('ru-RU')}`;
+  $('#shopGender').innerHTML = `
+    <button class="${g === 'm' ? 'on' : ''}" data-act="gender" data-v="m">${t.gMan}</button>
+    <button class="${g === 'f' ? 'on' : ''}" data-act="gender" data-v="f">${t.gGirl}</button>`;
+  $('#shopCombos').textContent = t.combosCount(combosTotal(g));
+  $('#shopSlotsR').innerHTML = sideSlotsR;
+  $('#shopPrev').innerHTML = prevBar;
+  $('#shopTabs').innerHTML = tabs.map(([k, lb]) => `<button class="${shopTab === k ? 'on' : ''}" data-act="shoptab" data-v="${k}">${lb}</button>`).join('');
+  $('#shopBody').innerHTML = bodyHtml;
+
+  const doll = $('#shopDoll');
+  if (doll.dataset.g !== g) {
+    doll.dataset.g = g;
+    doll.querySelectorAll('img').forEach(im => { delete im.dataset.cur; });
+  }
+  const dress = baseDressStyle(g, eq);
+  const sandals = dress && eq.shoes === 'base';
+  doll.classList.toggle('straight-shoes', eq.shoes === 'blush');
+  swapDollLayer(doll.querySelector('.z-bot'), `art/char/${g}/bottom_${avatarBottomFile(eq, dress)}.webp`, `art/char/${g}/bottom_base.webp`);
+  swapDollLayer(doll.querySelector('.z-sho'), `art/char/${g}/shoes_${sandals ? 'sandals' : eq.shoes}.webp`, `art/char/${g}/shoes_base.webp`);
+  swapDollLayer(doll.querySelector('.z-top'), `art/char/${g}/top_${dress || eq.top}.webp`, `art/char/${g}/top_base.webp`);
+  swapDollLayer(doll.querySelector('.z-hed'), `art/char/${g}/head_${eq.head}.webp`,     `art/char/${g}/head_base.webp`);
+  const accessories = $('#shopAccessories');
+  accessories.className = 'avatar-accessories ' + g;
+  accessories.innerHTML = avatarAccessoriesHtml(g, shopPreview);
+
+  if (shopTab === 'wear') preloadShopZone(g, shopZone);
+}
+
+function openFoodModal(id) {
+  if (pruneFood()) saveAll(true);
+  const it = FOOD_BY[id]; if (!it) return;
+  foodModalId = id;
+  const t = T(), L = settings.lang, c = BY_ID[it.c];
+  const unlocked = stats.known.includes(it.c), own = stats.foodOwned.includes(it.id);
+  const left = own ? foodRemainText(it.id) : '';
+  const statusHtml = own
+    ? `<div class="food-exp" style="font-size:13px;padding:5px 10px;margin-bottom:6px">${t.foodShelf} · ${left}</div>`
+    : `<p>${unlocked ? t.foodExpireNote : esc(t.foodNeedGuess(nm(c)))}</p>`;
+  const btnsHtml = own
+    ? `<button class="btn sec" data-act="closefood">${t.close}</button>`
+    : unlocked
+      ? `<button class="btn" data-act="buyfood" data-id="${it.id}">${t.buyNow(it.price)}</button><button class="btn sec" data-act="closefood">${t.close}</button>`
+      : `<button class="btn" data-act="foodgo">${t.foodGoCountry}</button><button class="btn sec" data-act="closefood">${t.close}</button>`;
+  $('#foodBox').innerHTML = `
+    <div class="food-pop-img"><img src="art/items/${it.id}.webp" alt="${esc(it[L])}"></div>
+    <b>${esc(it[L])}</b>
+    <div class="food-pop-meta">${flag(it.c, 'sm')} <span>${esc(nm(c))}</span> · <span class="c-${it.r}">${rarityText(it.r)}</span></div>
+    ${statusHtml}
+    <div class="food-pop-btns">${btnsHtml}</div>`;
+  $('#foodModal').classList.add('show');
+}
+function closeFoodModal() {
+  foodModalId = null;
+  const m = $('#foodModal');
+  if (m) m.classList.remove('show');
 }
 
 function pickWear(id) {
@@ -3752,12 +4172,27 @@ function pickWear(id) {
   const g = stats.gender || 'm';
   if (isWearOwned(it)) {
     stats.equip[g][it.z] = it.file;
+    if (g === 'f' && it.file === 'base' && ['top', 'bottom'].includes(it.z)) stats.equip[g].baseDress = false;
     shopPreview = null;
-    saveAll(); sfx('ok'); hapticSel(); renderShop();
+    saveAll(true); sfx('ok'); hapticSel(); renderShop();
   } else {
     shopPreview = (shopPreview && shopPreview.id === id) ? null : it;
     hapticSel(); renderShop();
   }
+}
+function unwear(id) {
+  const it = WEAR_BY[id]; if (!it) return;
+  const g = stats.gender || 'm';
+  stats.equip[g][it.z] = 'base';
+  shopPreview = null;
+  saveAll(true); sfx('ok'); hapticSel(); renderShop();
+}
+function resetWear() {
+  const g = stats.gender || 'm';
+  stats.equip[g] = { head: 'base', top: 'base', bottom: 'base', shoes: 'base' };
+  stats.gearEquip = {};
+  shopPreview = null;
+  saveAll(true); sfx('ok'); hapticSel(); renderShop();
 }
 function buyWear(id) {
   const it = WEAR_BY[id]; if (!it || isWearOwned(it)) return;
@@ -3767,41 +4202,52 @@ function buyWear(id) {
   stats.owned.push(it.id);
   stats.equip[g][it.z] = it.file;
   shopPreview = null;
-  saveAll(); confetti(28); sfx('win'); haptic('success');
+  saveAll(true); confetti(28); sfx('win'); haptic('success');
   toast(T().boughtOk(it[settings.lang]));
   renderShop();
 }
+function pickGear(id) {
+  const it = GEAR_BY[id]; if (!it || !gearFits(it, stats.gender)) return;
+  if (stats.owned.includes(it.id)) return eqGear(id);
+  shopPreview = (shopPreview && shopPreview.isGear && shopPreview.id === id) ? null : Object.assign({ isGear: true }, it);
+  hapticSel(); renderShop();
+}
 function buyGear(id) {
-  const it = GEAR_BY[id]; if (!it) return;
+  const it = GEAR_BY[id]; if (!it || !gearFits(it, stats.gender)) return;
   if (stats.owned.includes(it.id)) return eqGear(id);
   if ((stats.coins || 0) < it.price) { toast(T().notEnough(it.price - (stats.coins || 0))); sfx('bad'); haptic('error'); return; }
   stats.coins -= it.price;
   stats.owned.push(it.id);
-  stats.gearEquip[it.slot] = it.id;
-  saveAll(); confetti(24); sfx('win'); haptic('success');
+  stats.gearEquip[gearEquipKey(it.slot, stats.gender)] = it.id;
+  shopPreview = null;
+  saveAll(true); confetti(24); sfx('win'); haptic('success');
   toast(T().boughtOk(it[settings.lang]));
   renderShop();
 }
 function eqGear(id) {
-  const it = GEAR_BY[id]; if (!it || !stats.owned.includes(it.id)) return;
-  stats.gearEquip[it.slot] = stats.gearEquip[it.slot] === it.id ? null : it.id;
-  saveAll(); sfx('ok'); hapticSel(); renderShop();
+  const it = GEAR_BY[id]; if (!it || !gearFits(it, stats.gender) || !stats.owned.includes(it.id)) return;
+  const g = stats.gender;
+  stats.gearEquip[gearEquipKey(it.slot, g)] = equippedGearId(it.slot, g) === it.id ? null : it.id;
+  shopPreview = null;
+  saveAll(true); sfx('ok'); hapticSel(); renderShop();
 }
 function buyFreeze() {
   if ((stats.freezes || 0) >= 3) return;
   if ((stats.coins || 0) < 150) { toast(T().notEnough(150 - (stats.coins || 0))); sfx('bad'); haptic('error'); return; }
   stats.coins -= 150; stats.freezes = (stats.freezes || 0) + 1;
-  saveAll(); confetti(20); sfx('ok'); haptic('success');
+  saveAll(true); confetti(20); sfx('ok'); haptic('success');
   toast(T().boughtOk(T().freezeName));
   renderShop();
 }
 function buyFood(id) {
+  pruneFood();
   const it = FOOD_BY[id]; if (!it || stats.foodOwned.includes(it.id) || !stats.known.includes(it.c)) return;
   if ((stats.coins || 0) < it.price) { toast(T().notEnough(it.price - (stats.coins || 0))); sfx('bad'); haptic('error'); return; }
-  stats.coins -= it.price; stats.foodOwned.push(it.id);
-  saveAll(); confetti(22); sfx('win'); haptic('success');
+  stats.coins -= it.price; stats.foodOwned.push(it.id); stats.foodExp[it.id] = Date.now() + FOOD_TTL;
+  saveAll(true); confetti(22); sfx('win'); haptic('success');
   toast(T().boughtOk(it[settings.lang]));
   renderShop();
+  if (foodModalId === id) openFoodModal(id);
 }
 function watchAd() {
   const day = localDay(), used = stats.adDay === day ? (stats.adN || 0) : 0;
@@ -3820,7 +4266,7 @@ function watchAd() {
       modal.classList.remove('show');
       stats.adDay = localDay(); stats.adN = (stats.adDay === day ? used : 0) + 1;
       stats.coins = (stats.coins || 0) + 15;
-      saveAll(); confetti(18); sfx('ok'); haptic('success');
+      saveAll(true); confetti(18); sfx('ok'); haptic('success');
       toast('🪙 +15!'); renderShop();
     };
   };
@@ -3836,8 +4282,8 @@ function inviteFriend() {
   else if (navigator.share) navigator.share({ text: txt, url: refUrl }).catch(() => {});
   else { try { navigator.clipboard.writeText(txt + ' ' + refUrl); } catch (e) {} }
   if (!stats.refClaimed) {
-    stats.refClaimed = 1; stats.coins = (stats.coins || 0) + 100;
-    saveAll(); confetti(35); sfx('win'); haptic('success');
+    stats.refClaimed = 1; stats.coins = (stats.coins || 0) + 50;
+    saveAll(true); confetti(35); sfx('win'); haptic('success');
     toast(T().refShared); renderShop();
   } else {
     toast(T().copied);
@@ -3846,6 +4292,7 @@ function inviteFriend() {
 
 // ===== ОБРАБОТКА НАЖАТИЙ =====
 document.addEventListener('click', e => {
+  if (e.target && e.target.id === 'foodModal') { closeFoodModal(); return; }
   const el = e.target.closest('[data-act]');
   if (!el || el.disabled) return;
   const a = el.dataset.act, v = el.dataset.v;
@@ -3904,18 +4351,33 @@ document.addEventListener('click', e => {
   else if (a === 'share') share();
   else if (a === 'shop') openShop(v || null);
   else if (a === 'checkin') claimCheckin();
-  else if (a === 'gender') { stats.gender = v; shopPreview = null; saveAll(); renderShop(); }
+  else if (a === 'gender') { stats.gender = v; shopPreview = null; saveAll(true); renderShop(); }
   else if (a === 'shoptab') { shopTab = v; shopPreview = null; renderShop(); }
+  else if (a === 'wearzone') { shopTab = 'wear'; shopZone = v; shopPreview = null; renderShop(); }
   else if (a === 'shopzone') { shopZone = v; shopPreview = null; renderShop(); }
   else if (a === 'pickwear') pickWear(el.dataset.id);
+  else if (a === 'basedress' && stats.gender === 'f' && DRESS_STYLES.some(style => style.file === v)) {
+    Object.assign(stats.equip.f, { top: 'base', bottom: 'base', baseDress: v });
+    shopPreview = null; saveAll(true); hapticSel(); renderShop();
+  }
   else if (a === 'eqwear') { e.stopPropagation(); pickWear(el.dataset.id); }
+  else if (a === 'unwear') { e.stopPropagation(); unwear(el.dataset.id); }
+  else if (a === 'resetwear') { e.stopPropagation(); resetWear(); }
   else if (a === 'buywear') { e.stopPropagation(); buyWear(el.dataset.id); }
   else if (a === 'tryclear') { shopPreview = null; renderShop(); }
+  else if (a === 'pickgear') pickGear(el.dataset.id);
   else if (a === 'buygear') { e.stopPropagation(); buyGear(el.dataset.id); }
   else if (a === 'eqgear') { e.stopPropagation(); eqGear(el.dataset.id); }
   else if (a === 'buyfreeze') { e.stopPropagation(); buyFreeze(); }
+  else if (a === 'zoomfood') { e.stopPropagation(); hapticSel(); toggleFoodZoom(el); }
+  else if (a === 'pickfood' || a === 'fooddetails') {
+    e.stopPropagation(); hapticSel();
+    const zoom = a === 'pickfood' && el.querySelector('.food-zoom');
+    if (zoom) toggleFoodZoom(zoom); else openFoodModal(el.dataset.id);
+  }
+  else if (a === 'closefood') { e.stopPropagation(); closeFoodModal(); }
   else if (a === 'buyfood') { e.stopPropagation(); buyFood(el.dataset.id); }
-  else if (a === 'foodgo') { e.stopPropagation(); endGame(); renderCountries(); go('countries'); }
+  else if (a === 'foodgo') { e.stopPropagation(); closeFoodModal(); endGame(); renderCountries(); go('countries'); }
   else if (a === 'supergo') { const s = SUPER_BY[el.dataset.id]; if (s) s.go(); }
   else if (a === 'watchad') watchAd();
   else if (a === 'invfriend') inviteFriend();
@@ -3929,6 +4391,7 @@ document.addEventListener('keydown', e => {
     const btn = document.querySelectorAll('#game .opt')[n - 1];
     if (btn && !btn.disabled) { btn.click(); e.preventDefault(); }
   } else if (e.key === 'Escape') {
+    if (foodModalId) { closeFoodModal(); return; }
     const back = document.querySelector('.screen.active .back') || document.querySelector('.screen.active [data-act="quit"]') || document.querySelector('.screen.active [data-act="kquit"]');
     if (back) back.click();
   }
