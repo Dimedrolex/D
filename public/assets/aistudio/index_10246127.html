@@ -1,0 +1,3253 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>GeoQuiz</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+:root{
+  --bg: var(--tg-theme-bg-color,#ffffff);
+  --bg2: var(--tg-theme-secondary-bg-color,#f1f3f6);
+  --text: var(--tg-theme-text-color,#111418);
+  --hint: var(--tg-theme-hint-color,#8a8f98);
+  --accent: var(--tg-theme-button-color,#2f7cf6);
+  --accent-text: var(--tg-theme-button-text-color,#ffffff);
+  --ok:#22a55a; --bad:#e5484d;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg: var(--tg-theme-bg-color,#16181c);
+    --bg2: var(--tg-theme-secondary-bg-color,#23262c);
+    --text: var(--tg-theme-text-color,#f2f3f5);
+  }
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+button{font-family:inherit}
+.wrap{max-width:480px;margin:0 auto;padding:16px 16px 40px}
+.screen{display:none}.screen.active{display:block;animation:fade .2s ease}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+header{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:16px}
+h1{font-size:24px;line-height:1.2}
+.sub{color:var(--hint);font-size:14px;margin-top:4px}
+.lang{display:flex;background:var(--bg2);border-radius:10px;padding:3px;flex-shrink:0}
+.lang button{border:0;background:none;color:var(--hint);font-weight:700;padding:6px 10px;border-radius:8px;font-size:13px;cursor:pointer}
+.lang button.on{background:var(--accent);color:var(--accent-text)}
+.card{background:var(--bg2);border-radius:16px;padding:14px;margin-bottom:12px}
+.daily{display:block;width:100%;text-align:left;border:0;border-radius:16px;padding:16px;margin-bottom:12px;cursor:pointer;color:#fff;background:linear-gradient(135deg,#ff8a00,#e52e71)}
+.daily b{font-size:17px;display:block;margin-bottom:4px}.daily span{font-size:13px;opacity:.92}
+.label{font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--hint);margin:2px 0 8px;font-weight:700}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+.chip{border:1.5px solid transparent;background:var(--bg);color:var(--text);padding:8px 12px;border-radius:20px;font-size:14px;cursor:pointer}
+.chip small{color:var(--hint);font-size:11px;margin-left:2px}
+.chip.on{border-color:var(--accent);color:var(--accent);font-weight:600}
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
+.seg .chip{border-radius:12px;text-align:center;padding:11px 6px}
+.best-line{font-size:13px;color:var(--hint)}
+.btn{display:block;width:100%;border:0;border-radius:14px;padding:15px;font-size:16px;font-weight:600;cursor:pointer;background:var(--accent);color:var(--accent-text);margin-bottom:10px}
+.btn.sec{background:var(--bg2);color:var(--text)}
+.btn{box-shadow:0 4px 0 rgba(0,0,0,.2);transition:transform .08s,box-shadow .08s,filter .15s}.btn.sec{box-shadow:0 4px 0 rgba(0,0,0,.1)}
+.btn:active:not(:disabled){transform:translateY(3px)!important;box-shadow:0 1px 0 rgba(0,0,0,.15)}
+#timerTxt,#clockTxt,.top{font-variant-numeric:tabular-nums}
+.q,.opts{animation:qin .2s ease-out}
+@keyframes qin{from{opacity:0;transform:translateX(12px)}}
+#game.hot .bar{box-shadow:0 0 10px rgba(255,138,0,.75)}
+#game.hot .bar i{background:linear-gradient(90deg,#ffb347,#ff8a00,#e52e71)!important}
+#game.hot .stk{color:#ff8a00;font-weight:700;display:inline-block;animation:hotpulse 1s ease-in-out infinite}
+@keyframes hotpulse{50%{transform:scale(1.12)}}
+@keyframes shine{0%{background-position:150% 0,0 0}30%,100%{background-position:-50% 0,0 0}}
+.daily.shine{background-image:linear-gradient(105deg,transparent 40%,rgba(255,255,255,.38) 50%,transparent 60%),linear-gradient(135deg,#ff8a00,#e52e71);background-size:250% 100%,auto;background-repeat:no-repeat;animation:shine 4.5s ease-in-out infinite}
+.btn:disabled{opacity:.45;cursor:default}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;text-align:center}
+.stats b{display:block;font-size:20px}.stats span{font-size:12px;color:var(--hint)}
+.top{display:flex;justify-content:space-between;align-items:center;font-size:14px;color:var(--hint);margin-bottom:8px}
+.bar{height:6px;background:var(--bg2);border-radius:3px;overflow:hidden;margin-bottom:12px}
+.bar i{display:block;height:100%;background:var(--accent);transition:width .3s}
+.q{text-align:center;margin:14px 0 22px}
+.q small{color:var(--hint);font-size:14px;display:block;margin-top:10px}
+.q h2{font-size:26px;margin-top:4px;line-height:1.25}
+.fl{display:inline-block;line-height:1}
+.fl img{display:block;border-radius:4px;object-fit:cover}
+.fl.big{font-size:72px}.fl.big img{height:84px;width:auto;border-radius:8px;box-shadow:0 2px 12px rgba(0,0,0,.18)}
+.fl.sm{font-size:20px;vertical-align:middle}.fl.sm img{height:20px;width:30px}
+.opts{display:grid;gap:12px}
+.opt{border:0;background:var(--bg2);color:var(--text);padding:16px;border-radius:14px;font-size:17px;text-align:left;cursor:pointer;transition:transform .08s,box-shadow .08s,background .15s;box-shadow:0 4px 0 rgba(0,0,0,.13)}
+.opt:active:not(:disabled){transform:translateY(3px);box-shadow:0 1px 0 rgba(0,0,0,.13)}
+.opt.ok,.opt.bad{box-shadow:0 4px 0 rgba(0,0,0,.22)}
+.opt.ok{background:var(--ok);color:#fff}
+.opt.bad{background:var(--bad);color:#fff;animation:shake .3s}
+.opt.gone{visibility:hidden}
+.opt:disabled{cursor:default}
+@keyframes shake{25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+.reveal{min-height:28px;text-align:center;margin-top:14px;font-size:15px;color:var(--hint)}
+.tools{display:flex;justify-content:space-between;margin-top:8px}
+.link{background:none;border:0;color:var(--accent);font-size:15px;font-weight:600;cursor:pointer;padding:8px}
+.link:disabled{color:var(--hint);opacity:.5;cursor:default}
+.big-score{font-size:60px;font-weight:800;text-align:center;line-height:1.1}
+.pct{text-align:center;color:var(--hint);margin:6px 0 10px}
+.badge{display:block;text-align:center;color:#ff8a00;font-weight:700;font-size:18px;margin-bottom:14px}
+.emoji{font-size:56px;text-align:center;margin-top:8px}
+.item{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid rgba(128,128,128,.15);font-size:15px}
+.item:last-child{border-bottom:0}
+.item .c{margin-left:auto;color:var(--hint);text-align:right}
+.search{width:100%;border:0;background:var(--bg2);color:var(--text);padding:13px 14px;border-radius:12px;font-size:16px;margin-bottom:12px;outline:none}
+.hbtns{display:flex;gap:6px;align-items:center;flex-shrink:0}
+.snd{border:0;background:var(--bg2);border-radius:10px;width:36px;height:34px;font-size:16px;cursor:pointer}
+.opt.ok{animation:pop .35s}
+@keyframes pop{50%{transform:scale(1.05)}}
+.praise{position:fixed;left:50%;top:36%;transform:translate(-50%,-50%);font-size:30px;font-weight:800;color:var(--ok);opacity:0;pointer-events:none;text-shadow:0 2px 14px rgba(0,0,0,.18);white-space:nowrap;z-index:50}
+.praise.mega{color:#ff8a00;font-size:38px}
+.praise.go{animation:praise 1.1s ease-out forwards}
+.praise.go2{animation:praise2 1.1s ease-out forwards}
+.praise.go3{animation:praise3 1.15s ease-out forwards}
+.praise.go4{animation:praise4 1.1s ease-out forwards}
+@keyframes praise2{0%{opacity:0;transform:translate(-160%,-50%) rotate(-12deg)}25%{opacity:1;transform:translate(-45%,-50%) rotate(4deg)}40%{transform:translate(-50%,-50%) rotate(0)}75%{opacity:1}100%{opacity:0;transform:translate(60%,-50%)}}
+@keyframes praise3{0%{opacity:0;transform:translate(-50%,-260%)}30%{opacity:1;transform:translate(-50%,-40%)}45%{transform:translate(-50%,-62%)}60%{transform:translate(-50%,-50%)}80%{opacity:1}100%{opacity:0;transform:translate(-50%,-50%) scale(.8)}}
+@keyframes praise4{0%{opacity:0;transform:translate(-50%,-50%) rotate(-200deg) scale(.2)}35%{opacity:1;transform:translate(-50%,-50%) rotate(8deg) scale(1.15)}50%{transform:translate(-50%,-50%) rotate(0) scale(1)}80%{opacity:1}100%{opacity:0;transform:translate(-50%,-50%) scale(1.4)}}
+@keyframes praise{0%{opacity:0;transform:translate(-50%,-50%) scale(.5)}20%{opacity:1;transform:translate(-50%,-50%) scale(1.2)}40%{transform:translate(-50%,-50%) scale(1)}75%{opacity:1}100%{opacity:0;transform:translate(-50%,-110%) scale(1)}}
+.cf{position:fixed;top:-14px;width:9px;height:14px;border-radius:2px;z-index:60;pointer-events:none;animation:fall var(--d) ease-in forwards}
+.cf.round{width:11px;height:11px;border-radius:50%}
+.cf.emo{width:auto;height:auto;background:none;font-size:22px}
+.cf.burst{top:45%;left:50%;width:9px;height:9px;border-radius:50%;animation:burst var(--d) ease-out forwards}
+@keyframes burst{0%{transform:translate(-50%,-50%) scale(1);opacity:1}100%{transform:translate(calc(-50% + var(--bx)),calc(-50% + var(--by))) scale(.4);opacity:0}}
+@keyframes fall{to{transform:translate(var(--x),105vh) rotate(var(--r))}}
+/* --- справочник: глобус закреплён сверху, под ним обычный список (телефон, браузер, Telegram на ПК) --- */
+#ref header{margin-bottom:4px}
+#ref h1{font-size:20px}
+.ref-globe{position:sticky;top:0;z-index:5;height:min(42vh,360px);margin:0 -16px 8px;background:var(--bg)}
+.globe-box{position:absolute;inset:0;overflow:hidden;touch-action:none}
+.ref-side .sel-card{display:none}
+.ref-side .chips{margin-bottom:8px}
+.ref-side .search{padding:11px 14px;margin-bottom:8px}
+.tray{display:flex;flex-direction:column;background:var(--bg2);border-radius:16px;padding:6px 10px}
+.tcard{display:flex;align-items:center;gap:10px;padding:10px 8px;border-radius:10px;cursor:pointer;user-select:none;-webkit-user-select:none;border-bottom:1px solid rgba(128,128,128,.12)}
+.tcard:last-child{border-bottom:0}
+.tcard:hover{background:rgba(128,128,128,.08)}
+.tcard .fl img{height:20px;width:30px}
+.tcard b{flex:1;font-size:15px;font-weight:600}
+.tcard span{font-size:14px;color:var(--hint);text-align:right}
+.tcard.sel{background:rgba(255,138,0,.16)}
+.tray-empty{color:var(--hint);padding:20px;text-align:center}
+/* --- широкий экран: глобус слева, список справа --- */
+@media (min-width:768px){
+  .wrap.wide{max-width:1100px}
+  .ref-layout{display:grid;grid-template-columns:1.25fr 1fr;gap:20px;align-items:start}
+  .ref-globe{top:16px;height:calc(100vh - 90px);margin:0}
+  .ref-side .sel-card{display:flex}
+  .tray{overflow-y:auto;max-height:calc(100vh - 330px)}
+}
+.globe-msg{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--hint);font-size:14px;text-align:center;padding:20px}
+.sel-card{display:flex;align-items:center;gap:12px;background:var(--bg2);border-radius:14px;padding:12px;margin-bottom:12px;min-height:58px}
+.fl.md img{height:30px;width:45px}
+.pin{pointer-events:none;color:#fff;font-size:13px;white-space:nowrap;transform:translateY(-16px)}
+.pin b{background:rgba(0,0,0,.6);padding:3px 8px;border-radius:10px}
+.glabel{background:rgba(0,0,0,.78);color:#fff;padding:6px 10px;border-radius:8px;font-size:13px;line-height:1.4}
+.item.clk{cursor:pointer}
+.item.sel{background:rgba(255,138,0,.16);border-radius:10px;padding-left:8px;padding-right:8px}
+.seg3{grid-template-columns:repeat(3,1fr)}
+.seg3 .chip{font-size:13px;padding:10px 4px;line-height:1.25}
+.type-hint{font-size:12px;color:var(--hint);margin:-6px 0 14px}
+.rank{background:var(--bg2);border-radius:16px;padding:12px 14px;margin-bottom:12px}
+.rank-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;font-size:15px}
+.rank-top em{display:block;font-style:normal;font-size:12px;color:var(--hint);margin-top:2px;font-weight:400}
+.rank-top span{color:var(--hint);font-size:13px;font-weight:600}
+.rank .bar{margin-bottom:6px;background:var(--bg)}
+.rank .bar i{background:linear-gradient(90deg,#ffb100,#ff6a00)}
+.rank small{color:var(--hint);font-size:12px}
+.loading{text-align:center;color:var(--hint);padding:80px 20px;font-size:16px}
+.shape.map{display:block;width:100%;max-width:420px;aspect-ratio:7/5;height:auto;margin:0 auto 6px;border-radius:16px;box-shadow:0 4px 16px rgba(0,0,0,.12)}
+.shape.map .sea{fill:#bfe3f7}
+.shape.map .land{fill:#e9e4d8;stroke:#ffffff;stroke-width:1px;vector-effect:non-scaling-stroke;stroke-linejoin:round}
+.shape.map .target{fill:#ff7a1a;stroke:#b84a00;stroke-width:1.5px;vector-effect:non-scaling-stroke;stroke-linejoin:round}
+.shape.map .mring{fill:none;stroke:#e5484d;stroke-width:2.5px;vector-effect:non-scaling-stroke}
+@media (prefers-color-scheme: dark){.shape.map .sea{fill:#1d3b55}.shape.map .land{fill:#4a5260;stroke:#2a3038}}
+.hard{display:grid;gap:10px}
+.hard input{width:100%;border:2px solid transparent;background:var(--bg2);color:var(--text);padding:16px;border-radius:14px;font-size:18px;outline:none}
+.hard input:focus{border-color:var(--accent)}
+.hard input.ok{border-color:var(--ok);background:rgba(34,165,90,.15)}
+.hard input.bad{border-color:var(--bad);background:rgba(229,72,77,.12);animation:shake .3s}
+.hard .btn{margin:0}
+.hard-hint{text-align:center;color:#ff8a00;font-weight:600;min-height:20px;margin-top:8px;font-size:14px}
+.praise.minus{color:var(--bad);font-size:34px}
+#timerBar.low{background:var(--bad)}
+.xp-line{text-align:center;font-weight:700;color:#ff8a00;margin-bottom:10px}
+.ach-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:14px}
+.badge-card{background:var(--bg2);border-radius:14px;padding:12px;text-align:center;opacity:.5}
+.badge-card.on{opacity:1;box-shadow:inset 0 0 0 2px rgba(255,138,0,.5)}
+.badge-card .bi{font-size:34px;margin-bottom:4px}
+.badge-card b{display:block;font-size:14px}
+.badge-card small{display:block;font-size:12px;color:var(--hint);margin-top:2px}
+.ach-row{display:flex;flex-wrap:wrap;gap:8px}
+.ach-row span{background:var(--bg);border-radius:20px;padding:6px 10px;font-size:13px}
+.ach-banner{position:fixed;left:50%;top:12px;transform:translate(-50%,-150%);display:flex;align-items:center;gap:10px;background:linear-gradient(135deg,#ffb100,#ff6a00);color:#fff;padding:10px 18px 10px 12px;border-radius:16px;box-shadow:0 6px 24px rgba(0,0,0,.25);z-index:70;transition:transform .35s cubic-bezier(.2,1.4,.4,1);max-width:92vw}
+.ach-banner.show{transform:translate(-50%,0)}
+.ach-banner .ai{font-size:32px}
+.ach-banner small{display:block;font-size:11px;opacity:.9;text-transform:uppercase;letter-spacing:.04em}
+.ach-banner b{font-size:16px}
+.tier{display:inline-block;font-size:12px;font-weight:700;padding:2px 7px;border-radius:10px;margin-left:4px;vertical-align:middle;background:rgba(34,165,90,.15);color:var(--ok)}
+.tier.t15{background:rgba(255,177,0,.18);color:#d48a00}
+.tier.t2{background:rgba(229,72,77,.15);color:var(--bad)}
+.gain{color:#ff8a00;font-weight:700;white-space:nowrap}
+#ref header{justify-content:flex-start;align-items:center}
+.back{border:0;background:var(--bg2);color:var(--accent);font-weight:700;font-size:15px;padding:8px 12px;border-radius:10px;cursor:pointer;flex-shrink:0}
+#ach header{justify-content:flex-start;align-items:center}
+.daily.res{background:linear-gradient(135deg,#00b4db,#0083b0)}
+#resorts header{justify-content:flex-start;align-items:center}
+.rtype{color:var(--hint);font-size:13px;margin-top:2px}
+.opt .fl.sm{margin-right:6px}
+.daily.countries{background:linear-gradient(135deg,#667eea,#764ba2)}
+#countries header{justify-content:flex-start;align-items:center}
+.diploma{position:relative;margin:6px auto 12px;max-width:380px;text-align:center;padding:22px 18px 16px;border-radius:18px;
+  background:linear-gradient(105deg,transparent 40%,rgba(255,255,255,.7) 50%,transparent 60%) no-repeat,linear-gradient(135deg,#fff8e1,#ffe9b0);background-size:250% 100%,auto;animation:shine 4.5s ease-in-out infinite;color:#5a3d00;border:3px double #c9962b;box-shadow:0 8px 26px rgba(201,150,43,.25)}
+.diploma small{display:block;letter-spacing:.2em;font-size:11px;font-weight:700;opacity:.75}
+.diploma b{display:block;font-size:24px;margin:6px 0 2px;font-family:Georgia,serif}
+.diploma span{display:block;font-size:15px}
+.dip-grade{margin:10px 0 6px;font-size:15px}
+.dip-grade em{font-style:normal;font-weight:800;font-size:30px;color:#b8541a;margin-left:6px}
+.dip-seal{position:absolute;right:12px;top:10px;font-size:30px;transform:rotate(12deg)}
+.exam-fail{text-align:center;margin:10px 0;padding:14px;border-radius:14px;background:rgba(229,72,77,.1)}
+.exam-fail b{display:block;color:var(--bad);font-size:20px}
+.exam-fail span{color:var(--hint);font-size:14px}
+.errs{font-weight:600}
+.daily.seas{background:linear-gradient(135deg,#1e3c72,#2a9df4)}
+.daily.ksea{background:linear-gradient(135deg,#36d1dc,#5b86e5);padding:22px 16px}
+.daily.ksea b{font-size:20px}
+.seg4{grid-template-columns:1fr 1fr}
+.seg4 .chip{font-size:14px;padding:10px 6px}
+.lives{letter-spacing:1px}
+#seas header{justify-content:flex-start;align-items:center}
+.daily.kids{background:linear-gradient(135deg,#a18cd1,#f78fb3)}
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.tile{border:0;border-radius:18px;padding:14px;min-height:118px;color:#fff;text-align:left;cursor:pointer;display:flex;flex-direction:column;font:inherit;position:relative;overflow:hidden;box-shadow:inset 0 1px 0 rgba(255,255,255,.3)}
+.tile em{position:absolute;right:-12px;bottom:-18px;font-size:90px;line-height:1;font-style:normal;opacity:.15;transform:rotate(-15deg);pointer-events:none}
+.tile i,.tile b,.tile span{position:relative;z-index:1}
+.tile i{font-style:normal;font-size:32px;line-height:1;margin-bottom:auto}
+.tile b{font-size:16px;margin-top:10px}.tile span{font-size:12px;opacity:.9;margin-top:2px}
+.tile.countries{background:linear-gradient(135deg,#667eea,#764ba2)}
+.tile.seas{background:linear-gradient(135deg,#1e3c72,#2a9df4)}
+.tile.res{background:linear-gradient(135deg,#00b4db,#0083b0)}
+.tile.kids{background:linear-gradient(135deg,#a18cd1,#f78fb3)}
+.tile:active,.daily:active{transform:scale(.97)}
+.resume{display:flex;align-items:center;gap:10px;border-radius:16px;padding:12px 14px;margin-bottom:12px;background:linear-gradient(135deg,#f6d365,#fda085);color:#3a2300}
+.resume>div:first-child{flex:1;min-width:0}.resume b{display:block;font-size:15px}.resume span{font-size:12px;opacity:.85}
+.resume .rbtns{display:flex;gap:6px}.resume .btn{width:auto;margin:0;padding:10px 14px;font-size:14px}
+.daily.kflag{background:linear-gradient(135deg,#ff9a44,#fc6076);padding:22px 16px}
+.daily.kcap{background:linear-gradient(135deg,#43cea2,#185a9d);padding:22px 16px}
+.daily.kflag b,.daily.kcap b{font-size:20px}
+#kids header{justify-content:flex-start;align-items:center}
+.fl.kid{font-size:90px}
+.fl.kid img{height:120px;width:auto;border-radius:10px;box-shadow:0 3px 14px rgba(0,0,0,.2)}
+.opts.kid{gap:12px}
+.opts.kid .opt{font-size:20px;padding:20px;text-align:center;border-radius:18px;font-weight:600}
+.opt.soft{opacity:.4}
+.stars{font-size:58px;text-align:center;margin:10px 0 4px;letter-spacing:4px}
+/* --- компьютер / браузер: игра в красивой «карточке» на фоне, ховеры, клавиатура --- */
+@media (min-width:768px){
+  body{background:
+    radial-gradient(900px 520px at 12% -8%, rgba(46,197,232,.28), transparent 70%),
+    radial-gradient(800px 480px at 105% 105%, rgba(118,75,162,.26), transparent 70%),
+    radial-gradient(600px 400px at 90% 10%, rgba(255,138,0,.14), transparent 70%),
+    var(--bg2)}
+  .wrap{background:var(--bg);margin:28px auto;border-radius:26px;box-shadow:0 24px 70px rgba(0,0,0,.14);padding:24px 26px 34px;min-height:calc(100vh - 56px);max-width:540px}
+  .wrap.wide{max-width:1120px}
+  .daily,.btn,.chip,.opt,.tcard,.back,.snd{transition:transform .15s,box-shadow .15s,filter .15s,background .15s}
+  .daily:hover,.tile:hover{transform:translateY(-3px);box-shadow:0 10px 26px rgba(0,0,0,.18)}
+  .tile{transition:transform .15s,box-shadow .15s}
+  .btn:hover:not(:disabled){filter:brightness(1.06);transform:translateY(-1px)}
+  .chip:hover{border-color:var(--accent)}
+  .opt:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 6px 16px rgba(0,0,0,.1)}
+  .opt{position:relative}
+  .opts .opt::after{content:attr(data-key);position:absolute;right:12px;top:50%;transform:translateY(-50%);font-size:12px;color:var(--hint);border:1px solid rgba(128,128,128,.35);border-radius:6px;padding:1px 6px;opacity:.8}
+  .opts.kid .opt::after{display:none}
+}
+@media (prefers-reduced-motion:reduce){
+  .daily.shine,.diploma,#game.hot .stk,.q,.opts,.stamp.drop,.pp-book.thud{animation:none!important}
+}
+.quests{padding:12px 12px 10px}
+.qhead{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:8px}.qhead b{font-size:15px}.qhead span{font-size:12px;font-weight:700;color:#ff8a00;white-space:nowrap}
+.qrow{display:flex;align-items:center;gap:10px;width:100%;border:0;background:none;color:var(--text);font:inherit;text-align:left;padding:7px 2px;cursor:pointer;border-top:1px solid rgba(128,128,128,.15)}
+.qrow i{font-style:normal;font-size:18px}.qrow span{flex:1;font-size:14px;line-height:1.25}
+.qrow u{display:block;height:4px;border-radius:2px;background:rgba(128,128,128,.22);margin-top:5px;overflow:hidden;text-decoration:none}.qrow s{display:block;height:100%;background:var(--accent);text-decoration:none}
+.qrow em{font-style:normal;font-size:12px;color:var(--hint);font-variant-numeric:tabular-nums}.qrow small{font-size:11px;font-weight:700;color:#e6a100}
+.qrow.done span{opacity:.6}.qrow.done s{background:var(--ok)}
+.qfoot{font-size:12px;color:var(--hint);text-align:center;margin-top:6px}
+.btn.pp{background:linear-gradient(135deg,#7b1e2b,#4a0f19);color:#f3d58a;box-shadow:0 4px 0 #2e0910}
+.pp-book{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;border-radius:6px 16px 16px 6px;box-shadow:0 12px 30px rgba(0,0,0,.25);background:#5a1420}
+.pp-book::-webkit-scrollbar{display:none}
+.pp-book.thud{animation:thud .28s}
+@keyframes thud{30%{transform:translateY(4px)}65%{transform:translateY(-1px)}}
+.pp-page{flex:0 0 100%;scroll-snap-align:start;scroll-snap-stop:always;min-height:min(132vw,560px);position:relative;box-sizing:border-box}
+.pp-cover{background:#5a1420 url(cover.jpg) center/cover no-repeat}
+.pp-cover b,.pp-cover span{position:absolute;left:0;right:0;text-align:center;color:#e9c97c;font-family:Georgia,serif;text-shadow:0 1px 1px rgba(0,0,0,.5)}
+.pp-cover b{top:15%;font-size:26px;letter-spacing:.28em}
+.pp-cover span{bottom:15%;font-size:15px;letter-spacing:.32em;line-height:1.7}
+.pp-paper{color:#3b2a14;padding:18px 14px 20px;background:repeating-radial-gradient(circle at 50% 115%,rgba(150,110,60,.07) 0 2px,transparent 2px 10px),linear-gradient(#faf5ea,#efe4cc)}
+.pp-h{font:700 12px Georgia,serif;letter-spacing:.2em;text-transform:uppercase;color:#7a5a2a;text-align:center;margin-bottom:14px;border-bottom:1px solid rgba(122,90,42,.3);padding-bottom:8px}
+.pp-own{display:grid;grid-template-columns:96px 1fr;gap:14px;align-items:start}
+.pp-photo{width:96px;height:122px;border-radius:8px;background:linear-gradient(160deg,#ffd27a,#e07a3b);display:flex;align-items:center;justify-content:center;font-size:54px;box-shadow:inset 0 0 0 3px rgba(255,255,255,.55)}
+.pp-f small{display:block;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#8a6a3a}
+.pp-f b{display:block;font-size:15px;margin:1px 0 9px;font-family:Georgia,serif}
+.pp-mrz{margin-top:14px;font:12px/1.55 "Courier New",monospace;letter-spacing:.06em;word-break:break-all;opacity:.75;background:rgba(255,255,255,.45);padding:8px;border-radius:6px}
+.pp-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px 8px}
+.pp-slot{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;min-height:150px;background:none;border:0;padding:4px;font:inherit;color:inherit;cursor:pointer}
+.pp-slot.wide{grid-column:1/-1}
+.pp-empty{width:118px;height:118px;border:2px dashed rgba(122,90,42,.38);border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;color:rgba(90,65,30,.6);font-size:11.5px;line-height:1.25;text-align:center;padding:8px;box-sizing:border-box}
+.pp-empty i{font-style:normal;font-size:28px;opacity:.35;filter:grayscale(1)}
+.stamp{--ink:#1f4fa3;position:relative;width:122px;height:122px;border:3px solid var(--ink);color:var(--ink);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;text-align:center;transform:rotate(var(--rot,-6deg));opacity:.9;filter:url(#ink);mix-blend-mode:multiply;box-sizing:border-box;padding:8px;line-height:1.1;font-family:"Courier New",monospace}
+.stamp::before{content:'';position:absolute;inset:5px;border:1.5px solid var(--ink);border-radius:inherit;pointer-events:none}
+.stamp.round{border-radius:50%}.stamp.rect{border-radius:8px}.stamp.oval{width:146px;height:104px;border-radius:50%}
+.stamp.big{width:168px;height:168px;border-width:4px}.stamp.big b{font-size:15px}.stamp.big em{font-size:26px}
+.stamp small{font-size:8.5px;letter-spacing:.14em;font-weight:700}
+.stamp i{font-style:normal;font-size:19px}
+.stamp b{font-size:11.5px;font-weight:800;text-transform:uppercase;letter-spacing:.03em;max-width:92%}
+.stamp span{font-size:10px;font-weight:700}
+.stamp em{font-style:normal;font-weight:900;font-size:20px}
+.stamp.pend{opacity:0}
+.stamp.drop{animation:stampDrop .38s cubic-bezier(.3,1.5,.5,1) both}
+@keyframes stampDrop{0%{opacity:0;transform:scale(2.6) rotate(calc(var(--rot) - 14deg))}70%{opacity:.95;transform:scale(.93) rotate(var(--rot))}100%{opacity:.9;transform:scale(1) rotate(var(--rot))}}
+.pp-modes{font-size:13px;letter-spacing:3px}.pp-modes .off{opacity:.22;filter:grayscale(1)}
+.pp-wrap{position:relative}
+.pp-arr{position:absolute;top:clamp(110px,38vh,50%);transform:translateY(-50%);z-index:2;width:40px;height:40px;border:0;border-radius:50%;background:rgba(0,0,0,.38);color:#fff;font-size:24px;line-height:1;cursor:pointer;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);box-shadow:0 2px 8px rgba(0,0,0,.25);transition:opacity .2s}
+.pp-arr.l{left:6px}.pp-arr.r{right:6px}
+.pp-arr.hide{opacity:0;pointer-events:none}
+.pp-nav{display:flex;align-items:center;justify-content:center;margin:12px 0 4px}
+.pp-dots i{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--hint);opacity:.35;margin:0 3px}
+.pp-dots i.on{opacity:1;background:var(--accent)}
+.toast{position:fixed;left:50%;bottom:30px;transform:translateX(-50%);background:rgba(0,0,0,.8);color:#fff;padding:10px 18px;border-radius:20px;font-size:14px;opacity:0;transition:opacity .2s;pointer-events:none}
+.toast.show{opacity:1}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><filter id="ink"><feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="2" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="2.6"/></filter></svg>
+<div class="wrap">
+  <section id="home" class="screen active"></section>
+  <section id="game" class="screen"></section>
+  <section id="result" class="screen"></section>
+  <section id="ref" class="screen"></section>
+  <section id="ach" class="screen"></section>
+  <section id="resorts" class="screen"></section>
+  <section id="kids" class="screen"></section>
+  <section id="countries" class="screen"></section>
+  <section id="seas" class="screen"></section>
+  <section id="passport" class="screen"></section>
+</div>
+<div class="toast" id="toast"></div>
+<div class="praise" id="praise"></div>
+<div class="ach-banner" id="achBanner"></div>
+
+<script>
+// ===== НАСТРОЙКИ =====
+// Ссылка на твоего бота — подставь своё имя бота (используется в кнопке «Поделиться»)
+const APP_LINK = 'https://t.me/passport_quiz_bot?startapp';
+
+// ===== ДАННЫЕ: ISO-код | регион | страна EN | столица EN | страна RU | столица RU =====
+const RAW = `AL|eu|Albania|Tirana|Албания|Тирана
+AD|eu|Andorra|Andorra la Vella|Андорра|Андорра-ла-Велья
+AT|eu|Austria|Vienna|Австрия|Вена
+BY|eu|Belarus|Minsk|Беларусь|Минск
+BE|eu|Belgium|Brussels|Бельгия|Брюссель
+BA|eu|Bosnia and Herzegovina|Sarajevo|Босния и Герцеговина|Сараево
+BG|eu|Bulgaria|Sofia|Болгария|София
+HR|eu|Croatia|Zagreb|Хорватия|Загреб
+CY|eu|Cyprus|Nicosia|Кипр|Никосия
+CZ|eu|Czechia|Prague|Чехия|Прага
+DK|eu|Denmark|Copenhagen|Дания|Копенгаген
+EE|eu|Estonia|Tallinn|Эстония|Таллин
+FI|eu|Finland|Helsinki|Финляндия|Хельсинки
+FR|eu|France|Paris|Франция|Париж
+DE|eu|Germany|Berlin|Германия|Берлин
+GR|eu|Greece|Athens|Греция|Афины
+HU|eu|Hungary|Budapest|Венгрия|Будапешт
+IS|eu|Iceland|Reykjavik|Исландия|Рейкьявик
+IE|eu|Ireland|Dublin|Ирландия|Дублин
+IT|eu|Italy|Rome|Италия|Рим
+LV|eu|Latvia|Riga|Латвия|Рига
+LI|eu|Liechtenstein|Vaduz|Лихтенштейн|Вадуц
+LT|eu|Lithuania|Vilnius|Литва|Вильнюс
+LU|eu|Luxembourg|Luxembourg|Люксембург|Люксембург
+MT|eu|Malta|Valletta|Мальта|Валлетта
+MD|eu|Moldova|Chisinau|Молдова|Кишинёв
+MC|eu|Monaco|Monaco|Монако|Монако
+ME|eu|Montenegro|Podgorica|Черногория|Подгорица
+NL|eu|Netherlands|Amsterdam|Нидерланды|Амстердам
+MK|eu|North Macedonia|Skopje|Северная Македония|Скопье
+NO|eu|Norway|Oslo|Норвегия|Осло
+PL|eu|Poland|Warsaw|Польша|Варшава
+PT|eu|Portugal|Lisbon|Португалия|Лиссабон
+RO|eu|Romania|Bucharest|Румыния|Бухарест
+RU|eu|Russia|Moscow|Россия|Москва
+SM|eu|San Marino|San Marino|Сан-Марино|Сан-Марино
+RS|eu|Serbia|Belgrade|Сербия|Белград
+SK|eu|Slovakia|Bratislava|Словакия|Братислава
+SI|eu|Slovenia|Ljubljana|Словения|Любляна
+ES|eu|Spain|Madrid|Испания|Мадрид
+SE|eu|Sweden|Stockholm|Швеция|Стокгольм
+CH|eu|Switzerland|Bern|Швейцария|Берн
+UA|eu|Ukraine|Kyiv|Украина|Киев
+GB|eu|United Kingdom|London|Великобритания|Лондон
+VA|eu|Vatican City|Vatican City|Ватикан|Ватикан
+AF|as|Afghanistan|Kabul|Афганистан|Кабул
+AM|as|Armenia|Yerevan|Армения|Ереван
+AZ|as|Azerbaijan|Baku|Азербайджан|Баку
+BH|as|Bahrain|Manama|Бахрейн|Манама
+BD|as|Bangladesh|Dhaka|Бангладеш|Дакка
+BT|as|Bhutan|Thimphu|Бутан|Тхимпху
+BN|as|Brunei|Bandar Seri Begawan|Бруней|Бандар-Сери-Бегаван
+KH|as|Cambodia|Phnom Penh|Камбоджа|Пномпень
+CN|as|China|Beijing|Китай|Пекин
+GE|as|Georgia|Tbilisi|Грузия|Тбилиси
+IN|as|India|New Delhi|Индия|Нью-Дели
+ID|as|Indonesia|Jakarta|Индонезия|Джакарта
+IR|as|Iran|Tehran|Иран|Тегеран
+IQ|as|Iraq|Baghdad|Ирак|Багдад
+IL|as|Israel|Jerusalem|Израиль|Иерусалим
+JP|as|Japan|Tokyo|Япония|Токио
+JO|as|Jordan|Amman|Иордания|Амман
+KZ|as|Kazakhstan|Astana|Казахстан|Астана
+KW|as|Kuwait|Kuwait City|Кувейт|Эль-Кувейт
+KG|as|Kyrgyzstan|Bishkek|Киргизия|Бишкек
+LA|as|Laos|Vientiane|Лаос|Вьентьян
+LB|as|Lebanon|Beirut|Ливан|Бейрут
+MY|as|Malaysia|Kuala Lumpur|Малайзия|Куала-Лумпур
+MV|as|Maldives|Male|Мальдивы|Мале
+MN|as|Mongolia|Ulaanbaatar|Монголия|Улан-Батор
+MM|as|Myanmar|Naypyidaw|Мьянма|Нейпьидо
+NP|as|Nepal|Kathmandu|Непал|Катманду
+KP|as|North Korea|Pyongyang|КНДР|Пхеньян
+OM|as|Oman|Muscat|Оман|Маскат
+PK|as|Pakistan|Islamabad|Пакистан|Исламабад
+PH|as|Philippines|Manila|Филиппины|Манила
+QA|as|Qatar|Doha|Катар|Доха
+SA|as|Saudi Arabia|Riyadh|Саудовская Аравия|Эр-Рияд
+SG|as|Singapore|Singapore|Сингапур|Сингапур
+KR|as|South Korea|Seoul|Южная Корея|Сеул
+LK|as|Sri Lanka|Sri Jayawardenepura Kotte|Шри-Ланка|Шри-Джаяварденепура-Котте
+SY|as|Syria|Damascus|Сирия|Дамаск
+TJ|as|Tajikistan|Dushanbe|Таджикистан|Душанбе
+TH|as|Thailand|Bangkok|Таиланд|Бангкок
+TL|as|Timor-Leste|Dili|Восточный Тимор|Дили
+TR|as|Turkey|Ankara|Турция|Анкара
+TM|as|Turkmenistan|Ashgabat|Туркменистан|Ашхабад
+AE|as|United Arab Emirates|Abu Dhabi|ОАЭ|Абу-Даби
+UZ|as|Uzbekistan|Tashkent|Узбекистан|Ташкент
+VN|as|Vietnam|Hanoi|Вьетнам|Ханой
+YE|as|Yemen|Sanaa|Йемен|Сана
+DZ|af|Algeria|Algiers|Алжир|Алжир
+AO|af|Angola|Luanda|Ангола|Луанда
+BJ|af|Benin|Porto-Novo|Бенин|Порто-Ново
+BW|af|Botswana|Gaborone|Ботсвана|Габороне
+BF|af|Burkina Faso|Ouagadougou|Буркина-Фасо|Уагадугу
+BI|af|Burundi|Gitega|Бурунди|Гитега
+CV|af|Cabo Verde|Praia|Кабо-Верде|Прая
+CM|af|Cameroon|Yaounde|Камерун|Яунде
+CF|af|Central African Republic|Bangui|ЦАР|Банги
+TD|af|Chad|N'Djamena|Чад|Нджамена
+KM|af|Comoros|Moroni|Коморы|Морони
+CG|af|Republic of the Congo|Brazzaville|Республика Конго|Браззавиль
+CD|af|DR Congo|Kinshasa|ДР Конго|Киншаса
+CI|af|Cote d'Ivoire|Yamoussoukro|Кот-д’Ивуар|Ямусукро
+DJ|af|Djibouti|Djibouti|Джибути|Джибути
+EG|af|Egypt|Cairo|Египет|Каир
+GQ|af|Equatorial Guinea|Malabo|Экваториальная Гвинея|Малабо
+ER|af|Eritrea|Asmara|Эритрея|Асмэра
+SZ|af|Eswatini|Mbabane|Эсватини|Мбабане
+ET|af|Ethiopia|Addis Ababa|Эфиопия|Аддис-Абеба
+GA|af|Gabon|Libreville|Габон|Либревиль
+GM|af|Gambia|Banjul|Гамбия|Банжул
+GH|af|Ghana|Accra|Гана|Аккра
+GN|af|Guinea|Conakry|Гвинея|Конакри
+GW|af|Guinea-Bissau|Bissau|Гвинея-Бисау|Бисау
+KE|af|Kenya|Nairobi|Кения|Найроби
+LS|af|Lesotho|Maseru|Лесото|Масеру
+LR|af|Liberia|Monrovia|Либерия|Монровия
+LY|af|Libya|Tripoli|Ливия|Триполи
+MG|af|Madagascar|Antananarivo|Мадагаскар|Антананариву
+MW|af|Malawi|Lilongwe|Малави|Лилонгве
+ML|af|Mali|Bamako|Мали|Бамако
+MR|af|Mauritania|Nouakchott|Мавритания|Нуакшот
+MU|af|Mauritius|Port Louis|Маврикий|Порт-Луи
+MA|af|Morocco|Rabat|Марокко|Рабат
+MZ|af|Mozambique|Maputo|Мозамбик|Мапуту
+NA|af|Namibia|Windhoek|Намибия|Виндхук
+NE|af|Niger|Niamey|Нигер|Ниамей
+NG|af|Nigeria|Abuja|Нигерия|Абуджа
+RW|af|Rwanda|Kigali|Руанда|Кигали
+ST|af|Sao Tome and Principe|Sao Tome|Сан-Томе и Принсипи|Сан-Томе
+SN|af|Senegal|Dakar|Сенегал|Дакар
+SC|af|Seychelles|Victoria|Сейшелы|Виктория
+SL|af|Sierra Leone|Freetown|Сьерра-Леоне|Фритаун
+SO|af|Somalia|Mogadishu|Сомали|Могадишо
+ZA|af|South Africa|Pretoria|ЮАР|Претория
+SS|af|South Sudan|Juba|Южный Судан|Джуба
+SD|af|Sudan|Khartoum|Судан|Хартум
+TZ|af|Tanzania|Dodoma|Танзания|Додома
+TG|af|Togo|Lome|Того|Ломе
+TN|af|Tunisia|Tunis|Тунис|Тунис
+UG|af|Uganda|Kampala|Уганда|Кампала
+ZM|af|Zambia|Lusaka|Замбия|Лусака
+ZW|af|Zimbabwe|Harare|Зимбабве|Хараре
+AG|cb|Antigua and Barbuda|Saint John's|Антигуа и Барбуда|Сент-Джонс
+BS|cb|Bahamas|Nassau|Багамы|Нассау
+BB|cb|Barbados|Bridgetown|Барбадос|Бриджтаун
+BZ|na|Belize|Belmopan|Белиз|Бельмопан
+CA|na|Canada|Ottawa|Канада|Оттава
+CR|na|Costa Rica|San Jose|Коста-Рика|Сан-Хосе
+CU|cb|Cuba|Havana|Куба|Гавана
+DM|cb|Dominica|Roseau|Доминика|Розо
+DO|cb|Dominican Republic|Santo Domingo|Доминиканская Республика|Санто-Доминго
+SV|na|El Salvador|San Salvador|Сальвадор|Сан-Сальвадор
+GD|cb|Grenada|St. George's|Гренада|Сент-Джорджес
+GT|na|Guatemala|Guatemala City|Гватемала|Гватемала
+HT|cb|Haiti|Port-au-Prince|Гаити|Порт-о-Пренс
+HN|na|Honduras|Tegucigalpa|Гондурас|Тегусигальпа
+JM|cb|Jamaica|Kingston|Ямайка|Кингстон
+MX|na|Mexico|Mexico City|Мексика|Мехико
+NI|na|Nicaragua|Managua|Никарагуа|Манагуа
+PA|na|Panama|Panama City|Панама|Панама
+KN|cb|Saint Kitts and Nevis|Basseterre|Сент-Китс и Невис|Бастер
+LC|cb|Saint Lucia|Castries|Сент-Люсия|Кастри
+VC|cb|Saint Vincent and the Grenadines|Kingstown|Сент-Винсент и Гренадины|Кингстаун
+TT|cb|Trinidad and Tobago|Port of Spain|Тринидад и Тобаго|Порт-оф-Спейн
+US|na|United States|Washington, D.C.|США|Вашингтон
+AR|sa|Argentina|Buenos Aires|Аргентина|Буэнос-Айрес
+BO|sa|Bolivia|Sucre|Боливия|Сукре
+BR|sa|Brazil|Brasilia|Бразилия|Бразилиа
+CL|sa|Chile|Santiago|Чили|Сантьяго
+CO|sa|Colombia|Bogota|Колумбия|Богота
+EC|sa|Ecuador|Quito|Эквадор|Кито
+GY|sa|Guyana|Georgetown|Гайана|Джорджтаун
+PY|sa|Paraguay|Asuncion|Парагвай|Асунсьон
+PE|sa|Peru|Lima|Перу|Лима
+SR|sa|Suriname|Paramaribo|Суринам|Парамарибо
+UY|sa|Uruguay|Montevideo|Уругвай|Монтевидео
+VE|sa|Venezuela|Caracas|Венесуэла|Каракас
+AU|oc|Australia|Canberra|Австралия|Канберра
+FJ|oc|Fiji|Suva|Фиджи|Сува
+KI|oc|Kiribati|South Tarawa|Кирибати|Южная Тарава
+MH|oc|Marshall Islands|Majuro|Маршалловы Острова|Маджуро
+FM|oc|Micronesia|Palikir|Микронезия|Паликир
+NR|oc|Nauru|Yaren|Науру|Ярен
+NZ|oc|New Zealand|Wellington|Новая Зеландия|Веллингтон
+PW|oc|Palau|Ngerulmud|Палау|Нгерулмуд
+PG|oc|Papua New Guinea|Port Moresby|Папуа — Новая Гвинея|Порт-Морсби
+WS|oc|Samoa|Apia|Самоа|Апиа
+SB|oc|Solomon Islands|Honiara|Соломоновы Острова|Хониара
+TO|oc|Tonga|Nuku'alofa|Тонга|Нукуалофа
+TV|oc|Tuvalu|Funafuti|Тувалу|Фунафути
+VU|oc|Vanuatu|Port Vila|Вануату|Порт-Вила`;
+
+const COUNTRIES = RAW.trim().split('\n').map(l => {
+  const [id, r, en, enc, ru, ruc] = l.split('|');
+  return { id, r, en: { n: en, c: enc }, ru: { n: ru, c: ruc } };
+});
+const BY_ID = Object.fromEntries(COUNTRIES.map(c => [c.id, c]));
+// Регионы игры: Европа · Азия и Океания · Африка · Америка (в данных страны помечены подробнее)
+const PARTS = ['eu', 'aso', 'af', 'am'];
+const REGIONS = ['world', ...PARTS];
+const GRP = { eu: 'eu', as: 'aso', oc: 'aso', af: 'af', na: 'am', cb: 'am', sa: 'am', aso: 'aso', am: 'am' };
+const LENS = [10, 20, 'all'];
+
+// ===== ТЕКСТЫ =====
+const I18N = {
+  ru: {
+    title: 'GeoQuiz', sub: 'Викторина о странах и курортах мира',
+    daily: '🔥 Ежедневный челлендж', dailyDesc: '10 вопросов — одинаковые для всех сегодня',
+    dailyDone: s => `Сегодня: ${s}/10 ✓ · можно переиграть`,
+    mode: 'Что угадываем', c2cap: 'Столицу по стране', cap2c: 'Страну по столице', shape: 'Страну на карте', flag: 'Страну по флагу',
+    type: 'Тип игры', exam: '🎓 Экзамен', normal: 'Обычная', blitz: '⚡ Блиц 60 с', hardcore: '💀 Хардкор', lives: '❤️ 3 жизни',
+    typeHint: { exam: 'Все вопросы раздела с лимитом ошибок. Сдал — диплом и бонус опыта', normal: '4 варианта ответа', blitz: 'Максимум ответов за 60 секунд', hardcore: 'Без вариантов — печатаешь ответ сам, опыт ×2', lives: 'Вопросы без конца и 3 ❤️. Ошибка — минус жизнь, 10 подряд — жизнь назад (не больше трёх)' },
+    region: 'Регионы — можно несколько', world: 'Весь мир', eu: 'Европа', as: 'Азия', af: 'Африка',
+    na: 'Сев. Америка', cb: 'Карибы', sa: 'Юж. Америка', oc: 'Океания', aso: 'Азия и Океания', am: 'Америка',
+    len: 'Вопросов', all: 'До конца', start: 'Начать',
+    errors: n => `🧠 Ошибки (${n})`, ref: 'Справочник', achBtn: (a, b) => `🏅 Достижения ${a}/${b}`,
+    played: 'Игр', acc: 'Точность', bestStreak: 'Лучшая серия',
+    qc2cap: 'Столица страны', qcap2c: 'Чья это столица?', qshape: 'Какая страна выделена на карте?', qflag: 'Чей это флаг?', ghostNear: n => `До рекорда ${n}!`, ghostBeat: '🏁 Новый рекорд!',
+    streak: 'Серия', quit: 'Выйти', capOf: 'столица',
+    newRecord: '🏆 Новый рекорд!', best: 'Рекорд', mist: 'Запомни', noMist: 'Ни одной ошибки! 🔥',
+    again: 'Ещё раз', share: 'Позвать друзей', home: 'В меню',
+    search: 'Страна или столица…', copied: 'Скопировано',
+    shareText: (s, t, tm) => `Я угадал ${s} из ${t}${tm || ''} в GeoQuiz 🌍 Сможешь лучше?`,
+    shareBlitz: s => `${s} правильных за 60 секунд в блице GeoQuiz ⚡ Побьёшь?`,
+    shareDaily: (s, tm) => `Ежедневный челлендж GeoQuiz: ${s}/10${tm || ''} 🌍 Попробуй побить!`,
+    dailyTitle: 'Ежедневный челлендж', errorsTitle: 'Работа над ошибками',
+    streakMsg: s => `🔥 Серия ${s}!`,
+    globeHint: 'Нажми на страну на глобусе или в списке', globeLoading: '🌍 Загружаем глобус…',
+    globeFail: 'Глобус не загрузился — проверь интернет', capital: 'Столица',
+    praise: ['Верно! ✨', 'Отлично! 👏', 'Супер! 🎯', 'Так держать! 💪', 'Браво! 🌟', 'В точку! 🎯', 'Красавчик! 😎', 'Огонь! 🔥', 'Знаток! 🧠', 'Идеально! ⭐', 'Молодец! 🙌', 'Есть! ✅'],
+    typeAnswer: 'Напиши ответ…', answerBtn: 'Ответить', dontKnow: 'Не знаю',
+    hintLetter: (l, n) => `Начинается на «${l}», букв: ${n}`, hintBtn: '💡 Первая буква',
+    penalty: '−3 с', timeUp: '⏱ Время вышло!', answers: 'Ответов', correctW: 'правильно',
+    youTyped: 'Ты написал', almost: 'Засчитано (почти точно) ✍️',
+    loadingShapes: '🗺️ Загружаем карту…', shapesFail: 'Контуры не загрузились — проверь интернет',
+    rankNext: (r, n) => `до «${r}» ещё ${n} XP`, rankMax: 'Высшее звание!', newRank: r => `🎉 Новое звание: ${r}!`,
+    resorts: 'Курорты', resortsSub: n => `Морские, островные и горнолыжные — ${n} мест`,
+    resortsBtn: '🏖 Курорты', resortsBtnSub: 'Где этот курорт? Бали, Хургада, Куршевель, Занзибар…',
+    r_where_hint: 'Показываем курорт — выбери, в какой он стране',
+    r_where_q: 'В какой стране?',
+    island: 'остров', resort: 'курорт', skiResort: 'горнолыжный курорт', dir: 'Направление', dirMulti: 'Направления — можно несколько',
+    d_all: 'Все направления', d_tr: '🇹🇷 Турция, Египет и арабские страны', d_eu: '🇪🇺 Европа и Россия', d_aso: '🌏 Азия и Океания', d_afr: '🌴 Индийский океан и Африка', d_am: '🌎 Америка и Карибы',
+    shareRes: (s, n, tm) => `Я угадал ${s} из ${n} курортов${tm || ''} в GeoQuiz 🏖 Сможешь лучше?`,
+    seasBtn: '🌊 Моря и реки', seasBtnSub: 'На какой реке Прага? Что омывает Италию?', seasTitle: 'Моря и реки', seasSub: 'Реки городов, моря стран, заливы и океаны',
+    seasHint: 'Вопросы вперемешку: реки городов, моря у городов и стран — и наоборот', regionOne: 'Регион',
+    sr_world: 'Весь мир', sr_eu: 'Европа', sr_aso: 'Азия и Океания', sr_afam: 'Африка и Америка',
+    sq_cr: 'На какой реке стоит', sq_rc: 'Какой город стоит на реке', sq_cs: 'У какого моря или залива стоит', sq_cw: 'Что омывает', sq_wc: 'Какую страну омывает',
+    lifeBack: '❤️ +1 жизнь!', noLives: '💔 Жизни кончились', shareSea: (s, n, tm) => `Я угадал ${s} из ${n} про моря и реки${tm || ''} в GeoQuiz 🌊 Сможешь лучше?`,
+    shareRun: s => `На 3 жизнях я угадал ${s} в GeoQuiz ❤️ Побьёшь?`, kSea: '🌊 Моря и океаны', kQSea: 'Что омывает',
+    examErr: (e, l) => `❌ ${e} из ${l}`, examLimit: l => `Можно ошибиться: ${l}`, examQs: n => `вопросов: ${n}`, dipTitle: 'ДИПЛОМ', dipPassed: r => `сдал(а) экзамен «${r}»`, dipGrade: 'Оценка',
+    examFail: 'Экзамен не сдан', examFailWhy: (l, a, n) => `Ошибок больше ${l} · пройдено ${a} из ${n}`, examRetry: 'Пересдать', examBonus: n => `🎓 +${n} XP за сдачу`, examHave: g => `🎓 Диплом на ${g} уже есть — бонус за оценку выше`,
+    dipMenu: g => `🎓 Диплом: ${g}`, dipNone: '🎓 Ещё не сдан', player: 'Игрок',
+    shareExam: (r, g) => `Сдал экзамен «${r}» на ${g} в GeoQuiz 🎓 А ты сдашь?`,
+    countriesBtn: '🌍 Страны и столицы', countriesBtnSub: n => `Столицы, контуры, блиц и 3 жизни — ${n} стран`,
+    countriesTitle: 'Страны и столицы', countriesSub: n => `${n} стран мира`, toCountries: 'К странам',
+    kidsBtn: '👶 Для детей', kidsBtnSub: 'Флаги и столицы известных стран — без очков и таймера',
+    exResume: '🎓 Незаконченный экзамен',
+    qTitle: '🎯 Задания на сегодня', qAll: 'Все три — ещё +200 XP', qAllDone: '🎉 Все задания выполнены! +200 XP получено', qDone: '✅ Задание выполнено! +100 XP', qBonus: '🎉 Все задания дня! +200 XP',
+    days: n => `🔥 ${n} ${plural(n, 'день', 'дня', 'дней')} подряд`, dayBonus: (n, xp) => `🔥 ${n} ${plural(n, 'день', 'дня', 'дней')} подряд! +${xp} XP`,
+    q_blitz10: 'Набери 10+ правильных в блице', q_res5: 'Угадай 5 курортов подряд без ошибок', q_errors3: 'Разбери 3 страны в «Ошибках»', q_daily: 'Пройди челлендж дня',
+    q_sea15: 'Ответь верно на 15 вопросов про моря и реки', q_streak7: 'Набери серию 7 в любом режиме', q_lives15: 'Набери 15 на 3 жизнях', q_flag10: 'Угадай 10 флагов',
+    q_shape5: 'Угадай 5 стран на карте', q_cap15: 'Ответь верно на 15 вопросов про столицы',
+    ppBtn: 'Мой паспорт', ppTitle: 'Паспорт путешественника', ppWord: 'ПАСПОРТ', ppName: 'Имя', ppNo: 'Номер паспорта', ppRank: 'Звание', ppXp: 'Опыт', ppIssued: 'Дата выдачи', ppVisas: 'Штампы', ppKnown: 'Стран угадано',
+    ppSecC: 'Страны и столицы', ppSecS: 'Моря и реки', ppSecR: 'Курорты', ppGet: n => `Сдай экзамен:<br>${n}`, ppStamp: '🛂 Поставить штамп в паспорт', ppNewOne: '🛂 Новый штамп!', exGo: 'Продолжить', exNew: 'Заново',
+    tCountries: 'Страны', tCountriesSub: 'Столицы, контуры, блиц', tSeas: 'Моря и реки', tSeasSub: 'Реки, моря, заливы', tRes: 'Курорты', tResSub: 'Пляжи, острова, горы', tKids: 'Детям', tKidsSub: 'Флаги и столицы',
+    kidsTitle: 'Для детей', kidsSub: 'Самые известные страны мира', kidsNote: 'Без очков, таймера и рекордов — просто играем и учимся 🙂',
+    kFlags: '🚩 Угадай флаг', kCaps: '🏙 Угадай столицу', kCount: n => `${n} стран · 10 вопросов`,
+    kQFlag: 'Какая это страна?', kQCap: 'Какая столица у страны',
+    kPraise: ['Умница! 🌟', 'Правильно! 🎉', 'Молодец! 👏', 'Ура! 🥳', 'Супер! ⭐', 'Отлично! 🙌'],
+    kAlmost: 'Почти! Правильно —', kDone: (s, n) => `${s} из ${n}`,
+    kGreat: 'Молодец! Ты отлично знаешь страны 🎉', kTry: 'Хорошо получилось! Давай ещё раз — будет ещё лучше 💪',
+    kAgain: 'Играть ещё', kBack: 'К детскому разделу',
+    back: 'Назад', gotXp: n => `+${n} XP`, ach: 'Достижения', achNew: 'Новое достижение!', achGot: 'Получено в этой игре',
+    timeLine: (t, a) => `⏱ Время: ${t} · в среднем ${a} с на вопрос`, bestTime: 'Лучшее время без ошибок',
+    newBestTime: '🏎️ Рекорд скорости!', shareTime: t => ` за ${t}`
+  },
+  en: {
+    title: 'GeoQuiz', sub: 'A quiz about countries and resorts',
+    daily: '🔥 Daily challenge', dailyDesc: '10 questions — the same for everyone today',
+    dailyDone: s => `Today: ${s}/10 ✓ · play again`,
+    mode: 'What to guess', c2cap: 'Capital by country', cap2c: 'Country by capital', shape: 'Country on the map', flag: 'Country by flag',
+    type: 'Game type', exam: '🎓 Exam', normal: 'Classic', blitz: '⚡ Blitz 60s', hardcore: '💀 Hardcore', lives: '❤️ 3 lives',
+    typeHint: { exam: 'Every question of the section with an error limit. Pass — get a diploma and bonus XP', normal: '4 answer options', blitz: 'As many as you can in 60 s', hardcore: 'No options — type the answer yourself, XP ×2', lives: 'Endless questions and 3 ❤️. A mistake costs a life, 10 in a row gives one back (max three)' },
+    region: 'Regions — pick several', world: 'Whole world', eu: 'Europe', as: 'Asia', af: 'Africa',
+    na: 'N. America', cb: 'Caribbean', sa: 'S. America', oc: 'Oceania', aso: 'Asia & Oceania', am: 'Americas',
+    len: 'Questions', all: 'All of them', start: 'Start',
+    errors: n => `🧠 Mistakes (${n})`, ref: 'Atlas', achBtn: (a, b) => `🏅 Achievements ${a}/${b}`,
+    played: 'Games', acc: 'Accuracy', bestStreak: 'Best streak',
+    qc2cap: 'Capital of', qcap2c: 'Which country is this the capital of?', qshape: 'Which country is highlighted?', qflag: 'Whose flag is this?', ghostNear: n => `${n} to beat your record!`, ghostBeat: '🏁 New record!',
+    streak: 'Streak', quit: 'Quit', capOf: 'capital of',
+    newRecord: '🏆 New record!', best: 'Best', mist: 'Remember these', noMist: 'No mistakes at all! 🔥',
+    again: 'Play again', share: 'Challenge friends', home: 'Menu',
+    search: 'Country or capital…', copied: 'Copied',
+    shareText: (s, t, tm) => `I got ${s} of ${t}${tm || ''} in GeoQuiz 🌍 Can you beat me?`,
+    shareBlitz: s => `${s} correct in 60 seconds in GeoQuiz blitz ⚡ Can you beat it?`,
+    shareDaily: (s, tm) => `GeoQuiz daily challenge: ${s}/10${tm || ''} 🌍 Can you beat it?`,
+    dailyTitle: 'Daily challenge', errorsTitle: 'Practice mistakes',
+    streakMsg: s => `🔥 ${s} in a row!`,
+    globeHint: 'Tap a country on the globe or in the list', globeLoading: '🌍 Loading the globe…',
+    globeFail: "Globe didn't load — check your connection", capital: 'Capital',
+    praise: ['Correct! ✨', 'Great! 👏', 'Awesome! 🎯', 'Keep it up! 💪', 'Bravo! 🌟', 'Spot on! 🎯', 'Nice one! 😎', 'On fire! 🔥', 'Genius! 🧠', 'Perfect! ⭐', 'Well done! 🙌', 'Yes! ✅'],
+    typeAnswer: 'Type your answer…', answerBtn: 'Answer', dontKnow: "Don't know",
+    hintLetter: (l, n) => `Starts with “${l}”, ${n} letters`, hintBtn: '💡 First letter',
+    penalty: '−3 s', timeUp: "⏱ Time's up!", answers: 'Answers', correctW: 'correct',
+    youTyped: 'You typed', almost: 'Accepted (close enough) ✍️',
+    loadingShapes: '🗺️ Loading the map…', shapesFail: "Shapes didn't load — check your connection",
+    rankNext: (r, n) => `${n} XP to “${r}”`, rankMax: 'Top rank!', newRank: r => `🎉 New rank: ${r}!`,
+    resorts: 'Resorts', resortsSub: n => `Beach, island and ski resorts — ${n} places`,
+    resortsBtn: '🏖 Resorts', resortsBtnSub: 'Where is it? Bali, Hurghada, Courchevel, Zanzibar…',
+    r_where_hint: 'We show a resort — pick the country it is in',
+    r_where_q: 'Which country?',
+    island: 'island', resort: 'resort', skiResort: 'ski resort', dir: 'Destination', dirMulti: 'Destinations — pick several',
+    d_all: 'All destinations', d_tr: '🇹🇷 Turkey, Egypt & Arab countries', d_eu: '🇪🇺 Europe & Russia', d_aso: '🌏 Asia & Oceania', d_afr: '🌴 Indian Ocean & Africa', d_am: '🌎 Americas & Caribbean',
+    shareRes: (s, n, tm) => `I got ${s} of ${n} resorts${tm || ''} in GeoQuiz 🏖 Can you beat me?`,
+    seasBtn: '🌊 Seas & rivers', seasBtnSub: 'Which river is Prague on? What washes Italy?', seasTitle: 'Seas & rivers', seasSub: 'City rivers, country seas, gulfs and oceans',
+    seasHint: 'Mixed questions: city rivers, seas by cities and countries — and the other way round', regionOne: 'Region',
+    sr_world: 'Whole world', sr_eu: 'Europe', sr_aso: 'Asia & Oceania', sr_afam: 'Africa & Americas',
+    sq_cr: 'Which river is this city on', sq_rc: 'Which city stands on the river', sq_cs: 'Which sea or gulf is this city on', sq_cw: 'What washes the shores of', sq_wc: 'Which country does it wash',
+    lifeBack: '❤️ +1 life!', noLives: '💔 Out of lives', shareSea: (s, n, tm) => `I got ${s} of ${n} on seas & rivers${tm || ''} in GeoQuiz 🌊 Can you beat me?`,
+    shareRun: s => `I got ${s} on 3 lives in GeoQuiz ❤️ Can you beat it?`, kSea: '🌊 Seas & oceans', kQSea: 'What washes the shores of',
+    examErr: (e, l) => `❌ ${e} of ${l}`, examLimit: l => `Mistakes allowed: ${l}`, examQs: n => `${n} questions`, dipTitle: 'DIPLOMA', dipPassed: r => `passed the “${r}” exam`, dipGrade: 'Grade',
+    examFail: 'Exam failed', examFailWhy: (l, a, n) => `More than ${l} mistakes · ${a} of ${n} done`, examRetry: 'Retake', examBonus: n => `🎓 +${n} XP for passing`, examHave: g => `🎓 You already have ${g} — bonus only for a higher grade`,
+    dipMenu: g => `🎓 Diploma: ${g}`, dipNone: '🎓 Not passed yet', player: 'Player',
+    shareExam: (r, g) => `I passed the “${r}” exam with ${g} in GeoQuiz 🎓 Can you?`,
+    countriesBtn: '🌍 Countries & capitals', countriesBtnSub: n => `Capitals, shapes, blitz and 3 lives — ${n} countries`,
+    countriesTitle: 'Countries & capitals', countriesSub: n => `${n} countries of the world`, toCountries: 'Countries',
+    kidsBtn: '👶 For kids', kidsBtnSub: 'Flags and capitals of famous countries — no points, no timer',
+    exResume: '🎓 Unfinished exam',
+    qTitle: '🎯 Today\'s tasks', qAll: 'All three — another +200 XP', qAllDone: '🎉 All tasks done! +200 XP received', qDone: '✅ Task complete! +100 XP', qBonus: '🎉 All daily tasks! +200 XP',
+    days: n => `🔥 ${n}-day streak`, dayBonus: (n, xp) => `🔥 ${n}-day streak! +${xp} XP`,
+    q_blitz10: 'Get 10+ correct in blitz', q_res5: 'Guess 5 resorts in a row', q_errors3: 'Fix 3 countries in Mistakes', q_daily: 'Play the daily challenge',
+    q_sea15: 'Answer 15 seas & rivers questions right', q_streak7: 'Reach a streak of 7 in any mode', q_lives15: 'Score 15 in 3 lives', q_flag10: 'Guess 10 flags',
+    q_shape5: 'Guess 5 countries on the map', q_cap15: 'Answer 15 capital questions right',
+    ppBtn: 'My passport', ppTitle: 'Traveller passport', ppWord: 'PASSPORT', ppName: 'Name', ppNo: 'Passport No.', ppRank: 'Rank', ppXp: 'XP', ppIssued: 'Date of issue', ppVisas: 'Stamps', ppKnown: 'Countries guessed',
+    ppSecC: 'Countries & capitals', ppSecS: 'Seas & rivers', ppSecR: 'Resorts', ppGet: n => `Pass the exam:<br>${n}`, ppStamp: '🛂 Stamp my passport', ppNewOne: '🛂 New stamp!', exGo: 'Continue', exNew: 'Restart',
+    tCountries: 'Countries', tCountriesSub: 'Capitals, shapes, blitz', tSeas: 'Seas & rivers', tSeasSub: 'Rivers, seas, gulfs', tRes: 'Resorts', tResSub: 'Beaches, islands, ski', tKids: 'Kids', tKidsSub: 'Flags and capitals',
+    kidsTitle: 'For kids', kidsSub: 'The best-known countries of the world', kidsNote: 'No points, timer or records — just play and learn 🙂',
+    kFlags: '🚩 Guess the flag', kCaps: '🏙 Guess the capital', kCount: n => `${n} countries · 10 questions`,
+    kQFlag: 'Which country is this?', kQCap: 'What is the capital of',
+    kPraise: ['Clever! 🌟', 'Correct! 🎉', 'Well done! 👏', 'Hooray! 🥳', 'Super! ⭐', 'Great! 🙌'],
+    kAlmost: 'Almost! The answer is', kDone: (s, n) => `${s} of ${n}`,
+    kGreat: 'Well done! You know your countries 🎉', kTry: 'Nice try! Play again — it will be even better 💪',
+    kAgain: 'Play again', kBack: 'Back to kids',
+    back: 'Back', gotXp: n => `+${n} XP`, ach: 'Achievements', achNew: 'Achievement unlocked!', achGot: 'Unlocked this game',
+    timeLine: (t, a) => `⏱ Time: ${t} · ${a} s per question on average`, bestTime: 'Best flawless time',
+    newBestTime: '🏎️ Speed record!', shareTime: t => ` in ${t}`
+  }
+};
+const MODES = ['c2cap', 'cap2c', 'flag', 'shape'];
+const SEA_PARTS = ['eu', 'aso', 'afam'];          // Моря и реки: Европа · Азия и Океания · Африка и Америка
+const RES_PARTS = ['tr', 'eu', 'aso', 'afr', 'am']; // Курорты: 5 направлений
+// выбор нескольких пунктов, как регионы в Странах: «всё» = все пункты
+function toggleIn(list, all, v) {
+  if (v === 'world' || v === 'all') return all.slice();
+  if (all.every(p => list.includes(p))) return [v];          // из «всего» тап = только этот пункт
+  if (list.includes(v)) { const r = list.filter(x => x !== v); return r.length ? r : all.slice(); }
+  return list.concat(v);
+}
+const TYPES = ['exam', 'blitz', 'lives']; // хардкор убран; обычная игра → экзамен
+
+// ===== ЗВАНИЯ =====
+// [нужно XP, значок, название RU, название EN, описание RU, описание EN]
+const RANKS = [
+  [0, '🎒', 'Следопыт', 'Pathfinder', 'Первые шаги и открытия', 'First steps and discoveries'],
+  [300, '🧳', 'Странник', 'Wanderer', 'Путешествия становятся привычкой', 'Travel is becoming a habit'],
+  [1000, '🏖️', 'Покоритель пляжей', 'Beach Conqueror', 'Знает, где самое тёплое море', 'Knows where the sea is warmest'],
+  [2500, '🧭', 'Искатель приключений', 'Adventurer', 'Поиск новых мест и впечатлений', 'Seeking new places and experiences'],
+  [5000, '🌴', 'Знаток курортов', 'Resort Expert', 'Отличит Хургаду от Шарма с закрытыми глазами', 'Tells Hurghada from Sharm with eyes closed'],
+  [9000, '🗺️', 'Первопроходец', 'Trailblazer', 'Открывает новые маршруты', 'Opens up new routes'],
+  [15000, '🏝️', 'Хозяин островов', 'Lord of the Islands', 'От Бали до Бора-Бора', 'From Bali to Bora Bora'],
+  [25000, '🏔️', 'Покоритель земель', 'Land Conqueror', 'Покоряет новые территории', 'Conquers new territories'],
+  [45000, '⛵', 'Великий мореплаватель', 'Great Navigator', 'Масштабные путешествия', 'Voyages on a grand scale'],
+  [70000, '🌐', 'Легенда странствий', 'Travel Legend', 'Опыт настоящего исследователя мира', 'The experience of a true world explorer'],
+  [100000, '🌍', 'Покоритель семи морей', 'Conqueror of the Seven Seas', 'Весь мир у твоих ног', 'The whole world at your feet']
+];
+const rankDesc = i => settings.lang === 'ru' ? RANKS[i][4] : RANKS[i][5];
+const rankIdx = xp => { let i = 0; RANKS.forEach((r, k) => { if (xp >= r[0]) i = k; }); return i; };
+const rankName = i => `${RANKS[i][1]} ${settings.lang === 'ru' ? RANKS[i][2] : RANKS[i][3]}`;
+
+// ===== ДОСТИЖЕНИЯ =====
+const REG_ICON = { eu: '🏰', aso: '🐉', af: '🦁', am: '🗽' };
+const ACH = [
+  { id: 'first', i: '👣', ru: ['Первый шаг', 'Первый правильный ответ'], en: ['First step', 'First correct answer'], t: s => s.correct >= 1 },
+  { id: 's10', i: '🔥', ru: ['Горячая серия', '10 правильных подряд'], en: ['Hot streak', '10 correct in a row'], t: s => s.bestStreak >= 10 },
+  { id: 's20', i: '⚡', ru: ['Серия 20+', '20 правильных подряд'], en: ['20+ streak', '20 correct in a row'], t: s => s.bestStreak >= 20 },
+  { id: 's50', i: '🚀', ru: ['Безупречный', '50 вопросов подряд без ошибки'], en: ['Flawless', '50 in a row without a mistake'], t: s => s.bestStreak >= 50 },
+  { id: 'perfect', i: '💯', ru: ['Идеальный раунд', 'Раунд от 10 вопросов без ошибок'], en: ['Perfect round', 'A 10+ question round with no mistakes'], t: (s, g) => !!(g && g.over && g.type !== 'blitz' && g.type !== 'lives' && g.kind !== 'errors' && g.asked >= 10 && !g.wrong.length) },
+  { id: 'k50', i: '🗺️', ru: ['50 стран', 'Угадал 50 разных стран'], en: ['50 countries', 'Guessed 50 different countries'], t: s => s.known.length >= 50 },
+  { id: 'k100', i: '🌐', ru: ['100 стран', 'Угадал 100 разных стран'], en: ['100 countries', 'Guessed 100 different countries'], t: s => s.known.length >= 100 },
+  { id: 'kall', i: '🏆', ru: ['Весь мир', `Угадал все страны мира (${COUNTRIES.length})`], en: ['Whole world', `Guessed all ${COUNTRIES.length} countries`], t: s => COUNTRIES.every(c => s.known.includes(c.id)) },
+  ...PARTS.map(r => ({
+    id: 'reg_' + r, i: REG_ICON[r],
+    ru: [`Знаток: ${I18N.ru[r]}`, `Угадал все страны региона «${I18N.ru[r]}»`],
+    en: [`Expert: ${I18N.en[r]}`, `Guessed every country in ${I18N.en[r]}`],
+    t: s => inRegion(r).every(c => s.known.includes(c.id))
+  })),
+  { id: 'blitz15', i: '⏱️', ru: ['Быстрые руки', '15+ правильных в блице'], en: ['Quick hands', '15+ correct in blitz'], t: s => s.blitzBest >= 15 },
+  { id: 'blitz25', i: '🌩️', ru: ['Молния', '25+ правильных в блице'], en: ['Lightning', '25+ correct in blitz'], t: s => s.blitzBest >= 25 },
+  { id: 'shape10', i: '👁️', ru: ['Глаз-алмаз', 'Угадал 10 стран на карте'], en: ['Eagle eye', 'Guessed 10 countries on the map'], t: s => s.shapeOk >= 10 },
+  { id: 'shape50', i: '🔭', ru: ['Картограф-самоучка', 'Угадал 50 стран на карте'], en: ['Self-taught mapmaker', 'Guessed 50 countries on the map'], t: s => s.shapeOk >= 50 },
+  { id: 'fast10', i: '🏎️', ru: ['Скорострел', '10 вопросов без ошибок быстрее 40 секунд'], en: ['Speedster', '10 questions with no mistakes in under 40 s'], t: (s, g) => !!(g && g.over && g.type !== 'blitz' && g.type !== 'lives' && g.kind !== 'errors' && g.asked >= 10 && !g.wrong.length && g.time < 40000) },
+  { id: 'res10', i: '🏖️', ru: ['Пляжник', 'Угадал 10 разных курортов'], en: ['Beach lover', 'Guessed 10 different resorts'], t: s => s.resKnown.length >= 10 },
+  { id: 'res40', i: '🌴', ru: ['Турагент', 'Угадал 40 разных курортов'], en: ['Travel agent', 'Guessed 40 different resorts'], t: s => s.resKnown.length >= 40 },
+  { id: 'resall', i: '🛳️', ru: ['Кругосветка', 'Угадал все курорты и острова'], en: ['Round the world', 'Guessed every resort and island'], t: s => RESORTS.every(r => s.resKnown.includes(r.id)) },
+  { id: 'sea25', i: '🌊', ru: ['Морской волк', '25 правильных про моря и реки'], en: ['Old salt', '25 correct about seas & rivers'], t: s => s.seaOk >= 25 },
+  { id: 'sea100', i: '⚓', ru: ['Капитан', '100 правильных про моря и реки'], en: ['Captain', '100 correct about seas & rivers'], t: s => s.seaOk >= 100 },
+  { id: 'lives20', i: '❤️', ru: ['Живучий', '20 правильных за одну игру на 3 жизнях'], en: ['Survivor', '20 correct in one 3-lives game'], t: (s, g) => !!(g && g.type === 'lives' && g.score >= 20) },
+  { id: 'daily7', i: '📅', ru: ['Неделя челленджей', 'Сыграл 7 ежедневных челленджей'], en: ['Challenge week', 'Played 7 daily challenges'], t: s => Object.keys(s.daily).length >= 7 },
+  { id: 'c500', i: '🎓', ru: ['Полтысячи', '500 правильных ответов'], en: ['Five hundred', '500 correct answers'], t: s => s.correct >= 500 },
+  { id: 'c1000', i: '👑', ru: ['Тысяча', '1000 правильных ответов'], en: ['One thousand', '1000 correct answers'], t: s => s.correct >= 1000 }
+];
+const achText = a => settings.lang === 'ru' ? a.ru : a.en;
+
+// ===== TELEGRAM =====
+const tg = window.Telegram && window.Telegram.WebApp;
+const tgv = v => !!(tg && tg.isVersionAtLeast && tg.isVersionAtLeast(v));
+const inTg = !!(tg && tg.initData);
+if (tg) {
+  tg.ready(); tg.expand();
+  if (tgv('7.7') && tg.disableVerticalSwipes) tg.disableVerticalSwipes();
+  if (tgv('6.1')) tg.BackButton.onClick(() => { endGame(); go('home'); });
+}
+function haptic(type) {
+  try { if (tgv('6.1')) tg.HapticFeedback.notificationOccurred(type); } catch (e) {}
+}
+
+// ===== ХРАНИЛИЩЕ (localStorage + облако Telegram) =====
+const cloudOk = () => tgv('6.9') && tg.CloudStorage;
+// В облаке Telegram одно значение — максимум 4096 символов, поэтому режем на куски cq_<k>_0, cq_<k>_1… и пишем их число в cq_<k>_n
+const CHUNK = 3800, cloudTimers = {}, cloudLast = {};
+function cloudPut(k, s) {
+  if (!cloudOk() || cloudLast[k] === s) return;
+  cloudLast[k] = s;
+  try {
+    const n = Math.max(1, Math.ceil(s.length / CHUNK)), cs = tg.CloudStorage;
+    for (let i = 0; i < n; i++) cs.setItem(`cq_${k}_${i}`, s.slice(i * CHUNK, (i + 1) * CHUNK));
+    cs.setItem(`cq_${k}_n`, String(n));
+  } catch (e) {}
+}
+const store = {
+  get(k, d) { try { const v = localStorage.getItem('cq_' + k); return v ? JSON.parse(v) : d; } catch (e) { return d; } },
+  set(k, v, local) {
+    const s = JSON.stringify(v);
+    try { localStorage.setItem('cq_' + k, s); } catch (e) {}
+    if (local || !cloudOk()) return;
+    clearTimeout(cloudTimers[k]); // не дёргаем облако на каждый ответ — пишем через секунду тишины
+    cloudTimers[k] = setTimeout(() => cloudPut(k, s), 1000);
+  },
+  del(k) { try { localStorage.removeItem('cq_' + k); } catch (e) {} }
+};
+// Читаем значения из облака: новый формат (куски) или старый (одно значение)
+function cloudLoad(keys, cb) {
+  const cs = tg.CloudStorage;
+  cs.getItems(keys.flatMap(k => ['cq_' + k + '_n', 'cq_' + k]), (err, v) => {
+    if (err || !v) return; // облако не ответило — ничего не трогаем
+    const need = [];
+    keys.forEach(k => { const n = parseInt(v['cq_' + k + '_n'], 10) || 0; for (let i = 0; i < n; i++) need.push(`cq_${k}_${i}`); });
+    const done = parts => {
+      const out = {};
+      keys.forEach(k => {
+        const n = parseInt(v['cq_' + k + '_n'], 10) || 0;
+        let s = null;
+        if (n) { s = ''; for (let i = 0; i < n; i++) { const p = parts[`cq_${k}_${i}`]; if (p == null) { s = null; break; } s += p; } }
+        if (s == null && v['cq_' + k]) s = v['cq_' + k];
+        if (s) { try { out[k] = JSON.parse(s); } catch (e) {} }
+      });
+      cb(out);
+    };
+    if (!need.length) return done({});
+    cs.getItems(need, (e2, parts) => { if (!e2 && parts) done(parts); });
+  });
+}
+function detectLang() {
+  const lc = ((tg && tg.initDataUnsafe && tg.initDataUnsafe.user && tg.initDataUnsafe.user.language_code) || navigator.language || 'en').toLowerCase();
+  return /^(ru|uk|be|kk)/.test(lc) ? 'ru' : 'en';
+}
+let settings = store.get('settings', {});
+let stats = store.get('stats', {});
+let mistakes = store.get('mistakes', []);
+// Приводим старые/кривые данные к текущему формату
+function fixSettings() {
+  if (!settings || typeof settings !== 'object') settings = {};
+  const fresh = !Array.isArray(settings.regions) && settings.region == null; // новый игрок — по умолчанию Европа
+  if (!Array.isArray(settings.regions)) {
+    settings.regions = fresh ? ['eu'] : (settings.region === 'world') ? PARTS.slice() : [settings.region];
+  }
+  settings.regions = [...new Set(settings.regions.map(r => GRP[r] || r))].filter(r => PARTS.includes(r)); // старые регионы → материки
+  if (!settings.regions.length) settings.regions = PARTS.slice();
+  delete settings.region;
+  if (!LENS.includes(settings.len)) settings.len = 10;
+  if (!MODES.includes(settings.mode)) settings.mode = 'c2cap';
+  if (!TYPES.includes(settings.type)) settings.type = 'exam';
+  if (settings.lang !== 'ru' && settings.lang !== 'en') settings.lang = detectLang();
+  try { // язык, выбранный в боте (?lang=ru|en), — если игрок сам не переключал язык в игре
+    const pl = new URLSearchParams(location.search).get('lang');
+    if ((pl === 'ru' || pl === 'en') && !settings.langManual) settings.lang = pl;
+  } catch (e) {}
+  if (typeof settings.sound !== 'boolean') settings.sound = true;
+  delete settings.rmode;
+  if (!Array.isArray(settings.rdirs)) settings.rdirs = fresh ? ['eu'] : (!settings.rdir || settings.rdir === 'all') ? RES_PARTS.slice() : [settings.rdir];
+  settings.rdirs = settings.rdirs.filter(d => RES_PARTS.includes(d)); if (!settings.rdirs.length) settings.rdirs = RES_PARTS.slice();
+  delete settings.rdir;
+  if (!TYPES.includes(settings.rtype)) settings.rtype = 'exam';
+  if (!TYPES.includes(settings.stype)) settings.stype = 'exam';
+  if (!Array.isArray(settings.sregs)) settings.sregs = fresh ? ['eu'] : (!settings.sreg || settings.sreg === 'world') ? SEA_PARTS.slice() : [settings.sreg];
+  settings.sregs = [...new Set(settings.sregs.map(r => r === 'af' || r === 'am' ? 'afam' : r))].filter(r => SEA_PARTS.includes(r));
+  if (!settings.sregs.length) settings.sregs = SEA_PARTS.slice();
+  delete settings.sreg;
+  if (!LENS.includes(settings.slen)) settings.slen = 10;
+  if (!LENS.includes(settings.rlen)) settings.rlen = 10;
+}
+function fixStats() {
+  if (!stats || typeof stats !== 'object') stats = {};
+  const d = { played: 0, answered: 0, correct: 0, bestStreak: 0, best: {}, daily: {}, xp: 0, known: [], ach: {}, blitzBest: 0, shapeOk: 0, bestTime: {}, resKnown: [], resBest: {}, resBestTime: {}, genBest: {}, genBestTime: {}, seaOk: 0, dip: {}, quests: {}, dstr: {}, stampD: {}, since: '', ppNo: '', ppSeen: 0 };
+  for (const k in d) if (stats[k] == null || typeof stats[k] !== typeof d[k]) stats[k] = d[k];
+  if (!Array.isArray(stats.known)) stats.known = [];
+  if (!Array.isArray(stats.resKnown)) stats.resKnown = [];
+  if (!Array.isArray(mistakes)) mistakes = [];
+  stats.known = stats.known.filter(id => BY_ID[id]);
+  if (!stats.since) stats.since = new Date().toISOString().slice(0, 10);
+  mistakes = mistakes.filter(id => BY_ID[id]);
+}
+fixSettings(); fixStats();
+function saveAll() { store.set('settings', settings); store.set('stats', stats); store.set('mistakes', mistakes); }
+
+// Подтягиваем прогресс из облака Telegram (синхронизация между устройствами).
+// Берём облако, только если там прогресс не меньше, чем на этом устройстве (старое облако могло не сохраниться из-за лимита 4 КБ)
+if (cloudOk()) {
+  try {
+    cloudLoad(['settings', 'stats', 'mistakes'], c => {
+      const cs = c.stats, cloudAns = cs && typeof cs === 'object' ? (cs.answered || 0) : -1;
+      if (cloudAns >= (stats.answered || 0) && cloudAns > 0) {
+        if (c.settings) settings = c.settings;
+        stats = cs;
+        if (c.mistakes) mistakes = c.mistakes;
+        fixSettings(); fixStats();
+        try { if (document.getElementById('home').classList.contains('active')) renderHome(); } catch (e) {}
+      }
+      saveAll();
+      // сразу пишем облако в новом формате и только потом удаляем старые ключи
+      cloudPut('settings', JSON.stringify(settings)); cloudPut('stats', JSON.stringify(stats)); cloudPut('mistakes', JSON.stringify(mistakes));
+      try { tg.CloudStorage.removeItems(['cq_settings', 'cq_stats', 'cq_mistakes']); } catch (e) {}
+    });
+  } catch (e) {}
+}
+
+// ===== УТИЛИТЫ =====
+const $ = s => document.querySelector(s);
+const T = () => I18N[settings.lang];
+const nm = c => c[settings.lang].n;
+const cp = c => c[settings.lang].c;
+const esc = s => String(s).replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
+const emojiFlag = id => String.fromCodePoint(...[...id].map(ch => 127397 + ch.charCodeAt(0)));
+function flag(id, cls) {
+  const size = cls === 'big' ? 'w320' : 'w80';
+  return `<span class="fl ${cls}"><img src="https://flagcdn.com/${size}/${id.toLowerCase()}.png" alt="" loading="lazy" onerror="this.parentNode.textContent='${emojiFlag(id)}'"></span>`;
+}
+function mulberry32(a) { return function () { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+function shuffle(arr, rnd = Math.random) { const a = arr.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+const fmtTime = ms => { const s = Math.round(ms / 1000); return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`; };
+const todayKey = () => new Date().toISOString().slice(0, 10);
+const inRegion = r => r === 'world' ? COUNTRIES : COUNTRIES.filter(c => GRP[c.r] === r);
+const isWorld = () => PARTS.every(p => settings.regions.includes(p));
+const selPool = () => COUNTRIES.filter(c => settings.regions.includes(GRP[c.r]));
+const regKey = () => isWorld() ? 'world' : settings.regions.slice().sort().join('+');
+const regTitle = () => isWorld() ? T().world : PARTS.filter(p => settings.regions.includes(p)).map(p => T()[p]).join(' + ');
+const bestKey = () => {
+  if (settings.type === 'blitz') return `blitz_${settings.mode}_${regKey()}`;
+  if (settings.type === 'lives') return `lives_${settings.mode}_${regKey()}`;
+  if (settings.type === 'exam') return `exam_${settings.mode}_${regKey()}`;
+  const base = `${settings.mode}_${regKey()}_${settings.len}`;          // старый формат — чтобы сохранить прежние рекорды
+  return settings.type === 'hardcore' ? 'hard_' + base : base;
+};
+function toggleRegion(v) {
+  if (v === 'world') { settings.regions = PARTS.slice(); return; }
+  if (isWorld()) { settings.regions = [v]; return; }           // из «Весь мир» тап = только этот регион
+  if (settings.regions.includes(v)) {
+    settings.regions = settings.regions.filter(x => x !== v);
+    if (!settings.regions.length) settings.regions = PARTS.slice(); // сняли всё — снова весь мир
+  } else {
+    settings.regions.push(v);                                       // выбрали все 6 — это и есть весь мир
+  }
+}
+
+// ===== СЛОЖНОСТЬ СТРАН: ×1 (по умолчанию), ×1.5, ×2 — множитель опыта =====
+const MED = new Set(('AL BA BG HR CY IS RO RS SK SI CH ME MT ' +
+  'SA AE PK ID PH MY SY LB JO NP KG TJ TM KH QA ' +
+  'MA LY KE ET ZA SD SN CD CG MG ' +
+  'JM DO CR HT SV BS EC UY PY AU NZ').split(' '));
+const HARD = new Set(('LI AD MK LK BD LA MM BT BN OM BH YE TL MV ' +
+  'AO BJ BW BF BI CV CM CF TD KM CI GQ ER SZ GA GM GH GN GW LS LR MW ML MR MU MZ NA NE NG RW ST SC SL SO SS TZ TG UG ZM ZW ' +
+  'NI HN BZ BB AG DM GD KN LC VC TT BO GY SR ' +
+  'FJ PG KI MH FM NR PW WS SB TO TV VU').split(' '));
+const mult = c => HARD.has(c.id) ? 2 : MED.has(c.id) ? 1.5 : 1;
+const tierTag = c => { const m = mult(c); return `<span class="tier t${String(m).replace('.', '')}">${m === 2 ? '🔴' : m === 1.5 ? '🟡' : '🟢'} ×${m}</span>`; };
+
+// Равномерная выборка: регионы чередуются по кругу, чтобы «весь мир» не превращался в «одну Африку»
+function balanced(list, rnd = Math.random) {
+  const groups = {};
+  list.forEach(c => { const g = GRP[c.r] || c.r; (groups[g] = groups[g] || []).push(c); });
+  const queues = shuffle(Object.keys(groups), rnd).map(r => shuffle(groups[r], rnd));
+  const out = [];
+  while (queues.some(q => q.length)) {
+    shuffle(queues, rnd).forEach(q => { if (q.length) out.push(q.pop()); });
+  }
+  return out;
+}
+
+// ===== ПРОВЕРКА ВВЕДЁННОГО ОТВЕТА (хардкор) =====
+// Синонимы: ключ «ISO:n» — названия страны, «ISO:c» — столицы
+const ALIASES = {
+  'US:n': ['США', 'USA', 'US', 'America', 'Америка', 'Соединенные Штаты', 'Соединенные Штаты Америки', 'United States of America'],
+  'US:c': ['Washington', 'Вашингтон'],
+  'GB:n': ['UK', 'Britain', 'Great Britain', 'Британия', 'Соединенное Королевство', 'Англия', 'England'],
+  'AE:n': ['UAE', 'Объединенные Арабские Эмираты', 'Эмираты', 'Emirates'],
+  'CF:n': ['CAR', 'Центральноафриканская Республика', 'Central African Rep'],
+  'ZA:n': ['Южная Африка', 'Южно-Африканская Республика', 'RSA'],
+  'ZA:c': ['Кейптаун', 'Cape Town', 'Блумфонтейн', 'Bloemfontein'],
+  'KP:n': ['Северная Корея', 'North Korea', 'DPRK'],
+  'KR:n': ['Корея', 'Республика Корея', 'Korea'],
+  'CD:n': ['ДРК', 'Демократическая Республика Конго', 'DRC', 'Congo-Kinshasa', 'Конго-Киншаса'],
+  'CG:n': ['Конго', 'Congo', 'Congo-Brazzaville', 'Конго-Браззавиль'],
+  'CI:n': ['Ivory Coast', 'Берег Слоновой Кости'],
+  'CZ:n': ['Czech Republic', 'Чешская Республика'],
+  'BY:n': ['Белоруссия', 'Belorussia'],
+  'KG:n': ['Кыргызстан', 'Kirgizia'],
+  'MD:n': ['Молдавия', 'Moldavia'],
+  'NL:n': ['Голландия', 'Holland'],
+  'MM:n': ['Бирма', 'Burma'],
+  'SZ:n': ['Свазиленд', 'Swaziland'],
+  'SZ:c': ['Ломбамба', 'Lobamba'],
+  'MK:n': ['Македония', 'Macedonia'],
+  'TL:n': ['Тимор-Лесте', 'East Timor', 'Тимор'],
+  'CV:n': ['Острова Зеленого Мыса', 'Cape Verde'],
+  'TR:n': ['Turkiye'],
+  'VA:n': ['Vatican', 'Святой Престол', 'Holy See'],
+  'VA:c': ['Vatican', 'Ватикан'],
+  'FM:n': ['Федеративные Штаты Микронезии', 'Federated States of Micronesia'],
+  'BA:n': ['Босния', 'Bosnia'],
+  'PG:n': ['Папуа Новая Гвинея', 'Папуа', 'Papua'],
+  'DO:n': ['Доминикана'],
+  'RU:n': ['Российская Федерация', 'РФ', 'Russian Federation'],
+  'UA:c': ['Kiev', 'Київ'],
+  'MD:c': ['Kishinev'],
+  'MN:c': ['Улаанбаатар', 'Ulan Bator'],
+  'TM:c': ['Ашгабат', 'Ashkhabad'],
+  'BD:c': ['Дхака', 'Dacca'],
+  'BT:c': ['Тимпху'],
+  'MM:c': ['Нейпьидау', 'Нэйпьидо', 'Нейпидо', 'Nay Pyi Taw'],
+  'LK:c': ['Котте', 'Kotte', 'Шри-Джаяварденепура'],
+  'ER:c': ['Асмара'],
+  'GM:c': ['Банджул'],
+  'KW:c': ['Кувейт', 'Kuwait'],
+  'SA:c': ['Рияд', 'Riad', 'Ar Riyadh'],
+  'GT:c': ['Гватемала-Сити', 'Guatemala'],
+  'PA:c': ['Панама-Сити', 'Panama'],
+  'MX:c': ['Mexico', 'Мехико-Сити'],
+  'KI:c': ['Тарава', 'Tarawa'],
+  'BO:c': ['Ла-Пас', 'La Paz'],
+  'SG:c': ['Singapore'],
+  'IN:c': ['Дели', 'Delhi'],
+  'KZ:c': ['Нур-Султан', 'Nur-Sultan'],
+  'YE:c': ['Sana']
+};
+const norm = s => String(s).toLowerCase().replace(/ё/g, 'е').normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-zа-я0-9]/g, '');
+function lev(a, b) {
+  const m = a.length, n = b.length;
+  if (!m) return n; if (!n) return m;
+  let prev = Array.from({ length: n + 1 }, (_, j) => j);
+  for (let i = 1; i <= m; i++) {
+    const cur = [i];
+    for (let j = 1; j <= n; j++) cur[j] = Math.min(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+    prev = cur;
+  }
+  return prev[n];
+}
+// Возвращает 'exact' | 'close' | false
+function checkTyped(typed, c, what) {
+  const a = norm(typed);
+  if (!a) return false;
+  const targets = (what === 'c' ? [c.ru.c, c.en.c] : [c.ru.n, c.en.n]).concat(ALIASES[c.id + ':' + what] || []);
+  let res = false;
+  for (const t of targets) {
+    const b = norm(t);
+    if (a === b) return 'exact';
+    const tol = b.length <= 4 ? 0 : b.length <= 8 ? 1 : 2;
+    if (lev(a, b) <= tol) res = 'close';
+  }
+  return res;
+}
+
+// ===== ПОЗИТИВ: похвала, конфетти, звуки =====
+function praise(text, kind) {
+  const el = $('#praise');
+  el.textContent = text;
+  el.className = 'praise' + (kind ? ' ' + kind : '');
+  void el.offsetWidth; // перезапуск анимации
+  el.classList.add(kind === 'minus' ? 'go' : ['go', 'go2', 'go3', 'go4'][Math.floor(Math.random() * 4)]);
+}
+function confetti(n) {
+  const colors = ['#ff8a00', '#e52e71', '#2f7cf6', '#22a55a', '#ffd400', '#8b5cf6'];
+  const emo = (game && game.sec === 'res') ? ['🌴', '🏖️', '☀️', '🐚', '🍹'] : (game && game.sec === 'sea') ? ['🌊', '🐚', '⚓', '🐬', '🏞️'] : kgame ? ['⭐', '🎈', '🧸', '🦄', '🍭'] : ['🌍', '⭐', '✨', '🎉', '🗺️'];
+  const style = Math.floor(Math.random() * 4); // 0 полоски, 1 кружки, 2 эмодзи-дождь, 3 взрыв из центра
+  for (let i = 0; i < n; i++) {
+    const d = document.createElement('i');
+    if (style === 3) {
+      d.className = 'cf burst';
+      const ang = Math.random() * Math.PI * 2, dist = 120 + Math.random() * 220;
+      d.style.setProperty('--bx', Math.cos(ang) * dist + 'px');
+      d.style.setProperty('--by', Math.sin(ang) * dist + 'px');
+      d.style.background = colors[i % colors.length];
+      d.style.setProperty('--d', (0.7 + Math.random() * 0.5) + 's');
+    } else {
+      d.className = 'cf' + (style === 1 ? ' round' : style === 2 ? ' emo' : '');
+      d.style.left = Math.random() * 100 + 'vw';
+      if (style === 2) d.textContent = emo[i % emo.length]; else d.style.background = colors[i % colors.length];
+      d.style.setProperty('--x', (Math.random() * 160 - 80) + 'px');
+      d.style.setProperty('--r', (Math.random() * 720 - 360) + 'deg');
+      d.style.setProperty('--d', (0.9 + Math.random() * 0.9) + 's');
+      d.style.animationDelay = Math.random() * 0.25 + 's';
+    }
+    document.body.appendChild(d);
+    setTimeout(() => d.remove(), 2300);
+  }
+}
+let actx = null;
+function sfx(kind) {
+  if (!settings.sound) return;
+  try {
+    actx = actx || new (window.AudioContext || window.webkitAudioContext)();
+    if (actx.state === 'suspended') actx.resume();
+    const now = actx.currentTime;
+    const play = (f, t, d, type = 'sine', v = 0.12) => {
+      const o = actx.createOscillator(), g = actx.createGain();
+      o.type = type; o.frequency.value = f;
+      g.gain.setValueAtTime(0.0001, now + t);
+      g.gain.exponentialRampToValueAtTime(v, now + t + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001, now + t + d);
+      o.connect(g); g.connect(actx.destination);
+      o.start(now + t); o.stop(now + t + d + 0.05);
+    };
+    const pick = a => a[Math.floor(Math.random() * a.length)];
+    const k = 0.95 + Math.random() * 0.1; // лёгкий разброс высоты, чтобы не надоедало
+    if (kind === 'ok') {
+      pick([
+        () => { play(784 * k, 0, .15); play(1047 * k, .09, .25); },
+        () => { play(659 * k, 0, .12); play(880 * k, .07, .12); play(1319 * k, .14, .25); },
+        () => { play(523 * k, 0, .12, 'triangle', .14); play(784 * k, .08, .28, 'triangle', .14); },
+        () => { play(988 * k, 0, .1); play(1319 * k, .06, .1); play(1568 * k, .12, .22, 'sine', .09); },
+        () => { play(698 * k, 0, .1, 'triangle', .13); play(880 * k, .08, .1, 'triangle', .13); play(1047 * k, .16, .3, 'triangle', .13); }
+      ])();
+    }
+    else if (kind === 'mega') {
+      pick([
+        () => [523, 659, 784, 1047].forEach((f, i) => play(f, i * .09, i === 3 ? .4 : .15)),
+        () => [392, 523, 659, 784, 1047].forEach((f, i) => play(f, i * .07, i === 4 ? .45 : .12, 'triangle', .13)),
+        () => { [784, 988, 1175].forEach((f, i) => play(f, i * .1, .15)); play(1568, .32, .45, 'sine', .1); }
+      ])();
+    }
+    else if (kind === 'bad') { play(220, 0, .25, 'triangle', .1); }
+    else if (kind === 'win') {
+      pick([
+        () => [523, 659, 784, 1047, 1319].forEach((f, i) => play(f, i * .1, .35)),
+        () => { [392, 523, 659, 784].forEach((f, i) => play(f, i * .12, .3, 'triangle', .13)); [1047, 1319, 1568].forEach(f => play(f, .55, .6, 'sine', .07)); },
+        () => [659, 784, 880, 1047, 880, 1047, 1319].forEach((f, i) => play(f, i * .08, i === 6 ? .5 : .12))
+      ])();
+    }
+    else if (kind === 'ach') { [880, 1175, 1568].forEach((f, i) => play(f, i * .12, .3, 'triangle', .1)); }
+    else if (kind === 'tick') { play(1400, 0, .05, 'square', .03); }
+    else if (kind === 'stamp') { play(90, 0, .22, 'sine', .35); play(150, 0, .07, 'square', .06); play(60, .02, .2, 'triangle', .2); }
+    else if (kind === 'hint') { play(880, 0, .07, 'triangle', .09); play(440, .07, .12, 'triangle', .09); }
+    else if (kind === 'fail') { [300, 250, 180].forEach((f, i) => play(f, i * .18, i === 2 ? .6 : .2, 'triangle', .12)); }
+  } catch (e) {}
+}
+function hapticImpact(style) {
+  try { if (tgv('6.1')) tg.HapticFeedback.impactOccurred(style); } catch (e) {}
+}
+function hapticSel() { try { if (tgv('6.1')) tg.HapticFeedback.selectionChanged(); } catch (e) {} }
+// Провал экзамена / кончились жизни: драматичный звук и двойная вибрация
+function failFx() { setTimeout(() => sfx('fail'), 250); haptic('error'); setTimeout(() => hapticImpact('heavy'), 150); }
+
+function toast(msg) { const t = $('#toast'); t.textContent = msg; t.classList.add('show'); setTimeout(() => t.classList.remove('show'), 1600); }
+
+// Баннер «Новое достижение» (по очереди, если их несколько)
+const achQueue = [];
+let achShowing = false;
+function showAch(a) { achQueue.push(a); if (!achShowing) nextAch(); }
+function nextAch() {
+  const a = achQueue.shift();
+  if (!a) { achShowing = false; return; }
+  achShowing = true;
+  const el = $('#achBanner');
+  el.innerHTML = `<span class="ai">${a.i}</span><div><small>${T().achNew}</small><b>${esc(achText(a)[0])}</b></div>`;
+  el.classList.add('show');
+  confetti(40); sfx('ach'); hapticImpact('medium');
+  setTimeout(() => { el.classList.remove('show'); setTimeout(nextAch, 400); }, 2600);
+}
+function checkAch(g) {
+  const got = [];
+  ACH.forEach(a => {
+    if (stats.ach[a.id]) return;
+    let ok = false;
+    try { ok = a.t(stats, g); } catch (e) {}
+    if (ok) { stats.ach[a.id] = Date.now(); got.push(a); showAch(a); }
+  });
+  if (g && got.length) g.newAch.push(...got);
+  return got;
+}
+
+function go(id) {
+  if (id !== 'game') stopTimer();
+  document.querySelectorAll('.screen').forEach(s => s.classList.toggle('active', s.id === id));
+  if (id === 'home') renderHome();
+  $('.wrap').classList.toggle('wide', id === 'ref');
+  if (globe) {
+    if (id === 'ref') { resizeGlobe(); globe.resumeAnimation(); }
+    else globe.pauseAnimation();
+  }
+  if (tgv('6.1')) { id === 'home' ? tg.BackButton.hide() : tg.BackButton.show(); }
+  window.scrollTo(0, 0);
+}
+
+// ===== ГЛАВНЫЙ ЭКРАН =====
+function rankCard() {
+  const t = T(), i = rankIdx(stats.xp), next = RANKS[i + 1];
+  const pct = next ? Math.round((stats.xp - RANKS[i][0]) / (next[0] - RANKS[i][0]) * 100) : 100;
+  return `<div class="rank">
+      <div class="rank-top"><div><b>${rankName(i)}</b><em>${rankDesc(i)}</em></div><span>${stats.xp.toLocaleString('ru-RU')} XP</span></div>
+      <div class="bar"><i style="width:${pct}%"></i></div>
+      <small>${next ? t.rankNext(settings.lang === 'ru' ? next[2] : next[3], next[0] - stats.xp) : t.rankMax}</small>
+    </div>`;
+}
+function renderHome() {
+  const t = T(), d = stats.daily[todayKey()];
+  const acc = stats.answered ? Math.round(stats.correct / stats.answered * 100) + '%' : '—';
+  const achN = ACH.filter(a => stats.ach[a.id]).length;
+  $('#home').innerHTML = `
+    <header>
+      <div><h1>🌍 ${t.title}</h1><div class="sub">${t.sub}</div></div>
+      <div class="hbtns">
+        <button class="snd" data-act="sound">${settings.sound ? '🔊' : '🔇'}</button>
+        <div class="lang">
+          <button data-act="lang" data-v="ru" class="${settings.lang === 'ru' ? 'on' : ''}">RU</button>
+          <button data-act="lang" data-v="en" class="${settings.lang === 'en' ? 'on' : ''}">EN</button>
+        </div>
+      </div>
+    </header>
+    ${rankCard()}
+    <button class="daily${d == null ? ' shine' : ''}" data-act="daily"><b>${t.daily}</b><span>${d != null ? t.dailyDone(d) : t.dailyDesc}</span></button>
+    ${examResumeCard()}
+    ${questsCard()}
+    <div class="tiles">
+      <button class="tile countries" data-act="countries"><em>🌍</em><i>🌍</i><b>${t.tCountries}</b><span>${t.tCountriesSub}</span></button>
+      <button class="tile seas" data-act="seas"><em>🌊</em><i>🌊</i><b>${t.tSeas}</b><span>${t.tSeasSub}</span></button>
+      <button class="tile res" data-act="resorts"><em>🏖</em><i>🏖</i><b>${t.tRes}</b><span>${t.tResSub}</span></button>
+      <button class="tile kids" data-act="kids"><em>🧸</em><i>🧸</i><b>${t.tKids}</b><span>${t.tKidsSub}</span></button>
+    </div>
+    <button class="btn pp" data-act="passport">🛂 ${t.ppBtn} · ${stampCount()}/${STAMPS.length}</button>
+    <div class="row">
+      <button class="btn sec" data-act="errors" ${mistakes.length ? '' : 'disabled'}>${t.errors(mistakes.length)}</button>
+      <button class="btn sec" data-act="ref">📖 ${t.ref}</button>
+    </div>
+    <button class="btn sec" data-act="ach">${t.achBtn(achN, ACH.length)}</button>
+    <div class="card stats">
+      <div><b>${stats.played}</b><span>${t.played}</span></div>
+      <div><b>${acc}</b><span>${t.acc}</span></div>
+      <div><b>${stats.bestStreak}</b><span>${t.bestStreak}</span></div>
+    </div>`;
+}
+
+// ===== РАЗДЕЛ «СТРАНЫ И СТОЛИЦЫ» =====
+function renderCountries() {
+  const t = T(), best = stats.best[bestKey()];
+  $('#countries').innerHTML = `
+    <header><button class="back" data-act="home">‹ ${t.back}</button><div style="flex:1"><h1>🌍 ${t.countriesTitle}</h1><div class="sub">${t.countriesSub(COUNTRIES.length)}</div></div></header>
+    <div class="card">
+      <div class="label">${t.mode}</div>
+      <div class="seg">${MODES.map(m => `<button class="chip ${settings.mode === m ? 'on' : ''}" data-act="set" data-k="mode" data-v="${m}">${m === 'shape' ? '🗺️ ' : m === 'flag' ? '🚩 ' : ''}${t[m]}</button>`).join('')}</div>
+      <div class="label">${t.type}</div>
+      <div class="seg seg3">${TYPES.map(m => `<button class="chip ${settings.type === m ? 'on' : ''}" data-act="set" data-k="type" data-v="${m}">${t[m]}</button>`).join('')}</div>
+      <div class="type-hint">${t.typeHint[settings.type]}</div>
+      <div class="label">${t.region}</div>
+      <div class="chips">${REGIONS.map(r => {
+        const on = r === 'world' ? isWorld() : (!isWorld() && settings.regions.includes(r));
+        return `<button class="chip ${on ? 'on' : ''}" data-act="reg" data-v="${r}">${on && r !== 'world' ? '✓ ' : ''}${t[r]} <small>${inRegion(r).length}</small></button>`;
+      }).join('')}</div>
+      <div class="best-line">${settings.type === 'exam' ? `${t.examLimit(countriesLimit())} · ${dipLine(bestKey())}` : `${t.best}: ${best != null ? best : '—'}`}</div>
+    </div>
+    ${startBtns('start', '', bestKey())}
+`;
+}
+
+// ===== ЭКРАН ДОСТИЖЕНИЙ =====
+function renderAch() {
+  const t = T(), n = ACH.filter(a => stats.ach[a.id]).length;
+  $('#ach').innerHTML = `
+    <header><button class="back" data-act="home">‹ ${t.back}</button><div style="flex:1"><h1>🏅 ${t.ach}</h1><div class="sub">${n} / ${ACH.length}</div></div></header>
+    ${rankCard()}
+    <div class="ach-grid">${ACH.map(a => {
+      const on = !!stats.ach[a.id], [title, desc] = achText(a);
+      return `<div class="badge-card ${on ? 'on' : ''}"><div class="bi">${on ? a.i : '🔒'}</div><b>${esc(title)}</b><small>${esc(desc)}</small></div>`;
+    }).join('')}</div>
+    <button class="btn sec" data-act="home">${t.home}</button>`;
+}
+
+// ===== ИГРА =====
+let game = null, timerId = null;
+
+function buildQuestions(pool, rnd) {
+  return pool.map(c => {
+    let cand = shuffle(COUNTRIES.filter(x => x.r === c.r && x.id !== c.id), rnd);
+    if (cand.length < 3) cand = cand.concat(shuffle(COUNTRIES.filter(x => x.r !== c.r), rnd));
+    return { c, opts: shuffle([c, ...cand.slice(0, 3)], rnd).map(o => o.id) };
+  });
+}
+// Вопросы «туда и обратно» (На какой реке Вильнюс? / Какой город на Нерисе?) ставим не ближе GAP вопросов друг от друга
+function spreadMirrors(qs, GAP = 20) {
+  const id = q => String(q.key).split(':')[1], n = qs.length;
+  const adj = qs.map((a, i) => qs.reduce((r, b, j) => (i !== j && (a.right === id(b) || b.right === id(a)) ? r.concat(j) : r), []));
+  const pos = new Array(n).fill(-1), order = [];
+  // 1) жадно: берём первый вопрос без «пары» среди последних GAP; если такого нет — тот, у кого пара дальше всех
+  const free = (i, p) => adj[i].reduce((d, j) => pos[j] >= 0 ? Math.min(d, Math.abs(p - pos[j])) : d, GAP);
+  for (let p = 0; p < n; p++) {
+    let best = -1, bd = -1;
+    for (let i = 0; i < n; i++) if (pos[i] < 0) { const d = free(i, p); if (d > bd) { bd = d; best = i; if (d >= GAP) break; } }
+    pos[best] = p; order.push(best);
+  }
+  // 2) починка: близкие пары меняем местами с вопросами, где им будет просторно
+  const ok = (i, p, skip) => adj[i].every(j => j === skip || Math.abs(p - pos[j]) >= GAP);
+  for (let pass = 0; pass < 3; pass++) for (let i = 0; i < n; i++) {
+    if (ok(i, pos[i])) continue;
+    for (let k = 0; k < n; k++) {
+      const j = order[k]; if (j === i) continue;
+      const pi = pos[i], pj = pos[j];
+      if (ok(i, pj, j) && ok(j, pi, i)) { pos[i] = pj; pos[j] = pi; order[pj] = i; order[pi] = j; break; }
+    }
+  }
+  return order.map(i => qs[i]);
+}
+// Кнопка «Начать» в разделе: если этот экзамен не закончен — «Продолжить» и «Заново»
+function startBtns(act, v, key) {
+  const t = T(), s = examSaved(), dv = v ? ` data-v="${v}"` : '';
+  if (s && s.key === key) return `<div class="row">
+      <button class="btn" data-act="exres">▶ ${t.exGo} ${s.i}/${s.qs.length}</button>
+      <button class="btn sec" data-act="exnew" data-a="${act}"${dv}>↻ ${t.exNew}</button></div>`;
+  return `<button class="btn" data-act="${act}"${dv}>▶ ${t.start}</button>`;
+}
+
+// ===== ЗАДАНИЯ ДНЯ И СЕРИЯ ДНЕЙ =====
+// g — группа (чтобы три задания были из разных разделов), need — сколько нужно
+const QUESTS = [
+  { id: 'blitz10', g: 'c', need: 10 }, { id: 'lives15', g: 'c', need: 15 }, { id: 'flag10', g: 'c', need: 10 }, { id: 'shape5', g: 'c', need: 5 }, { id: 'cap15', g: 'c', need: 15 },
+  { id: 'res5', g: 'r', need: 5 }, { id: 'sea15', g: 's', need: 15 }, { id: 'errors3', g: 'e', need: 3 }, { id: 'daily', g: 'd', need: 1 }, { id: 'streak7', g: 'x', need: 7 }
+];
+const Q_BY = Object.fromEntries(QUESTS.map(q => [q.id, q]));
+const QUEST_XP = 100, QUEST_ALL_XP = 200, DAY_BONUS = { 3: 50, 7: 150, 30: 500 };
+const localDay = (d = new Date()) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+function plural(n, a, b, c) { const m = n % 100, k = n % 10; return m > 10 && m < 20 ? c : k === 1 ? a : k > 1 && k < 5 ? b : c; }
+function questsToday() {
+  const day = localDay();
+  if (stats.quests.day !== day) {
+    const pool = shuffle(QUESTS.filter(q => q.id !== 'errors3' || mistakes.length >= 3)), used = new Set(), pick = [];
+    for (const q of pool) if (pick.length < 3 && !used.has(q.g)) { pick.push(q.id); used.add(q.g); }
+    stats.quests = { day, list: pick.map(id => ({ id, p: 0, done: false })), bonus: false };
+    saveAll();
+  }
+  return stats.quests;
+}
+function qProg(id, val, max) {
+  const Q = questsToday(), it = Q.list.find(x => x.id === id);
+  if (!it || it.done) return;
+  it.p = max ? Math.max(it.p, val) : it.p + val;
+  if (it.p >= Q_BY[id].need) {
+    it.p = Q_BY[id].need; it.done = true; stats.xp += QUEST_XP;
+    if (game) game.xp += QUEST_XP;
+    toast(T().qDone); sfx('ach'); hapticImpact('medium');
+    if (!Q.bonus && Q.list.every(x => x.done)) {
+      Q.bonus = true; stats.xp += QUEST_ALL_XP; if (game) game.xp += QUEST_ALL_XP;
+      setTimeout(() => { toast(T().qBonus); confetti(40); sfx('win'); }, 1700);
+    }
+  }
+}
+// после каждого ответа
+function questAnswer(ok) {
+  if (!game) return;
+  if (ok && game.kind === 'errors') qProg('errors3', 1);
+  qProg('streak7', game.streak, true);
+  if (game.gen) {
+    if (game.sec === 'res') { game.qRun = ok ? (game.qRun || 0) + 1 : 0; qProg('res5', game.qRun, true); }
+    if (game.sec === 'sea' && ok) qProg('sea15', 1);
+  } else if (ok) {
+    if (game.mode === 'flag') qProg('flag10', 1);
+    else if (game.mode === 'shape') qProg('shape5', 1);
+    else qProg('cap15', 1);
+  }
+}
+// в конце игры
+function questFinish() {
+  if (!game) return;
+  if (game.type === 'blitz') qProg('blitz10', game.score, true);
+  if (game.type === 'lives') qProg('lives15', game.score, true);
+  if (game.kind === 'daily') qProg('daily', 1);
+}
+// серия дней: засчитывается любая сыгранная игра
+function dayPlayed() {
+  const d = localDay(), ds = stats.dstr;
+  if (ds.last === d) return;
+  const y = new Date(); y.setDate(y.getDate() - 1);
+  ds.n = ds.last === localDay(y) ? (ds.n || 0) + 1 : 1;
+  ds.last = d; ds.best = Math.max(ds.best || 0, ds.n);
+  const bonus = DAY_BONUS[ds.n] || (ds.n > 30 && ds.n % 30 === 0 ? 500 : 0);
+  if (bonus) { stats.xp += bonus; if (game) game.xp += bonus; setTimeout(() => { toast(T().dayBonus(ds.n, bonus)); sfx('mega'); }, 900); }
+}
+function dayStreak() {
+  const ds = stats.dstr, y = new Date(); y.setDate(y.getDate() - 1);
+  return ds.last === localDay() || ds.last === localDay(y) ? (ds.n || 0) : 0;
+}
+function questsCard() {
+  const t = T(), Q = questsToday(), n = dayStreak();
+  const rows = Q.list.map(it => {
+    const q = Q_BY[it.id]; if (!q) return '';
+    return `<button class="qrow${it.done ? ' done' : ''}" data-act="qgo" data-v="${it.id}">
+      <i>${it.done ? '✅' : '🎯'}</i><span>${t['q_' + it.id]}<u><s style="width:${Math.round(it.p / q.need * 100)}%"></s></u></span><em>${it.p}/${q.need}</em><small>+${QUEST_XP}</small></button>`;
+  }).join('');
+  return `<div class="card quests"><div class="qhead"><b>${t.qTitle}</b>${n ? `<span>${t.days(n)}</span>` : ''}</div>${rows}
+    <div class="qfoot">${Q.bonus ? t.qAllDone : t.qAll}</div></div>`;
+}
+// тап по заданию — сразу туда, где его выполнить
+function qGo(id) {
+  const toC = (k, v) => { endGame(); if (k) settings[k] = v; saveAll(); renderCountries(); go('countries'); };
+  if (id === 'blitz10') toC('type', 'blitz');
+  else if (id === 'lives15') toC('type', 'lives');
+  else if (id === 'flag10') toC('mode', 'flag');
+  else if (id === 'shape5') toC('mode', 'shape');
+  else if (id === 'cap15') { if (settings.mode === 'flag' || settings.mode === 'shape') settings.mode = 'c2cap'; toC(); }
+  else if (id === 'streak7') toC();
+  else if (id === 'res5') { endGame(); renderResorts(); go('resorts'); }
+  else if (id === 'sea15') { endGame(); renderSeas(); go('seas'); }
+  else if (id === 'errors3') { if (mistakes.length) startGame('errors'); }
+  else if (id === 'daily') startGame('daily');
+}
+
+// ===== ПАСПОРТ СО ШТАМПАМИ =====
+// sec: c — страны, s — моря и реки, r — курорты; форма, цвет чернил и наклон у каждого штампа свои
+const STAMPS = [
+  { id: 'c_eu', sec: 'c', ru: 'Европа', en: 'Europe', sh: 'round', ink: '#1f4fa3', rot: -8, ic: '✈︎' },
+  { id: 'c_aso', sec: 'c', ru: 'Азия и Океания', en: 'Asia & Oceania', sh: 'rect', ink: '#b3261e', rot: 6, ic: '✈︎' },
+  { id: 'c_af', sec: 'c', ru: 'Африка', en: 'Africa', sh: 'oval', ink: '#2e7d32', rot: -4, ic: '✈︎' },
+  { id: 'c_am', sec: 'c', ru: 'Америка', en: 'Americas', sh: 'rect', ink: '#6a1b9a', rot: -10, ic: '✈︎' },
+  { id: 'c_world', sec: 'c', ru: 'Весь мир', en: 'Whole world', sh: 'round big', ink: '#9a6b00', rot: -5, ic: '★' },
+  { id: 's_eu', sec: 's', ru: 'Европа', en: 'Europe', sh: 'round', ink: '#0d47a1', rot: 7, ic: '⚓︎' },
+  { id: 's_aso', sec: 's', ru: 'Азия и Океания', en: 'Asia & Oceania', sh: 'oval', ink: '#00695c', rot: -6, ic: '⚓︎' },
+  { id: 's_afam', sec: 's', ru: 'Африка и Америка', en: 'Africa & Americas', sh: 'rect', ink: '#1565c0', rot: 5, ic: '⚓︎' },
+  { id: 's_world', sec: 's', ru: 'Все моря', en: 'All seas', sh: 'round big', ink: '#9a6b00', rot: 4, ic: '★' },
+  { id: 'r_tr', sec: 'r', ru: 'Турция и Египет', en: 'Turkey & Egypt', sh: 'oval', ink: '#c62828', rot: 6, ic: '☀︎' },
+  { id: 'r_eu', sec: 'r', ru: 'Европа', en: 'Europe', sh: 'rect', ink: '#283593', rot: -7, ic: '☀︎' },
+  { id: 'r_aso', sec: 'r', ru: 'Азия', en: 'Asia', sh: 'round', ink: '#ad1457', rot: 9, ic: '☀︎' },
+  { id: 'r_afr', sec: 'r', ru: 'Африка', en: 'Africa', sh: 'rect', ink: '#2e7d32', rot: -5, ic: '☀︎' },
+  { id: 'r_am', sec: 'r', ru: 'Америка', en: 'Americas', sh: 'oval', ink: '#e65100', rot: 4, ic: '☀︎' },
+  { id: 'r_all', sec: 'r', ru: 'Все курорты', en: 'All resorts', sh: 'round big', ink: '#9a6b00', rot: -6, ic: '★' }
+];
+const ST_BY = Object.fromEntries(STAMPS.map(x => [x.id, x]));
+const MODE_IC = { c2cap: '🏛', cap2c: '🌐', flag: '🚩', shape: '🗺' };
+// Штампы собираются из дипломов: «Весь мир» даёт все штампы раздела, Европа+Африка — оба
+function stampsAll() {
+  const out = {};
+  const put = (id, g, mode) => {
+    if (!ST_BY[id]) return;
+    const o = out[id] || (out[id] = { g: null, m: [] });
+    if (!o.g || GRADES.indexOf(g) > GRADES.indexOf(o.g)) o.g = g;
+    if (mode && !o.m.includes(mode)) o.m.push(mode);
+  };
+  for (const k in stats.dip) {
+    const g = stats.dip[k], p = k.split('_'), r = p.slice(2).join('_');
+    if (p[0] === 'exam') (r === 'world' ? PARTS.concat('world') : r.split('+')).forEach(x => put('c_' + x, g, p[1]));
+    else if (p[0] === 'res' && p[1] === 'exam') (r === 'all' ? RES_PARTS.concat('all') : r.split('+')).forEach(x => put('r_' + x, g));
+    else if (p[0] === 'sea' && p[1] === 'exam') (r === 'world' ? SEA_PARTS.concat('world') : r.split('+')).forEach(x => put('s_' + x, g));
+  }
+  return out;
+}
+const stampCount = () => Object.keys(stampsAll()).length;
+const ppPageOf = id => id ? ({ c: 2, s: 3, r: 4 })[id[0]] : 0;
+const fmtDay = d => d ? d.split('-').reverse().join('.') : '—';
+let ppCur = 0;
+function ppNumber() {
+  const u = tg && tg.initDataUnsafe && tg.initDataUnsafe.user;
+  if (u && u.id) return 'GQ-' + String(u.id).slice(-6).padStart(6, '0');
+  if (!stats.ppNo) { stats.ppNo = 'GQ-' + String(Math.floor(Math.random() * 1e6)).padStart(6, '0'); saveAll(); }
+  return stats.ppNo;
+}
+function stampHtml(x, st, pend) {
+  const t = T(), L = settings.lang;
+  return `<div class="stamp ${x.sh}${pend ? ' pend' : ''}" data-st="${x.id}" style="--ink:${x.ink};--rot:${x.rot}deg">
+    <small>GEOQUIZ</small><i>${x.ic}</i><b>${esc(x[L])}</b><span>${fmtDay(stats.stampD[x.id] || stats.since)}</span><em>${st.g}</em></div>`;
+}
+function ppSection(sec, title, fresh) {
+  const t = T(), L = settings.lang, all = stampsAll();
+  const slots = STAMPS.filter(x => x.sec === sec).map(x => {
+    const st = all[x.id], wide = x.sh.includes('big') ? ' wide' : '';
+    const modes = sec === 'c' && st ? `<div class="pp-modes">${MODES.map(m => `<span class="${st.m.includes(m) ? '' : 'off'}">${MODE_IC[m]}</span>`).join('')}</div>` : '';
+    return st
+      ? `<div class="pp-slot${wide}">${stampHtml(x, st, fresh.includes(x.id))}${modes}</div>`
+      : `<button class="pp-slot${wide}" data-act="ppgo" data-v="${x.id}"><div class="pp-empty"><i>${x.ic === '★' ? '🌍' : sec === 'c' ? '🛂' : sec === 's' ? '⚓' : '🏖'}</i>${t.ppGet(esc(x[L]))}</div></button>`;
+  }).join('');
+  return `<div class="pp-page pp-paper"><div class="pp-h">${title}</div><div class="pp-grid">${slots}</div></div>`;
+}
+function renderPassport(fresh = []) {
+  const t = T(), i = rankIdx(stats.xp), name = playerName(), no = ppNumber();
+  const mrzName = String(name).toUpperCase().replace(/[^A-ZА-ЯЁ0-9]/g, '<');
+  const mrz1 = ('P<GEO' + mrzName + '<<').padEnd(36, '<').slice(0, 36);
+  const mrz2 = (no.replace('-', '') + '<' + stats.since.replace(/-/g, '').slice(2) + '<<' + stampCount() + '<<').padEnd(36, '<').slice(0, 36);
+  const pages = [
+    `<div class="pp-page pp-cover"><b>GEOQUIZ</b><span>${t.ppWord}<br>${settings.lang === 'ru' ? 'PASSPORT' : ''}</span></div>`,
+    `<div class="pp-page pp-paper"><div class="pp-h">${t.ppTitle}</div>
+      <div class="pp-own"><div class="pp-photo">${RANKS[i][1]}</div>
+        <div class="pp-f"><small>${t.ppName}</small><b>${esc(name)}</b><small>${t.ppNo}</small><b>${no}</b><small>${t.ppRank}</small><b>${esc(rankName(i))}</b></div></div>
+      <div class="pp-f" style="display:grid;grid-template-columns:1fr 1fr;gap:0 12px;margin-top:6px">
+        <div><small>${t.ppIssued}</small><b>${fmtDay(stats.since)}</b></div><div><small>${t.ppXp}</small><b>${stats.xp.toLocaleString('ru-RU')}</b></div>
+        <div><small>${t.ppVisas}</small><b>${stampCount()} / ${STAMPS.length}</b></div><div><small>${t.ppKnown}</small><b>${stats.known.length} / ${COUNTRIES.length}</b></div></div>
+      <div class="pp-mrz">${esc(mrz1)}<br>${esc(mrz2)}</div></div>`,
+    ppSection('c', t.ppSecC, fresh), ppSection('s', t.ppSecS, fresh), ppSection('r', t.ppSecR, fresh)
+  ];
+  $('#passport').innerHTML = `
+    <header><button class="back" data-act="home">‹ ${t.back}</button><div style="flex:1"><h1>🛂 ${t.ppBtn}</h1><div class="sub">${stampCount()} / ${STAMPS.length}</div></div></header>
+    <div class="pp-wrap"><div class="pp-book" id="ppBook">${pages.join('')}</div>
+      <button class="pp-arr l" data-act="ppprev" aria-label="prev">‹</button><button class="pp-arr r" data-act="ppnext" aria-label="next">›</button></div>
+    <div class="pp-nav"><span class="pp-dots">${pages.map((_, k) => `<i data-k="${k}"></i>`).join('')}</span></div>`;
+  const book = $('#ppBook');
+  if (book && book.addEventListener) book.addEventListener('scroll', () => {
+    const k = Math.round(book.scrollLeft / Math.max(1, book.clientWidth));
+    if (k !== ppCur) { ppCur = k; ppDots(); if (k > 0) { settings.ppPage = k; store.set('settings', settings); } }
+  }, { passive: true });
+}
+function ppDots() {
+  document.querySelectorAll('#passport .pp-dots i').forEach((d, k) => d.classList.toggle('on', k === ppCur));
+  const l = document.querySelector('#passport .pp-arr.l'), r = document.querySelector('#passport .pp-arr.r');
+  if (l && l.classList) l.classList.toggle('hide', ppCur <= 0);
+  if (r && r.classList) r.classList.toggle('hide', ppCur >= 4);
+}
+function ppScroll(k, smooth = true) {
+  const book = $('#ppBook'); if (!book || !book.scrollTo) return;
+  k = Math.max(0, Math.min(4, k)); ppCur = k; ppDots();
+  book.scrollTo({ left: k * book.clientWidth, behavior: smooth ? 'smooth' : 'auto' });
+}
+// Открыть паспорт: первый раз — обложка, дальше она сама откидывается на последнюю страницу (или на страницу нового штампа)
+function openPassport(page, fresh = []) {
+  renderPassport(fresh); go('passport'); ppCur = 0; ppDots();
+  const first = !stats.ppSeen;
+  if (first) { stats.ppSeen = 1; saveAll(); }
+  const target = page || (first && !fresh.length ? 0 : (settings.ppPage || 1));
+  if (target) setTimeout(() => ppScroll(target), first && !fresh.length ? 0 : 400);
+  if (fresh.length) setTimeout(() => {
+    document.querySelectorAll('#passport .stamp.pend').forEach(el => { el.classList.remove('pend'); el.classList.add('drop'); });
+    setTimeout(() => {
+      sfx('stamp'); hapticImpact('heavy');
+      const b = $('#ppBook'); if (b) { b.classList.remove('thud'); void b.offsetWidth; b.classList.add('thud'); }
+      toast(T().ppNewOne);
+    }, 260);
+  }, 1100);
+}
+// Тап по пустому месту — сразу в нужный раздел с этим экзаменом
+function ppGo(id) {
+  const x = ST_BY[id]; if (!x) return;
+  const r = id.slice(2);
+  if (x.sec === 'c') { settings.type = 'exam'; settings.regions = r === 'world' ? PARTS.slice() : [r]; saveAll(); renderCountries(); go('countries'); }
+  else if (x.sec === 's') { settings.stype = 'exam'; settings.sregs = r === 'world' ? SEA_PARTS.slice() : [r]; saveAll(); renderSeas(); go('seas'); }
+  else { settings.rtype = 'exam'; settings.rdirs = r === 'all' ? RES_PARTS.slice() : [r]; saveAll(); renderResorts(); go('resorts'); }
+}
+
+// ===== АВТОСОХРАНЕНИЕ ЭКЗАМЕНА (только на этом устройстве) =====
+const EX_F = ['gen', 'sec', 'kind', 'mode', 'type', 'key', 'asked', 'score', 'streak', 'maxStreak', 'wrong', 'xp', 'limit', 'title', 'rank0', 'newAch', 'cfg'];
+function examSave() {
+  if (!game || game.type !== 'exam' || game.kind === 'errors') return;
+  if (game.wrong.length > game.limit || game.i + 1 >= game.qs.length) { store.del('exam'); return; }
+  const snap = { i: game.i + 1, n: game.qs.length, el: Date.now() - game.t0, lang: settings.lang };
+  EX_F.forEach(f => { snap[f] = game[f]; });
+  snap.qs = game.gen ? game.qs : game.qs.map(q => ({ c: q.c.id, opts: q.opts }));
+  if (!game.gen) snap.wrong = game.wrong.slice();
+  store.set('exam', snap, true);
+}
+function examSaved() {
+  const s = store.get('exam', null);
+  return s && Array.isArray(s.qs) && s.i < s.qs.length ? s : null;
+}
+async function examResume() {
+  const s = examSaved(); if (!s) return;
+  endGame();
+  if (!s.gen && s.mode === 'shape') {
+    go('game'); $('#game').innerHTML = `<div class="loading">${T().loadingShapes}</div>`;
+    try { await loadGeo(); } catch (e) { toast(T().shapesFail); go('home'); return; }
+  }
+  const g = { i: s.i, hintUsed: false, locked: false, over: false, lives: 0 };
+  EX_F.forEach(f => { g[f] = s[f]; });
+  if (s.gen) {
+    const fresh = q => genFromKey(s.sec, q.key) || Object.assign(q, { onOk: () => {} });
+    g.qs = s.qs.map(fresh);
+    g.wrong = (s.wrong || []).map(fresh);
+  } else {
+    g.qs = s.qs.filter(q => BY_ID[q.c]).map(q => ({ c: BY_ID[q.c], opts: q.opts }));
+    g.base = g.qs.map(q => q.c);
+  }
+  if (!g.newAch) g.newAch = [];
+  game = g;
+  go('game');
+  game.t0 = Date.now() - (s.el || 0);
+  timerId = setInterval(tickClock, 500);
+  game.gen ? renderGenQ() : renderQuestion();
+}
+function examResumeCard() {
+  const s = examSaved(); if (!s) return '';
+  const t = T();
+  return `<div class="resume"><div><b>${t.exResume}</b><span>${esc(s.title || '')} · ${s.i}/${s.qs.length} · ${t.examErr(s.wrong.length, s.limit)}</span></div>
+    <div class="rbtns"><button class="btn" data-act="exres">▶ ${t.exGo}</button><button class="btn sec" data-act="exdrop">✕</button></div></div>`;
+}
+
+function stopTimer() { if (timerId) { clearInterval(timerId); timerId = null; } }
+function endGame() { stopTimer(); if (game) game.over = true; game = null; kgame = null; hotMode(); }
+
+async function startGame(kind) {
+  const t = T();
+  let rnd = Math.random, mode = settings.mode, type = settings.type, base;
+  if (kind === 'daily') { mode = 'c2cap'; type = 'normal'; }
+  if (kind === 'errors') type = 'normal';
+
+  if (mode === 'shape') {
+    go('game');
+    $('#game').innerHTML = `<div class="loading">${t.loadingShapes}</div>`;
+    try { await loadGeo(); } catch (e) { toast(t.shapesFail); go('home'); return; }
+    if (!$('#game').classList.contains('active')) return; // ушли, пока грузилось
+  }
+
+  if (kind === 'daily') {
+    rnd = mulberry32(parseInt(todayKey().replace(/-/g, ''), 10));
+    base = balanced(COUNTRIES, rnd).slice(0, 10);
+  } else if (kind === 'errors') {
+    base = shuffle(mistakes.map(id => BY_ID[id]).filter(Boolean)).slice(0, 20);
+  } else {
+    base = balanced(selPool());
+  }
+  if (mode === 'shape') base = base.filter(c => shapeOK(c.id));
+  let pool = base;
+  // экзамен — все страны выбранных регионов
+  if (!pool.length) { go('home'); return; }
+
+  game = {
+    kind, mode, type, key: bestKey(), base, qs: buildQuestions(pool, rnd),
+    i: 0, asked: 0, score: 0, streak: 0, maxStreak: 0, wrong: [], hintUsed: false, locked: false,
+    xp: 0, rank0: rankIdx(stats.xp), newAch: [], over: false, lives: type === 'lives' ? 3 : 0,
+    limit: type === 'exam' ? countriesLimit() : 0, title: regTitle(), cfg: cfgOf()
+  };
+  game.rec = kind === 'normal' ? ghostRec() : 0;
+  go('game');
+  game.t0 = Date.now();
+  if (type === 'blitz') {
+    game.deadline = Date.now() + 60000;
+    timerId = setInterval(tickBlitz, 100);
+  } else {
+    timerId = setInterval(tickClock, 500);
+  }
+  renderQuestion();
+}
+
+function tickBlitz() {
+  if (!game || game.over) return stopTimer();
+  const left = Math.max(0, game.deadline - Date.now());
+  const tt = $('#timerTxt'), tb = $('#timerBar');
+  const sec = Math.ceil(left / 1000);
+  if (tt) tt.textContent = '⏱ ' + sec;
+  if (sec > 0 && sec <= 10 && sec !== game.tickSec) { game.tickSec = sec; sfx('tick'); hapticImpact('light'); }
+  if (tb) { tb.style.width = (left / 600) + '%'; tb.classList.toggle('low', left < 10000); }
+  if (left <= 0) { praise(T().timeUp, 'mega'); game.gen ? finishGen() : finish(); }
+}
+
+function tickClock() {
+  if (!game || game.over) return stopTimer();
+  const el = $('#clockTxt');
+  if (el) el.textContent = '⏱ ' + fmtTime(Date.now() - game.t0);
+}
+
+// Настройки регионов, с которыми начат экзамен: заголовок и бонус берём из них, а не из текущего меню
+const cfgOf = () => ({ regions: settings.regions.slice(), rdirs: settings.rdirs.slice(), sregs: settings.sregs.slice() });
+function withCfg(cfg, fn) {
+  if (!cfg) return fn();
+  const old = cfgOf(); Object.assign(settings, cfg);
+  try { return fn(); } finally { Object.assign(settings, old); }
+}
+// Призрак рекорда (блиц и 3 жизни): «До рекорда 2!» и «Новый рекорд!» прямо в игре
+function ghostRec() { return game ? ((game.gen ? stats.genBest : stats.best)[game.key] || 0) : 0; }
+function ghost() {
+  if (!game || !endless(game.type) || game.kind !== 'normal' && !game.gen) return;
+  const rec = game.rec, s = game.score, t = T();
+  if (!rec || game.ghostBeat) return;
+  if (s > rec) { game.ghostBeat = true; praise(t.ghostBeat, 'mega'); confetti(30); sfx('mega'); hapticImpact('heavy'); return; }
+  const left = rec - s + 1;
+  if (left <= 3 && left !== game.ghostLeft) { game.ghostLeft = left; praise(t.ghostNear(left), 'mega'); }
+}
+const ghostTag = () => game && endless(game.type) && game.rec ? ` · 🏁 ${game.rec}` : '';
+function hotMode() { const g = document.getElementById('game'); if (g && g.classList) g.classList.toggle('hot', !!(game && game.streak >= 5)); }
+function gameTitle() {
+  const t = T();
+  if (game.kind === 'daily') return t.dailyTitle;
+  if (game.kind === 'errors') return t.errorsTitle;
+  const pre = game.type === 'blitz' ? '⚡ ' : game.type === 'hardcore' ? '💀 ' : game.type === 'lives' ? '❤️ ' : '';
+  return pre + withCfg(game.cfg, regTitle);
+}
+const askWhat = () => game.mode === 'c2cap' ? 'c' : 'n'; // что нужно назвать: столицу или страну
+
+function renderQuestion() {
+  const t = T(), q = game.qs[game.i], c = q.c, n = game.qs.length;
+  const label = o => game.mode === 'c2cap' ? cp(o) : nm(o);
+  let qHtml;
+  if (game.mode === 'c2cap') qHtml = `${flag(c.id, 'big')}<small>${t.qc2cap} ${tierTag(c)}</small><h2>${esc(nm(c))}</h2>`;
+  else if (game.mode === 'cap2c') qHtml = `<div class="fl big">🏛️</div><small>${t.qcap2c} ${tierTag(c)}</small><h2>${esc(cp(c))}</h2>`;
+  else if (game.mode === 'flag') qHtml = `${flag(c.id, 'big')}<small>${t.qflag} ${tierTag(c)}</small>`;
+  else qHtml = `${mapSVG(c.id)}<small>${t.qshape} ${tierTag(c)}</small>`;
+
+  const blitz = game.type === 'blitz', hard = game.type === 'hardcore';
+  const left = blitz ? Math.max(0, game.deadline - Date.now()) : 0;
+  const topRight = genTopRight(n);
+  const bar = genBar(n);
+
+  const answers = hard
+    ? `<form class="hard" id="hardForm" autocomplete="off">
+         <input id="hardIn" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="${t.typeAnswer}">
+         <button class="btn" type="submit">${t.answerBtn}</button>
+       </form>
+       <div class="hard-hint" id="hardHint"></div>`
+    : `<div class="opts">${q.opts.map((id, k) => `<button class="opt" data-key="${k + 1}" data-act="opt" data-id="${id}">${esc(label(BY_ID[id]))}</button>`).join('')}</div>`;
+
+  const hintBtn = hard
+    ? `<button class="link" data-act="hint" ${game.hintUsed ? 'disabled' : ''}>${t.hintBtn}</button>`
+    : `<button class="link" data-act="hint" ${game.hintUsed ? 'disabled' : ''}>💡 50/50</button>`;
+
+  $('#game').innerHTML = `
+    <div class="top"><span>${gameTitle()}</span><span>${topRight}</span></div>
+    ${bar}
+    <div class="top"><span>✅ ${game.score}${ghostTag()} · ⭐ ${game.xp} XP</span><span class="stk">${game.streak >= 3 ? '🔥' : '⚡'} ${t.streak}: ${game.streak}</span></div>
+    <div class="q">${qHtml}</div>
+    ${answers}
+    <div class="reveal" id="reveal"></div>
+    <div class="tools">
+      <button class="link" data-act="quit">✕ ${t.quit}</button>
+      ${hard ? `<button class="link" data-act="skip">${t.dontKnow}</button>` : ''}
+      ${hintBtn}
+    </div>`;
+  game.locked = false;
+  if (hard) {
+    $('#hardForm').addEventListener('submit', e => { e.preventDefault(); answerTyped($('#hardIn').value); });
+    setTimeout(() => { const i = $('#hardIn'); if (i) i.focus(); }, 50);
+  }
+}
+
+// Общая обработка ответа: ok — верно ли, close — засчитано с опечаткой
+function resolve(ok, close) {
+  const t = T(), q = game.qs[game.i];
+  let gain = 0;
+  game.asked++;
+  stats.answered++;
+  if (ok) {
+    game.score++; game.streak++; stats.correct++;
+    game.maxStreak = Math.max(game.maxStreak, game.streak);
+    stats.bestStreak = Math.max(stats.bestStreak, game.streak);
+    mistakes = mistakes.filter(x => x !== q.c.id);
+    if (!stats.known.includes(q.c.id)) stats.known.push(q.c.id);
+    if (game.mode === 'shape') stats.shapeOk++;
+    // опыт = база × сложность (в блице половина); в «Работе над ошибками» опыта нет
+    gain = game.kind === 'errors' ? 0 : Math.round((game.type === 'hardcore' ? 20 : game.type === 'blitz' ? 5 : 10) * mult(q.c));
+    game.xp += gain; stats.xp += gain;
+    const milestone = game.streak === 3 || (game.streak >= 5 && game.streak % 5 === 0);
+    if (game.type === 'lives' && game.streak % 10 === 0 && game.lives < 3) {
+      game.lives++; praise(t.lifeBack, 'mega'); confetti(40); sfx('mega'); hapticImpact('heavy');
+    } else if (milestone) {
+      praise(t.streakMsg(game.streak), 'mega');
+      confetti(45); sfx('mega'); hapticImpact('heavy');
+    } else {
+      praise(close ? t.almost : t.praise[Math.floor(Math.random() * t.praise.length)]);
+      confetti(game.type === 'blitz' ? 6 : 14); sfx('ok'); haptic('success');
+    }
+  } else {
+    game.streak = 0;
+    game.wrong.push(q.c.id);
+    if (!mistakes.includes(q.c.id)) mistakes.push(q.c.id);
+    sfx('bad'); haptic('error');
+    if (game.type === 'lives') { game.lives--; praise(game.lives > 0 ? '💔' : t.noLives, 'minus'); }
+  }
+  if (game.type === 'exam') { const e = document.querySelector('#game .errs'); if (e) e.textContent = t.examErr(game.wrong.length, game.limit); }
+  $('#reveal').innerHTML = (game.mode === 'flag' ? `${flag(q.c.id, 'sm')} <b>${esc(nm(q.c))}</b>` : `${flag(q.c.id, 'sm')} <b>${esc(cp(q.c))}</b> — ${t.capOf} ${esc(nm(q.c))}`) + (gain ? ` <span class="gain">+${gain} XP</span>` : '');
+  if (game.type === 'lives') { const l = document.querySelector('#game .lives'); if (l) l.textContent = hearts(game.lives); }
+  checkAch(game);
+  questAnswer(ok); saveAll(); examSave(); hotMode(); ghost();
+  if (game.type === 'lives' && game.lives <= 0) { stopTimer(); failFx(); setTimeout(finish, 1700); return; }
+  if (game.type === 'exam' && game.wrong.length > game.limit) { game.failed = true; stopTimer(); praise('❌', 'minus'); failFx(); setTimeout(finish, 1700); return; }
+  const delay = game.type === 'blitz' ? (ok ? 350 : 2500) : (ok ? 900 : 1900);
+  setTimeout(nextQuestion, delay);
+}
+
+function answer(id) {
+  if (!game || game.locked) return;
+  game.locked = true;
+  const q = game.qs[game.i], ok = id === q.c.id;
+  document.querySelectorAll('.opt').forEach(b => {
+    b.disabled = true;
+    if (b.dataset.id === q.c.id) b.classList.add('ok');
+    else if (b.dataset.id === id) b.classList.add('bad');
+  });
+  resolve(ok, false);
+}
+
+function answerTyped(text) {
+  if (!game || game.locked) return;
+  if (!norm(text)) { const i = $('#hardIn'); if (i) i.focus(); return; }
+  game.locked = true;
+  const q = game.qs[game.i], res = checkTyped(text, q.c, askWhat());
+  const inp = $('#hardIn');
+  inp.readOnly = true;
+  inp.classList.add(res ? 'ok' : 'bad');
+  if (!res) inp.value = `${T().youTyped}: ${text}`;
+  resolve(!!res, res === 'close');
+}
+
+function skipTyped() {
+  if (!game || game.locked) return;
+  game.locked = true;
+  const inp = $('#hardIn');
+  if (inp) { inp.readOnly = true; inp.classList.add('bad'); }
+  resolve(false, false);
+}
+
+function useHint() {
+  if (!game || game.hintUsed || game.locked) return;
+  // Сюда позже можно повесить показ рекламы (Adsgram) за подсказку
+  game.hintUsed = true;
+  const q = game.qs[game.i];
+  if (game.type === 'hardcore') {
+    const ans = askWhat() === 'c' ? cp(q.c) : nm(q.c);
+    $('#hardHint').textContent = T().hintLetter(ans[0].toUpperCase(), ans.replace(/[\s\-—'’.,]/g, '').length);
+  } else {
+    const wrong = shuffle(q.opts.filter(id => id !== q.c.id)).slice(0, 2);
+    document.querySelectorAll('.opt').forEach(b => { if (wrong.includes(b.dataset.id)) { b.classList.add('gone'); b.disabled = true; } });
+    sfx('hint'); hapticImpact('medium');
+  }
+  document.querySelector('[data-act="hint"]').disabled = true;
+}
+
+function nextQuestion() {
+  if (!game || game.over) return;
+  game.i++;
+  if (game.i >= game.qs.length) {
+    if (endless(game.type)) game.qs = game.qs.concat(buildQuestions(balanced(game.base), Math.random)); // в блице и на жизнях вопросы не кончаются
+    else return finish();
+  }
+  renderQuestion();
+}
+
+function finish() {
+  if (!game || game.over) return;
+  if (game.type === 'exam') store.del('exam');
+  game.over = true;
+  stopTimer();
+  game.time = Date.now() - game.t0;
+  stats.played++; questFinish(); dayPlayed();
+  let record = false, best = null, fastRec = false;
+  game.title = withCfg(game.cfg, regTitle); // на текущем языке
+  game.exam = game.type === 'exam' && game.kind === 'normal' ? examResult(game, withCfg(game.cfg, countriesBonus)) : null;
+  if (game.kind === 'errors' || game.exam) { /* без рекордов: «Ошибки» и экзамен */ }
+  else if (!endless(game.type) && !game.wrong.length && game.asked > 0) {
+    const tk = game.kind === 'daily' ? 'daily' : game.key;
+    const prevT = stats.bestTime[tk];
+    if (prevT == null || game.time < prevT) { fastRec = prevT != null; stats.bestTime[tk] = game.time; }
+    game.bestTime = stats.bestTime[tk];
+  } else if (!endless(game.type)) {
+    game.bestTime = stats.bestTime[game.kind === 'daily' ? 'daily' : game.key];
+  }
+  if (game.kind === 'normal' && !game.exam) {
+    const prev = stats.best[game.key] || 0;
+    if (game.score > prev) { stats.best[game.key] = game.score; record = game.score > 0; }
+    best = stats.best[game.key];
+    if (game.type === 'blitz') stats.blitzBest = Math.max(stats.blitzBest, game.score);
+  }
+  if (game.kind === 'daily') {
+    const k = todayKey();
+    if (stats.daily[k] == null) stats.daily[k] = game.score;
+    const keys = Object.keys(stats.daily).sort();
+    while (keys.length > 30) delete stats.daily[keys.shift()];
+  }
+  checkAch(game);
+  saveAll();
+  const rankUp = rankIdx(stats.xp) > game.rank0;
+  renderResult(record, best, rankUp, fastRec);
+  go('result');
+  const total = endless(game.type) ? Math.max(game.asked, 1) : game.qs.length;
+  if (record || rankUp || fastRec || (game.exam && game.exam.passed) || (!game.exam && game.score / total >= 0.7)) {
+    setTimeout(() => { confetti(rankUp || (game.exam && game.exam.passed) ? 140 : 90); sfx('win'); haptic('success'); }, 250);
+  }
+}
+
+function renderResult(record, best, rankUp, fastRec) {
+  const t = T(), blitz = endless(game.type);
+  const n = blitz || game.failed ? game.asked : game.qs.length;
+  const pct = n ? Math.round(game.score / n * 100) : 0;
+  const emoji = blitz ? (game.score >= 25 ? '🌩️' : game.score >= 15 ? '⚡' : '⏱️') : pct >= 90 ? '🏆' : pct >= 70 ? '🎉' : pct >= 40 ? '👍' : '📚';
+  const uniqWrong = [...new Set(game.wrong)];
+  const list = uniqWrong.length
+    ? `<div class="label">${t.mist}</div>` + uniqWrong.map(id => { const c = BY_ID[id]; return `<div class="item">${flag(id, 'sm')}<span>${esc(nm(c))}</span><span class="c">${esc(cp(c))}</span></div>`; }).join('')
+    : `<div style="text-align:center">${t.noMist}</div>`;
+  const achHtml = game.newAch.length
+    ? `<div class="card"><div class="label">${t.achGot}</div><div class="ach-row">${game.newAch.map(a => `<span title="${esc(achText(a)[1])}">${a.i} ${esc(achText(a)[0])}</span>`).join('')}</div></div>`
+    : '';
+  $('#result').innerHTML = `
+    <div class="top"><span>${gameTitle()}</span><span></span></div>
+    <div class="emoji">${emoji}</div>
+    ${game.exam ? examHtml(game, game.exam, game.title) : ''}
+    <div class="big-score">${blitz ? game.score : `${game.score}/${n}`}</div>
+    <div class="pct">${blitz ? `${t.answers}: ${n} · ${t.correctW}: ${game.score}` : `${pct}% · ${t.streak}: ${game.maxStreak}`}</div>
+    ${blitz ? '' : `<div class="pct">${t.timeLine(fmtTime(game.time), (game.time / 1000 / Math.max(game.asked, 1)).toFixed(1).replace('.', settings.lang === 'ru' ? ',' : '.'))}</div>`}
+    ${fastRec ? `<span class="badge">${t.newBestTime}</span>` : (!blitz && game.bestTime != null ? `<div class="pct">${t.bestTime}: ${fmtTime(game.bestTime)}</div>` : '')}
+    <div class="xp-line">⭐ ${t.gotXp(game.xp)}</div>
+    ${rankUp ? `<span class="badge">${t.newRank(rankName(rankIdx(stats.xp)))}</span>` : ''}
+    ${record ? `<span class="badge">${t.newRecord}</span>` : best != null ? `<div class="pct">${t.best}: ${best}</div>` : ''}
+    ${game.newStamps && game.newStamps.length ? `<button class="btn pp" data-act="ppstamp">${t.ppStamp}</button>` : ''}
+    <button class="btn" data-act="share">📤 ${t.share}</button>
+    <div class="row">
+      <button class="btn sec" data-act="again">↻ ${game.exam && !game.exam.passed ? t.examRetry : t.again}</button>
+      ${game.kind === 'normal' ? `<button class="btn sec" data-act="countries">🌍 ${t.toCountries}</button>` : `<button class="btn sec" data-act="home">${t.home}</button>`}
+    </div>
+    ${achHtml}
+    <div class="card">${list}</div>`;
+}
+
+function share() {
+  const t = T();
+  const tm = game.time ? t.shareTime(fmtTime(game.time)) : '';
+  const n = endless(game.type) ? game.asked : game.qs.length;
+  const text = game.exam && game.exam.passed ? t.shareExam(game.title, game.exam.grade)
+    : game.type === 'lives' ? t.shareRun(game.score)
+    : game.type === 'blitz' ? t.shareBlitz(game.score)
+    : game.sec === 'res' ? t.shareRes(game.score, n, tm)
+    : game.sec === 'sea' ? t.shareSea(game.score, n, tm)
+    : game.kind === 'daily' ? t.shareDaily(game.score, tm)
+    : game.type === 'blitz' ? t.shareBlitz(game.score)
+    : t.shareText(game.score, game.qs.length, tm);
+  if (inTg) {
+    tg.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(APP_LINK)}&text=${encodeURIComponent(text)}`);
+  } else if (navigator.share) {
+    navigator.share({ text, url: APP_LINK }).catch(() => {});
+  } else {
+    try { navigator.clipboard.writeText(text + ' ' + APP_LINK); toast(t.copied); } catch (e) {}
+  }
+}
+
+// ===== КУРОРТЫ И ОСТРОВА =====
+// id|RU|EN|страна ISO|широта|долгота|направление|подгруппа (для правдоподобных вариантов)|тип: i = остров, s = горнолыжный
+const RES_RAW = `antalya|Анталья|Antalya|TR|36.89|30.71|tr|tr|
+alanya|Аланья|Alanya|TR|36.54|31.99|tr|tr|
+kemer|Кемер|Kemer|TR|36.60|30.56|tr|tr|
+side|Сиде|Side|TR|36.77|31.39|tr|tr|
+bodrum|Бодрум|Bodrum|TR|37.03|27.43|tr|tr|
+marmaris|Мармарис|Marmaris|TR|36.85|28.27|tr|tr|
+oludeniz|Олюдениз|Oludeniz|TR|36.55|29.12|tr|tr|
+hurghada|Хургада|Hurghada|EG|27.26|33.81|tr|tr|
+sharm|Шарм-эль-Шейх|Sharm El Sheikh|EG|27.92|34.33|tr|tr|
+marsaalam|Марса-Алам|Marsa Alam|EG|25.07|34.89|tr|tr|
+dahab|Дахаб|Dahab|EG|28.50|34.51|tr|tr|
+elgouna|Эль-Гуна|El Gouna|EG|27.39|33.68|tr|tr|
+marsamatruh|Марса-Матрух|Marsa Matruh|EG|31.35|27.24|tr|tr|
+dubai|Дубай|Dubai|AE|25.20|55.27|tr|tr|
+rak|Рас-эль-Хайма|Ras Al Khaimah|AE|25.79|55.94|tr|tr|
+aqaba|Акаба|Aqaba|JO|29.53|35.01|tr|tr|
+salalah|Салала|Salalah|OM|17.02|54.09|tr|tr|
+sousse|Сусс|Sousse|TN|35.83|10.64|tr|tr|
+monastir|Монастир|Monastir|TN|35.78|10.83|tr|tr|
+hammamet|Хаммамет|Hammamet|TN|36.40|10.62|tr|tr|
+djerba|Джерба|Djerba|TN|33.81|10.86|tr|tr|i
+agadir|Агадир|Agadir|MA|30.43|-9.60|tr|tr|
+essaouira|Эссуэйра|Essaouira|MA|31.51|-9.77|tr|tr|
+sochi|Сочи|Sochi|RU|43.59|39.72|eu|eu|
+anapa|Анапа|Anapa|RU|44.89|37.32|eu|eu|
+gelendzhik|Геленджик|Gelendzhik|RU|44.56|38.08|eu|eu|
+svetlogorsk|Светлогорск|Svetlogorsk|RU|54.94|20.15|eu|eu|
+jurmala|Юрмала|Jurmala|LV|56.97|23.77|eu|eu|
+batumi|Батуми|Batumi|GE|41.64|41.64|eu|eu|
+goldsands|Золотые Пески|Golden Sands|BG|43.28|28.04|eu|eu|
+budva|Будва|Budva|ME|42.29|18.84|eu|eu|
+dubrovnik|Дубровник|Dubrovnik|HR|42.65|18.09|eu|eu|
+saranda|Саранда|Saranda|AL|39.88|20.01|eu|eu|
+ayianapa|Айя-Напа|Ayia Napa|CY|34.99|34.00|eu|eu|
+paphos|Пафос|Paphos|CY|34.77|32.42|eu|eu|
+gozo|Гозо|Gozo|MT|36.04|14.24|eu|eu|i
+santorini|Санторини|Santorini|GR|36.39|25.46|eu|eu|i
+mykonos|Миконос|Mykonos|GR|37.45|25.33|eu|eu|i
+crete|Крит|Crete|GR|35.24|24.81|eu|eu|i
+rhodes|Родос|Rhodes|GR|36.43|28.22|eu|eu|i
+corfu|Корфу|Corfu|GR|39.62|19.92|eu|eu|i
+halkidiki|Халкидики|Halkidiki|GR|40.25|23.50|eu|eu|
+sardinia|Сардиния|Sardinia|IT|40.12|9.01|eu|eu|i
+sicily|Сицилия|Sicily|IT|37.60|14.02|eu|eu|i
+capri|Капри|Capri|IT|40.55|14.24|eu|eu|i
+amalfi|Амальфи|Amalfi|IT|40.63|14.60|eu|eu|
+rimini|Римини|Rimini|IT|44.06|12.57|eu|eu|
+nice|Ницца|Nice|FR|43.70|7.27|eu|eu|
+cannes|Канны|Cannes|FR|43.55|7.02|eu|eu|
+corsica|Корсика|Corsica|FR|42.04|9.01|eu|eu|i
+mallorca|Мальорка|Mallorca|ES|39.70|3.00|eu|eu|i
+ibiza|Ибица|Ibiza|ES|38.98|1.43|eu|eu|i
+costabrava|Коста-Брава|Costa Brava|ES|41.80|3.07|eu|eu|
+tenerife|Тенерифе|Tenerife|ES|28.29|-16.63|eu|eu|i
+madeira|Мадейра|Madeira|PT|32.76|-16.96|eu|eu|i
+algarve|Алгарве|Algarve|PT|37.02|-7.93|eu|eu|
+bali|Бали|Bali|ID|-8.41|115.19|asia|asia|i
+lombok|Ломбок|Lombok|ID|-8.65|116.32|asia|asia|i
+phuket|Пхукет|Phuket|TH|7.88|98.39|asia|asia|i
+samui|Самуи|Koh Samui|TH|9.51|100.01|asia|asia|i
+phangan|Панган|Koh Phangan|TH|9.74|100.03|asia|asia|i
+pattaya|Паттайя|Pattaya|TH|12.93|100.88|asia|asia|
+krabi|Краби|Krabi|TH|8.09|98.91|asia|asia|
+huahin|Хуахин|Hua Hin|TH|12.57|99.96|asia|asia|
+nhatrang|Нячанг|Nha Trang|VN|12.24|109.19|asia|asia|
+phuquoc|Фукуок|Phu Quoc|VN|10.23|103.96|asia|asia|i
+danang|Дананг|Da Nang|VN|16.05|108.22|asia|asia|
+muine|Муйне|Mui Ne|VN|10.93|108.29|asia|asia|
+sihanouk|Сиануквиль|Sihanoukville|KH|10.63|103.50|asia|asia|
+boracay|Боракай|Boracay|PH|11.97|121.92|asia|asia|i
+palawan|Палаван|Palawan|PH|9.83|118.74|asia|asia|i
+cebu|Себу|Cebu|PH|10.32|123.89|asia|asia|i
+langkawi|Лангкави|Langkawi|MY|6.35|99.80|asia|asia|i
+penang|Пенанг|Penang|MY|5.41|100.33|asia|asia|i
+goa|Гоа|Goa|IN|15.30|74.12|asia|asia|
+bentota|Бентота|Bentota|LK|6.42|80.00|asia|asia|
+hikkaduwa|Хиккадува|Hikkaduwa|LK|6.14|80.10|asia|asia|
+hainan|Хайнань|Hainan|CN|18.25|109.51|asia|asia|i
+jeju|Чеджу|Jeju|KR|33.49|126.53|asia|asia|i
+okinawa|Окинава|Okinawa|JP|26.33|127.80|asia|asia|i
+maafushi|Мафуши|Maafushi|MV|3.94|73.49|exo|ind|i
+praslin|Праслин|Praslin|SC|-4.33|55.74|exo|ind|i
+mahe|Маэ|Mahe|SC|-4.68|55.48|exo|ind|i
+ladigue|Ла-Диг|La Digue|SC|-4.36|55.84|exo|ind|i
+grandbaie|Гран-Бе|Grand Baie|MU|-20.01|57.58|exo|ind|
+flicenflac|Флик-ан-Флак|Flic en Flac|MU|-20.27|57.37|exo|ind|
+reunion|Реюньон|Reunion|FR|-21.12|55.53|exo|ind|i
+nosybe|Нуси-Бе|Nosy Be|MG|-13.33|48.27|exo|ind|i
+saintemarie|Иль-Сент-Мари|Ile Sainte-Marie|MG|-17.00|49.86|exo|ind|i
+zanzibar|Занзибар|Zanzibar|TZ|-6.16|39.20|exo|ind|i
+pemba|Пемба|Pemba|TZ|-5.03|39.78|exo|ind|i
+mafia|Мафия|Mafia Island|TZ|-7.85|39.78|exo|ind|i
+diani|Диани|Diani Beach|KE|-4.32|39.58|exo|ind|
+malindi|Малинди|Malindi|KE|-3.22|40.12|exo|ind|
+watamu|Ватаму|Watamu|KE|-3.35|40.02|exo|ind|
+lamu|Ламу|Lamu|KE|-2.27|40.90|exo|ind|i
+tofo|Тофу|Tofo|MZ|-23.85|35.55|exo|ind|
+bazaruto|Базаруто|Bazaruto|MZ|-21.65|35.47|exo|ind|i
+capetown|Кейптаун|Cape Town|ZA|-33.92|18.42|exo|afr|
+durban|Дурбан|Durban|ZA|-29.86|31.02|exo|afr|
+swakopmund|Свакопмунд|Swakopmund|NA|-22.68|14.53|exo|afr|
+sal|Сал|Sal|CV|16.75|-22.95|exo|afr|i
+boavista|Боа-Вишта|Boa Vista|CV|16.10|-22.82|exo|afr|i
+saly|Сали|Saly|SN|14.45|-17.01|exo|afr|
+assinie|Ассини|Assinie|CI|5.13|-3.28|exo|afr|
+capecoast|Кейп-Кост|Cape Coast|GH|5.10|-1.25|exo|afr|
+principe|Принсипи|Principe|ST|1.61|7.40|exo|afr|i
+cancun|Канкун|Cancun|MX|21.16|-86.85|exo|amer|
+playadelcarmen|Плайя-дель-Кармен|Playa del Carmen|MX|20.63|-87.07|exo|amer|
+tulum|Тулум|Tulum|MX|20.21|-87.47|exo|amer|
+loscabos|Лос-Кабос|Los Cabos|MX|22.89|-109.92|exo|amer|
+vallarta|Пуэрто-Вальярта|Puerto Vallarta|MX|20.65|-105.23|exo|amer|
+puntacana|Пунта-Кана|Punta Cana|DO|18.58|-68.40|exo|amer|
+samana|Самана|Samana|DO|19.21|-69.34|exo|amer|
+varadero|Варадеро|Varadero|CU|23.15|-81.25|exo|amer|
+cayococo|Кайо-Коко|Cayo Coco|CU|22.51|-78.43|exo|amer|i
+montego|Монтего-Бей|Montego Bay|JM|18.47|-77.92|exo|amer|
+negril|Негрил|Negril|JM|18.27|-78.35|exo|amer|
+paradise|Парадайз-Айленд|Paradise Island|BS|25.08|-77.32|exo|amer|i
+aruba|Аруба|Aruba|NL|12.52|-69.97|exo|amer|i
+bermuda|Бермуды|Bermuda|GB|32.30|-64.78|exo|amer|i
+tobago|Тобаго|Tobago|TT|11.23|-60.70|exo|amer|i
+miami|Майами|Miami|US|25.76|-80.19|exo|amer|
+keywest|Ки-Уэст|Key West|US|24.56|-81.78|exo|amer|i
+ambergris|Амбергрис-Кей|Ambergris Caye|BZ|17.92|-87.96|exo|amer|i
+roatan|Роатан|Roatan|HN|16.32|-86.53|exo|amer|i
+bocas|Бокас-дель-Торо|Bocas del Toro|PA|9.34|-82.24|exo|amer|i
+tamarindo|Тамариндо|Tamarindo|CR|10.30|-85.84|exo|amer|
+cartagena|Картахена|Cartagena|CO|10.39|-75.48|exo|amer|
+rio|Рио-де-Жанейро|Rio de Janeiro|BR|-22.97|-43.18|exo|amer|
+noronha|Фернанду-ди-Норонья|Fernando de Noronha|BR|-3.85|-32.42|exo|amer|i
+mardelplata|Мар-дель-Плата|Mar del Plata|AR|-38.00|-57.56|exo|amer|
+galapagos|Галапагосы|Galapagos|EC|-0.95|-90.97|exo|amer|i
+hawaii|Гавайи|Hawaii|US|21.28|-157.83|exo|oce|i
+maui|Мауи|Maui|US|20.80|-156.33|exo|oce|i
+borabora|Бора-Бора|Bora Bora|FR|-16.50|-151.74|exo|oce|i
+tahiti|Таити|Tahiti|FR|-17.65|-149.43|exo|oce|i
+newcaledonia|Новая Каледония|New Caledonia|FR|-22.27|166.45|exo|oce|i
+goldcoast|Голд-Кост|Gold Coast|AU|-28.02|153.40|exo|oce|
+byronbay|Байрон-Бей|Byron Bay|AU|-28.64|153.61|exo|oce|
+whitsunday|Уитсандей|Whitsundays|AU|-20.28|148.95|exo|oce|i
+denarau|Денарау|Denarau|FJ|-17.77|177.38|exo|oce|i
+courchevel|Куршевель|Courchevel|FR|45.41|6.63|eu|alps|s
+chamonix|Шамони|Chamonix|FR|45.92|6.87|eu|alps|s
+valthorens|Валь-Торанс|Val Thorens|FR|45.30|6.58|eu|alps|s
+zermatt|Церматт|Zermatt|CH|46.02|7.75|eu|alps|s
+stmoritz|Санкт-Мориц|St. Moritz|CH|46.50|9.84|eu|alps|s
+davos|Давос|Davos|CH|46.80|9.84|eu|alps|s
+kitzbuhel|Кицбюэль|Kitzbuhel|AT|47.45|12.39|eu|alps|s
+ischgl|Ишгль|Ischgl|AT|47.01|10.29|eu|alps|s
+solden|Зёльден|Solden|AT|46.97|11.01|eu|alps|s
+cortina|Кортина-д’Ампеццо|Cortina d'Ampezzo|IT|46.54|12.14|eu|alps|s
+livigno|Ливиньо|Livigno|IT|46.54|10.14|eu|alps|s
+soldeu|Сольдеу|Soldeu|AD|42.58|1.67|eu|mnt|s
+bansko|Банско|Bansko|BG|41.84|23.49|eu|mnt|s
+gudauri|Гудаури|Gudauri|GE|42.48|44.48|eu|mnt|s
+krasnayapolyana|Красная Поляна|Krasnaya Polyana|RU|43.68|40.20|eu|mnt|s
+sheregesh|Шерегеш|Sheregesh|RU|52.92|87.98|eu|mnt|s
+niseko|Нисеко|Niseko|JP|42.80|140.69|asia|mnt|s
+whistler|Уистлер|Whistler|CA|50.12|-122.95|exo|mnt|s
+aspen|Аспен|Aspen|US|39.19|-106.82|exo|mnt|s`;
+const RESORTS = RES_RAW.trim().split('\n').map(l => {
+  const [id, ru, en, c, la, lo, g, sub, k] = l.split('|');
+  return { id, ru, en, c, lat: +la, lng: +lo, g, sub, kind: k || '' };
+}).filter(r => BY_ID[r.c]).map(r => Object.assign(r, {
+  // направления: Турция/Египет · Европа и Россия · Азия и Океания · Индийский океан и Африка · Америка и Карибы
+  g: r.g === 'exo' ? (r.sub === 'oce' ? 'aso' : (r.sub === 'ind' || r.sub === 'afr') ? 'afr' : 'am') : r.g === 'asia' ? 'aso' : r.g
+}));
+const RES_BY = Object.fromEntries(RESORTS.map(r => [r.id, r]));
+const RES_DIRS = ['all', 'tr', 'eu', 'aso', 'afr', 'am'];
+// Сложность курортов (опыт ×1 по умолчанию — самые известные)
+const RES_MED = new Set(('bodrum marmaris oludeniz marsaalam dahab elgouna rak aqaba sousse monastir hammamet djerba agadir essaouira ' +
+  'svetlogorsk jurmala batumi goldsands budva dubrovnik ayianapa paphos mykonos rhodes corfu halkidiki sardinia sicily capri amalfi rimini cannes corsica ibiza costabrava madeira algarve ' +
+  'lombok phangan krabi huahin phuquoc danang muine boracay langkawi hainan jeju okinawa hikkaduwa ' +
+  'mahe zanzibar capetown playadelcarmen tulum loscabos vallarta montego cartagena galapagos tahiti goldcoast ' +
+  'chamonix valthorens zermatt stmoritz davos kitzbuhel cortina bansko gudauri niseko whistler aspen').split(' '));
+const RES_HARD = new Set(('marsamatruh salalah saranda gozo sihanouk palawan cebu penang bentota ' +
+  'maafushi praslin ladigue grandbaie flicenflac reunion nosybe saintemarie pemba mafia diani malindi watamu lamu tofo bazaruto ' +
+  'durban swakopmund sal boavista saly assinie capecoast principe ' +
+  'samana cayococo negril paradise aruba bermuda tobago keywest ambergris roatan bocas tamarindo noronha mardelplata ' +
+  'maui borabora newcaledonia byronbay whitsunday denarau ischgl solden livigno soldeu').split(' '));
+const rmult = r => RES_HARD.has(r.id) ? 2 : RES_MED.has(r.id) ? 1.5 : 1;
+const rname = r => settings.lang === 'ru' ? r.ru : r.en;
+const rIcon = r => r.kind === 's' ? '⛷️' : r.kind === 'i' ? '🏝️' : '🏖️';
+const rTierTag = r => { const m = rmult(r); return `<span class="tier t${String(m).replace('.', '')}">${m === 2 ? '🔴' : m === 1.5 ? '🟡' : '🟢'} ×${m}</span>`; };
+const resPool = () => RESORTS.filter(r => settings.rdirs.includes(r.g));
+
+// ===== ОБЩИЕ ШТУКИ ДЛЯ РАЗДЕЛОВ =====
+const tierBadge = m => `<span class="tier t${String(m).replace('.', '')}">${m >= 2 ? '🔴' : m >= 1.5 ? '🟡' : '🟢'} ×${m}</span>`;
+// ===== ЭКЗАМЕН =====
+const GRADES = ['C', 'B', 'A', 'A+'];
+const gradeOf = (e, l) => e === 0 ? 'A+' : e <= l / 3 ? 'A' : e <= l * 2 / 3 ? 'B' : 'C';
+const EXAM_LIM = { eu: 5, aso: 10, af: 5, am: 5 };
+const countriesLimit = () => isWorld() ? 20 : settings.regions.reduce((s, r) => s + (EXAM_LIM[r] || 5), 0);
+const playerName = () => (tg && tg.initDataUnsafe && tg.initDataUnsafe.user && tg.initDataUnsafe.user.first_name) || T().player;
+const dipLine = key => stats.dip[key] ? T().dipMenu(stats.dip[key]) : T().dipNone;
+// итог экзамена: сдал/не сдал, оценка, бонус, диплом в коллекцию
+// бонус за A+ (A — 75%, B — 50%, C — 25%)
+const C_BONUS = { eu: 1425, af: 1425, am: 1425, aso: 1900 };
+const countriesBonus = () => isWorld() ? 4750 : settings.regions.reduce((s, r) => s + (C_BONUS[r] || 1425), 0);
+const resAll = () => RES_PARTS.every(p => settings.rdirs.includes(p));
+const seaAll = () => SEA_PARTS.every(p => settings.sregs.includes(p));
+const R_BONUS = { eu: 1500, tr: 1000, aso: 1000, afr: 1000, am: 1000 };
+const S_LIM = { eu: 20, aso: 15, afam: 12 };
+const genLimit = sec => sec === 'res'
+  ? (resAll() ? 20 : settings.rdirs.length * 5)
+  : (seaAll() ? 45 : settings.sregs.reduce((s, r) => s + S_LIM[r], 0));
+const genBonus = sec => sec === 'res'
+  ? (resAll() ? 5000 : settings.rdirs.reduce((s, d) => s + R_BONUS[d], 0))
+  : (seaAll() ? 5000 : settings.sregs.length * 1500);
+function examResult(g, aPlus) {
+  const passed = !g.failed && g.asked >= g.qs.length;
+  if (!passed) return { passed };
+  // бонус зависит от оценки; при пересдаче на оценку выше — только разница (чтобы не фармили)
+  const BON = { 'A+': aPlus, 'A': Math.round(aPlus * 0.75), 'B': Math.round(aPlus * 0.5), 'C': Math.round(aPlus * 0.25) }, k = 1;
+  const grade = gradeOf(g.wrong.length, g.limit), prev = stats.dip[g.key];
+  const better = !prev || GRADES.indexOf(grade) > GRADES.indexOf(prev);
+  const bonus = better ? (BON[grade] - (prev ? BON[prev] : 0)) * k : 0;
+  g.xp += bonus; stats.xp += bonus;
+  if (better) {
+    const before = stampsAll();
+    stats.dip[g.key] = grade;
+    const after = stampsAll(), day = new Date().toISOString().slice(0, 10);
+    g.newStamps = STAMPS.map(x => x.id).filter(id => after[id] && (!before[id] || after[id].g !== before[id].g || after[id].m.length !== before[id].m.length));
+    g.newStamps.forEach(id => { stats.stampD[id] = day; });
+  }
+  return { passed, grade, bonus, prev };
+}
+function examHtml(g, ex, title) {
+  const t = T(), date = new Date().toLocaleDateString(settings.lang === 'ru' ? 'ru-RU' : 'en-GB');
+  if (!ex.passed) return `<div class="exam-fail"><b>❌ ${t.examFail}</b><span>${t.examFailWhy(g.limit, g.asked, g.qs.length)}</span></div>`;
+  return `<div class="diploma"><div class="dip-seal">🌍</div><small>${t.dipTitle}</small><b>${esc(playerName())}</b><span>${esc(t.dipPassed(title))}</span>
+    <div class="dip-grade">${t.dipGrade}: <em>${ex.grade}</em></div><small>${date} · GeoQuiz</small></div>
+    <div class="xp-line">${ex.bonus ? t.examBonus(ex.bonus) : t.examHave(ex.prev)}</div>`;
+}
+const hearts = n => '❤️'.repeat(Math.max(0, n)) + '🖤'.repeat(Math.max(0, 3 - n));
+const endless = type => type === 'blitz' || type === 'lives';
+const typeSeg = (k, cur) => `<div class="seg seg3">${TYPES.map(m => `<button class="chip ${cur === m ? 'on' : ''}" data-act="xset" data-k="${k}" data-v="${m}">${T()[m]}</button>`).join('')}</div>
+      <div class="type-hint">${T().typeHint[cur]}</div>`;
+const lenChips = (k, cur, total) => `<div class="label">${T().len}</div>
+      <div class="chips">${LENS.map(n => `<button class="chip ${String(cur) === String(n) ? 'on' : ''}" data-act="xset" data-k="${k}" data-v="${n}">${n === 'all' ? `${T().all} <small>${total}</small>` : n}</button>`).join('')}</div>`;
+// проверка ответа, напечатанного в хардкоре, против списка допустимых названий
+const STOPW = /(^|\s)(море|моря|океан|залив|река|реки|sea|ocean|gulf|bay|river|of|the)(?=\s|$)/gi;
+function checkNames(typed, names) {
+  const a = norm(String(typed).replace(STOPW, ' '));
+  if (!a) return false;
+  let res = false;
+  for (const nmx of names) {
+    const b = norm(String(nmx).replace(STOPW, ' '));
+    if (!b) continue;
+    if (a === b) return 'exact';
+    const tol = b.length <= 4 ? 0 : b.length <= 8 ? 1 : 2;
+    if (lev(a, b) <= tol) res = 'close';
+  }
+  return res;
+}
+
+// ===== КУРОРТЫ: меню и вопросы =====
+function renderResorts() {
+  const t = T(), k = genKey('res'), best = stats.genBest[k], bt = stats.genBestTime[k];
+  $('#resorts').innerHTML = `
+    <header><button class="back" data-act="home">‹ ${t.back}</button><div style="flex:1"><h1>🏖 ${t.resorts}</h1><div class="sub">${t.resortsSub(RESORTS.length)}</div></div></header>
+    <div class="card">
+      <div class="type-hint" style="margin:0 0 12px">${t.r_where_hint}</div>
+      <div class="label">${t.type}</div>
+      ${typeSeg('rtype', settings.rtype)}
+      <div class="label">${t.dirMulti}</div>
+      <div class="chips">${['all', ...RES_PARTS].map(d => {
+        const on = d === 'all' ? resAll() : (!resAll() && settings.rdirs.includes(d));
+        return `<button class="chip ${on ? 'on' : ''}" data-act="xmul" data-k="rdirs" data-v="${d}">${on && d !== 'all' ? '✓ ' : ''}${t['d_' + d]} <small>${d === 'all' ? RESORTS.length : RESORTS.filter(r => r.g === d).length}</small></button>`;
+      }).join('')}</div>
+      <div class="best-line">${settings.rtype === 'exam' ? `${t.examLimit(genLimit('res'))} · ${dipLine(k)}` : `${t.best}: ${best != null ? best : '—'}`}</div>
+    </div>
+    ${startBtns('gstart', 'res', genKey('res'))}`;
+}
+// равномерно по подгруппам — чтобы «все направления» не были одним Египтом
+function balancedRes(list) {
+  const groups = {};
+  list.forEach(r => { (groups[r.sub] = groups[r.sub] || []).push(r); });
+  const queues = shuffle(Object.keys(groups)).map(k => shuffle(groups[k]));
+  const out = [];
+  while (queues.some(q => q.length)) shuffle(queues).forEach(q => { if (q.length) out.push(q.pop()); });
+  return out;
+}
+function buildResQs() { return balancedRes(resPool()).map(resQuestion); }
+function resQuestion(r) {
+  const t = T();
+  {
+    const pick = f => shuffle([...new Set(RESORTS.filter(f).map(x => x.c))]);
+    const cand = [...new Set([...pick(x => x.sub === r.sub && x.c !== r.c), ...pick(x => x.g === r.g && x.c !== r.c), ...pick(x => x.c !== r.c)])].slice(0, 3);
+    const c = BY_ID[r.c];
+    return {
+      key: 'r:' + r.id, m: rmult(r), right: r.c,
+      opts: shuffle([r.c, ...cand]).map(id => ({ id, html: `${flag(id, 'sm')} ${esc(nm(BY_ID[id]))}` })),
+      head: `<div class="fl big">${rIcon(r)}</div><small>${t.r_where_q} ${tierBadge(rmult(r))}</small><h2>${esc(rname(r))}</h2><div class="rtype">${r.kind === 's' ? t.skiResort : r.kind === 'i' ? t.island : t.resort}</div>`,
+      answer: nm(c), check: s => checkTyped(s, c, 'n'),
+      reveal: `${flag(r.c, 'sm')} <b>${esc(rname(r))}</b> — ${esc(nm(c))}`,
+      line: [flag(r.c, 'sm'), rname(r), nm(c)],
+      onOk: () => { if (!stats.resKnown.includes(r.id)) stats.resKnown.push(r.id); }
+    };
+  }
+}
+
+// ===== МОРЯ И РЕКИ: данные =====
+// Водоёмы: id|RU|EN|тип (o океан, s море, g залив)|родитель (часть чего)|сложность|страны на берегу
+const WATER_RAW = `pacific|Тихий океан|Pacific Ocean|o||1|US CA MX GT SV HN NI CR PA CO EC PE CL JP RU PH AU NZ PG FJ WS TO KI MH FM PW SB VU TV NR
+atlantic|Атлантический океан|Atlantic Ocean|o||1|US CA BR AR UY GY SR VE FR ES PT GB IE IS MA SN MR GM GN GW SL LR CI GH TG BJ NG CM GQ GA CG CD AO NA ZA CV ST BS BB
+indian|Индийский океан|Indian Ocean|o||1|ZA MZ TZ KE SO MG MU SC KM MV LK IN ID AU
+arctic|Северный Ледовитый океан|Arctic Ocean|o||1|RU CA US NO
+med|Средиземное море|Mediterranean Sea|s|atlantic|1|ES FR MC IT MT GR TR CY SY LB IL EG LY TN DZ MA AL
+black|Чёрное море|Black Sea|s|med|1|RU UA GE TR BG RO
+azov|Азовское море|Sea of Azov|s|black|1.5|RU UA
+caspian|Каспийское море|Caspian Sea|s||1|RU KZ TM IR AZ
+baltic|Балтийское море|Baltic Sea|s|atlantic|1|RU EE LV LT PL DE DK SE FI
+north|Северное море|North Sea|s|atlantic|1.5|GB NO DK DE NL BE FR
+norwegian|Норвежское море|Norwegian Sea|s|atlantic|2|NO
+barents|Баренцево море|Barents Sea|s|arctic|1.5|RU NO
+white|Белое море|White Sea|s|arctic|1.5|RU
+adriatic|Адриатическое море|Adriatic Sea|s|med|1.5|IT SI HR BA ME AL
+aegean|Эгейское море|Aegean Sea|s|med|1.5|GR TR
+tyrrhenian|Тирренское море|Tyrrhenian Sea|s|med|2|IT FR
+ionian|Ионическое море|Ionian Sea|s|med|2|IT GR AL
+irish|Ирландское море|Irish Sea|s|atlantic|2|GB IE
+marmara|Мраморное море|Sea of Marmara|s|med|1.5|TR
+biscay|Бискайский залив|Bay of Biscay|g|atlantic|1.5|FR ES
+finland|Финский залив|Gulf of Finland|g|baltic|1.5|FI RU EE
+bothnia|Ботнический залив|Gulf of Bothnia|g|baltic|2|FI SE
+red|Красное море|Red Sea|s|indian|1|EG SD ER SA YE JO IL DJ
+arabian|Аравийское море|Arabian Sea|s|indian|1.5|OM IN PK
+persian|Персидский залив|Persian Gulf|g|indian|1.5|IR IQ KW SA BH QA AE
+aden|Аденский залив|Gulf of Aden|g|indian|2|YE SO DJ
+bengal|Бенгальский залив|Bay of Bengal|g|indian|1.5|IN BD MM LK
+andaman|Андаманское море|Andaman Sea|s|indian|2|MM TH ID
+scs|Южно-Китайское море|South China Sea|s|pacific|1.5|CN VN PH MY BN SG ID
+ecs|Восточно-Китайское море|East China Sea|s|pacific|2|CN JP KR
+yellow|Жёлтое море|Yellow Sea|s|pacific|2|CN KP KR
+japan|Японское море|Sea of Japan|s|pacific|1|JP RU KR KP
+okhotsk|Охотское море|Sea of Okhotsk|s|pacific|1.5|RU JP
+bering|Берингово море|Bering Sea|s|pacific|1.5|RU US
+philippine|Филиппинское море|Philippine Sea|s|pacific|2|PH JP PW
+java|Яванское море|Java Sea|s|pacific|2|ID
+thailand|Сиамский залив|Gulf of Thailand|g|scs|2|TH KH VN MY
+caribbean|Карибское море|Caribbean Sea|s|atlantic|1|MX BZ HN NI CR PA CO VE CU JM HT DO TT GD VC LC DM AG KN
+mexico|Мексиканский залив|Gulf of Mexico|g|atlantic|1.5|US MX CU
+hudson|Гудзонов залив|Hudson Bay|g|arctic|2|CA
+coral|Коралловое море|Coral Sea|s|pacific|2|AU PG SB VU
+tasman|Тасманово море|Tasman Sea|s|pacific|2|AU NZ
+dead|Мёртвое море|Dead Sea|s||1.5|JO IL`;
+// Реки: id|RU|EN|сложность
+const RIVER_RAW = `moskva|Москва-река|Moskva|1
+neva|Нева|Neva|1
+volga|Волга|Volga|1
+don|Дон|Don|1
+seine|Сена|Seine|1
+thames|Темза|Thames|1
+tiber|Тибр|Tiber|1
+arno|Арно|Arno|1.5
+vltava|Влтава|Vltava|1.5
+spree|Шпрее|Spree|1.5
+rhine|Рейн|Rhine|1
+elbe|Эльба|Elbe|1.5
+danube|Дунай|Danube|1
+sava|Сава|Sava|1.5
+vistula|Висла|Vistula|1
+tagus|Тежу|Tagus|1.5
+manzanares|Мансанарес|Manzanares|1.5
+guadalquivir|Гвадалквивир|Guadalquivir|2
+douro|Дору|Douro|2
+daugava|Даугава|Daugava|1.5
+neris|Нерис|Neris|1.5
+svislach|Свислочь|Svislach|1.5
+aare|Ааре|Aare|1.5
+isar|Изар|Isar|1.5
+rhone|Рона|Rhone|1.5
+garonne|Гаронна|Garonne|1.5
+po|По|Po|1.5
+liffey|Лиффи|Liffey|1.5
+amstel|Амстел|Amstel|1.5
+dambovita|Дымбовица|Dambovita|2
+clyde|Клайд|Clyde|2
+tigris|Тигр|Tigris|1.5
+yangtze|Янцзы|Yangtze|1
+ganges|Ганг|Ganges|1
+yamuna|Ямуна|Yamuna|2
+chao|Чао-Прайя|Chao Phraya|1.5
+mekong|Меконг|Mekong|1.5
+redriver|Красная река|Red River|2
+han|Ханган|Han|1.5
+taedong|Тэдонган|Taedong|2
+kura|Кура|Kura|1.5
+hrazdan|Раздан|Hrazdan|2
+ishim|Ишим|Ishim|1.5
+tuul|Туул|Tuul|2
+buriganga|Буриганга|Buriganga|2
+irrawaddy|Иравади|Irrawaddy|2
+ravi|Рави|Ravi|2
+nile|Нил|Nile|1
+congo|Конго|Congo|1.5
+niger|Нигер|Niger|1.5
+hudsonr|Гудзон|Hudson|1
+potomac|Потомак|Potomac|1.5
+stlawrence|Святого Лаврентия|St. Lawrence|1.5
+ottawa|Оттава|Ottawa|1.5
+mississippi|Миссисипи|Mississippi|1
+ohio|Огайо|Ohio|1.5
+amazon|Амазонка|Amazon|1
+plata|Ла-Плата|Rio de la Plata|1.5
+paraguay|Парагвай|Paraguay|2
+brisbane|Брисбен|Brisbane|2
+swan|Суон|Swan|2`;
+// Города: id|RU|EN|страна|r: реки через запятую  ИЛИ  w: море/залив
+const CITY_RAW = `moscow|Москва|Moscow|RU|r:moskva
+spb|Санкт-Петербург|Saint Petersburg|RU|r:neva
+kazan|Казань|Kazan|RU|r:volga
+rostov|Ростов-на-Дону|Rostov-on-Don|RU|r:don
+paris|Париж|Paris|FR|r:seine
+london|Лондон|London|GB|r:thames
+rome|Рим|Rome|IT|r:tiber
+florence|Флоренция|Florence|IT|r:arno
+prague|Прага|Prague|CZ|r:vltava
+berlin|Берлин|Berlin|DE|r:spree
+cologne|Кёльн|Cologne|DE|r:rhine
+hamburg|Гамбург|Hamburg|DE|r:elbe
+dresden|Дрезден|Dresden|DE|r:elbe
+vienna|Вена|Vienna|AT|r:danube
+budapest|Будапешт|Budapest|HU|r:danube
+bratislava|Братислава|Bratislava|SK|r:danube
+belgrade|Белград|Belgrade|RS|r:danube,sava
+zagreb|Загреб|Zagreb|HR|r:sava
+warsaw|Варшава|Warsaw|PL|r:vistula
+krakow|Краков|Krakow|PL|r:vistula
+lisbon|Лиссабон|Lisbon|PT|r:tagus
+madrid|Мадрид|Madrid|ES|r:manzanares
+seville|Севилья|Seville|ES|r:guadalquivir
+porto|Порту|Porto|PT|r:douro
+riga|Рига|Riga|LV|r:daugava
+vilnius|Вильнюс|Vilnius|LT|r:neris
+minsk|Минск|Minsk|BY|r:svislach
+bern|Берн|Bern|CH|r:aare
+basel|Базель|Basel|CH|r:rhine
+munich|Мюнхен|Munich|DE|r:isar
+lyon|Лион|Lyon|FR|r:rhone
+bordeaux|Бордо|Bordeaux|FR|r:garonne
+turin|Турин|Turin|IT|r:po
+dublin|Дублин|Dublin|IE|r:liffey
+amsterdam|Амстердам|Amsterdam|NL|r:amstel
+bucharest|Бухарест|Bucharest|RO|r:dambovita
+glasgow|Глазго|Glasgow|GB|r:clyde
+baghdad|Багдад|Baghdad|IQ|r:tigris
+wuhan|Ухань|Wuhan|CN|r:yangtze
+chongqing|Чунцин|Chongqing|CN|r:yangtze
+varanasi|Варанаси|Varanasi|IN|r:ganges
+delhi|Дели|Delhi|IN|r:yamuna
+agra|Агра|Agra|IN|r:yamuna
+bangkok|Бангкок|Bangkok|TH|r:chao
+phnompenh|Пномпень|Phnom Penh|KH|r:mekong
+vientiane|Вьентьян|Vientiane|LA|r:mekong
+hanoi|Ханой|Hanoi|VN|r:redriver
+seoul|Сеул|Seoul|KR|r:han
+pyongyang|Пхеньян|Pyongyang|KP|r:taedong
+tbilisi|Тбилиси|Tbilisi|GE|r:kura
+yerevan|Ереван|Yerevan|AM|r:hrazdan
+astana|Астана|Astana|KZ|r:ishim
+ulaanbaatar|Улан-Батор|Ulaanbaatar|MN|r:tuul
+dhaka|Дакка|Dhaka|BD|r:buriganga
+mandalay|Мандалай|Mandalay|MM|r:irrawaddy
+lahore|Лахор|Lahore|PK|r:ravi
+cairo|Каир|Cairo|EG|r:nile
+khartoum|Хартум|Khartoum|SD|r:nile
+luxor|Луксор|Luxor|EG|r:nile
+kinshasa|Киншаса|Kinshasa|CD|r:congo
+brazzaville|Браззавиль|Brazzaville|CG|r:congo
+bamako|Бамако|Bamako|ML|r:niger
+niamey|Ниамей|Niamey|NE|r:niger
+newyork|Нью-Йорк|New York|US|r:hudsonr
+washington|Вашингтон|Washington|US|r:potomac
+montreal|Монреаль|Montreal|CA|r:stlawrence
+quebec|Квебек|Quebec|CA|r:stlawrence
+ottawac|Оттава|Ottawa|CA|r:ottawa
+neworleans|Новый Орлеан|New Orleans|US|r:mississippi
+stlouis|Сент-Луис|St. Louis|US|r:mississippi
+pittsburgh|Питтсбург|Pittsburgh|US|r:ohio
+manaus|Манаус|Manaus|BR|r:amazon
+buenosaires|Буэнос-Айрес|Buenos Aires|AR|r:plata
+montevideo|Монтевидео|Montevideo|UY|r:plata
+asuncion|Асунсьон|Asuncion|PY|r:paraguay
+brisbanec|Брисбен|Brisbane|AU|r:brisbane
+perth|Перт|Perth|AU|r:swan
+baku|Баку|Baku|AZ|w:caspian
+tallinn|Таллин|Tallinn|EE|w:finland
+helsinki|Хельсинки|Helsinki|FI|w:finland
+copenhagen|Копенгаген|Copenhagen|DK|w:baltic
+stockholm|Стокгольм|Stockholm|SE|w:baltic
+athens|Афины|Athens|GR|w:aegean
+istanbul|Стамбул|Istanbul|TR|w:marmara,black
+barcelona|Барселона|Barcelona|ES|w:med
+marseille|Марсель|Marseille|FR|w:med
+naples|Неаполь|Naples|IT|w:tyrrhenian
+venice|Венеция|Venice|IT|w:adriatic
+split|Сплит|Split|HR|w:adriatic
+alexandria|Александрия|Alexandria|EG|w:med
+sochic|Сочи|Sochi|RU|w:black
+varna|Варна|Varna|BG|w:black
+batumic|Батуми|Batumi|GE|w:black
+vladivostok|Владивосток|Vladivostok|RU|w:japan
+murmansk|Мурманск|Murmansk|RU|w:barents
+arkhangelsk|Архангельск|Arkhangelsk|RU|w:white
+dubaic|Дубай|Dubai|AE|w:persian
+doha|Доха|Doha|QA|w:persian
+mumbai|Мумбаи|Mumbai|IN|w:arabian
+karachi|Карачи|Karachi|PK|w:arabian
+jeddah|Джидда|Jeddah|SA|w:red
+manila|Манила|Manila|PH|w:scs
+havana|Гавана|Havana|CU|w:mexico
+miamic|Майами|Miami|US|w:atlantic
+riodejaneiro|Рио-де-Жанейро|Rio de Janeiro|BR|w:atlantic
+capetownc|Кейптаун|Cape Town|ZA|w:atlantic
+casablanca|Касабланка|Casablanca|MA|w:atlantic
+mombasa|Момбаса|Mombasa|KE|w:indian
+sanfrancisco|Сан-Франциско|San Francisco|US|w:pacific
+losangeles|Лос-Анджелес|Los Angeles|US|w:pacific
+sydney|Сидней|Sydney|AU|w:tasman`;
+
+const WATERS = WATER_RAW.trim().split('\n').map(l => {
+  const [id, ru, en, kind, parent, m, cs] = l.split('|');
+  return { id, ru, en, kind, parent: parent || null, m: +m, cs: cs.split(' ').filter(c => BY_ID[c] && c !== 'UA') }; // Украины в этом разделе нет
+});
+const W = Object.fromEntries(WATERS.map(w => [w.id, w]));
+const RIVERS = RIVER_RAW.trim().split('\n').map(l => { const [id, ru, en, m] = l.split('|'); return { id, ru, en, m: +m }; });
+const RV = Object.fromEntries(RIVERS.map(r => [r.id, r]));
+const CITIES = CITY_RAW.trim().split('\n').map(l => {
+  const [id, ru, en, c, spec] = l.split('|');
+  const [k, list] = spec.split(':');
+  return { id, ru, en, c, rivers: k === 'r' ? list.split(',') : [], waters: k === 'w' ? list.split(',') : [] };
+}).filter(c => BY_ID[c.c]);
+const CT = Object.fromEntries(CITIES.map(c => [c.id, c]));
+const wName = w => settings.lang === 'ru' ? w.ru : w.en;
+const ctName = c => settings.lang === 'ru' ? c.ru : c.en;
+// предки водоёма (Адриатическое → Средиземное → Атлантический) и потомки
+const wAnc = id => { const out = []; let p = W[id] && W[id].parent; while (p) { out.push(p); p = W[p] && W[p].parent; } return out; };
+const wDesc = id => WATERS.filter(w => wAnc(w.id).includes(id)).map(w => w.id);
+// все водоёмы страны: на берегу + их «родители»
+const cWatersDirect = cid => WATERS.filter(w => w.cs.includes(cid)).map(w => w.id);
+const cWatersFull = cid => { const s = new Set(); cWatersDirect(cid).forEach(id => { s.add(id); wAnc(id).forEach(a => s.add(a)); }); return s; };
+// все страны водоёма: на его берегу + на берегу его частей
+const wCountriesFull = id => { const s = new Set(W[id].cs); wDesc(id).forEach(d => W[d].cs.forEach(c => s.add(c))); return s; };
+const regOf = cid => { const r = BY_ID[cid] && BY_ID[cid].r; return GRP[r] || r; };
+const seaReg = cid => { const g = regOf(cid); return g === 'af' || g === 'am' ? 'afam' : g; }; // в морях Африка и Америка вместе
+const SEA_REGS = ['world', ...SEA_PARTS];
+// «Что омывает страну?» — только про известные страны
+const SEA_CW = new Set(('RU TR EG IT ES FR GR GB IE NO SE FI DK DE NL PL EE LV LT PT HR ME AL BG RO GE CY MT ' +
+  'JP CN KR KP IN TH VN ID PH MY SG LK MV AE SA IR IQ JO IL OM YE KZ AZ TM ' +
+  'US CA MX CU BR AR CL PE CO VE AU NZ ZA MA TN LY DZ KE TZ MG SO DJ ER SD').split(' '));
+const riverCities = rid => CITIES.filter(c => c.rivers.includes(rid));
+const riverRegs = rid => new Set(riverCities(rid).map(c => regOf(c.c)));
+
+// ===== МОРЯ И РЕКИ: вопросы =====
+// 5 видов: город→река, река→город, приморский город→море, страна→что омывает, море→какую страну омывает
+function seaSeeds() {
+  const S = [];
+  CITIES.forEach(c => {
+    if (c.rivers.length) S.push({ kind: 'cr', c, regs: new Set([seaReg(c.c)]) });
+    else S.push({ kind: 'cs', c, regs: new Set([seaReg(c.c)]) });
+  });
+  RIVERS.forEach(r => { if (riverCities(r.id).length) S.push({ kind: 'rc', r, regs: new Set(riverCities(r.id).map(c => seaReg(c.c))) }); });
+  COUNTRIES.forEach(c => { if (SEA_CW.has(c.id) && cWatersDirect(c.id).length) S.push({ kind: 'cw', c, regs: new Set([seaReg(c.id)]) }); });
+  WATERS.forEach(w => { if (w.cs.length) S.push({ kind: 'wc', w, regs: new Set(w.cs.map(seaReg)) }); });
+  return S.filter(s => seaAll() || settings.sregs.some(r => s.regs.has(r)));
+}
+const pick3 = (prefer, rest) => [...new Set([...shuffle(prefer), ...shuffle(rest)])].slice(0, 3);
+const wOpt = id => ({ id, html: esc(wName(W[id])) });
+const cOpt = id => ({ id, html: `${flag(id, 'sm')} ${esc(nm(BY_ID[id]))}` });
+const wNames = w => [w.ru, w.en];
+function seaQuestion(s) {
+  const t = T();
+  if (s.kind === 'cr') { // город → река
+    const c = s.c, right = c.rivers[0], r = RV[right], reg = regOf(c.c);
+    const bad = RIVERS.filter(x => !c.rivers.includes(x.id));
+    const d = pick3(bad.filter(x => riverRegs(x.id).has(reg)).map(x => x.id), bad.map(x => x.id));
+    return { key: 'cr:' + c.id, m: r.m, right, opts: shuffle([right, ...d]).map(id => ({ id, html: esc(settings.lang === 'ru' ? RV[id].ru : RV[id].en) })),
+      head: `<div class="fl big">🏞️</div><small>${t.sq_cr} ${tierBadge(r.m)}</small><h2>${esc(ctName(c))}</h2><div class="rtype">${flag(c.c, 'sm')} ${esc(nm(BY_ID[c.c]))}</div>`,
+      answer: settings.lang === 'ru' ? r.ru : r.en, check: x => checkNames(x, c.rivers.flatMap(id => [RV[id].ru, RV[id].en])),
+      reveal: `${flag(c.c, 'sm')} <b>${esc(ctName(c))}</b> — ${esc(settings.lang === 'ru' ? r.ru : r.en)}`, line: [flag(c.c, 'sm'), ctName(c), settings.lang === 'ru' ? r.ru : r.en] };
+  }
+  if (s.kind === 'rc') { // река → город
+    const r = s.r, on = riverCities(r.id), c = shuffle(on)[0];
+    const bad = CITIES.filter(x => x.rivers.length && !x.rivers.includes(r.id));
+    const reg = regOf(c.c);
+    // в вариантах не бывает двух городов на одной реке
+    const d = [], used = new Set(c.rivers);
+    for (const x of [...shuffle(bad.filter(x => regOf(x.c) === reg)), ...shuffle(bad)]) {
+      if (d.length >= 3) break;
+      if (d.includes(x.id) || x.rivers.some(v => used.has(v))) continue;
+      d.push(x.id); x.rivers.forEach(v => used.add(v));
+    }
+    const rn = settings.lang === 'ru' ? r.ru : r.en;
+    return { key: 'rc:' + r.id, m: r.m, right: c.id, opts: shuffle([c.id, ...d]).map(id => ({ id, html: `${flag(CT[id].c, 'sm')} ${esc(ctName(CT[id]))}` })),
+      head: `<div class="fl big">🏙️</div><small>${t.sq_rc} ${tierBadge(r.m)}</small><h2>${esc(rn)}</h2>`,
+      answer: ctName(c), check: x => checkNames(x, on.flatMap(z => [z.ru, z.en])),
+      reveal: `${flag(c.c, 'sm')} <b>${esc(ctName(c))}</b> — ${esc(rn)}`, line: ['🏞️', rn, ctName(c)] };
+  }
+  if (s.kind === 'cs') { // приморский город → море/залив
+    const c = s.c, right = c.waters[0], w = W[right];
+    const rel = new Set(); c.waters.forEach(id => { rel.add(id); wAnc(id).forEach(a => rel.add(a)); wDesc(id).forEach(a => rel.add(a)); });
+    const bad = WATERS.filter(x => !rel.has(x.id)).map(x => x.id);
+    const d = pick3(bad.filter(id => W[id].kind !== 'o'), bad);
+    return { key: 'cs:' + c.id, m: w.m, right, opts: shuffle([right, ...d]).map(wOpt),
+      head: `<div class="fl big">⚓</div><small>${t.sq_cs} ${tierBadge(w.m)}</small><h2>${esc(ctName(c))}</h2><div class="rtype">${flag(c.c, 'sm')} ${esc(nm(BY_ID[c.c]))}</div>`,
+      answer: wName(w), check: x => checkNames(x, c.waters.flatMap(id => wNames(W[id]))),
+      reveal: `${flag(c.c, 'sm')} <b>${esc(ctName(c))}</b> — ${esc(wName(w))}`, line: [flag(c.c, 'sm'), ctName(c), wName(w)] };
+  }
+  if (s.kind === 'cw') { // страна → что омывает
+    const c = s.c, direct = cWatersDirect(c.id), full = cWatersFull(c.id), right = shuffle(direct)[0], w = W[right];
+    const ban = new Set([...full, ...wDesc(right)]);
+    const bad = WATERS.filter(x => !ban.has(x.id)).map(x => x.id);
+    const d = pick3(bad, bad);
+    return { key: 'cw:' + c.id, m: Math.max(w.m, mult(c)), right, opts: shuffle([right, ...d]).map(wOpt),
+      head: `${flag(c.id, 'big')}<small>${t.sq_cw} ${tierBadge(Math.max(w.m, mult(c)))}</small><h2>${esc(nm(c))}</h2>`,
+      answer: wName(w), check: x => checkNames(x, direct.flatMap(id => wNames(W[id]))),
+      reveal: `${flag(c.id, 'sm')} <b>${esc(nm(c))}</b> — ${esc(wName(w))}`, line: [flag(c.id, 'sm'), nm(c), wName(w)] };
+  }
+  // море → какую страну омывает
+  const w = s.w, right = shuffle(w.cs)[0], full = wCountriesFull(w.id);
+  const coastal = COUNTRIES.filter(x => x.id !== 'UA' && !full.has(x.id) && cWatersDirect(x.id).length);
+  const reg = regOf(right);
+  const d = pick3(coastal.filter(x => regOf(x.id) === reg).map(x => x.id), coastal.map(x => x.id));
+  const all = [...full];
+  return { key: 'wc:' + w.id, m: w.m, right, opts: shuffle([right, ...d]).map(cOpt),
+    head: `<div class="fl big">🌊</div><small>${t.sq_wc} ${tierBadge(w.m)}</small><h2>${esc(wName(w))}</h2>`,
+    answer: nm(BY_ID[right]), check: x => { let best = false; for (const id of all) { const r = checkTyped(x, BY_ID[id], 'n'); if (r === 'exact') return r; if (r) best = r; } return best; },
+    reveal: `🌊 <b>${esc(wName(w))}</b> — ${esc(nm(BY_ID[right]))} ${flag(right, 'sm')}`, line: ['🌊', wName(w), nm(BY_ID[right])] };
+}
+// равномерно по видам вопросов
+function buildSeaQs() {
+  const groups = {};
+  seaSeeds().forEach(s => { (groups[s.kind] = groups[s.kind] || []).push(s); });
+  const queues = shuffle(Object.keys(groups)).map(k => shuffle(groups[k]));
+  const out = [];
+  while (queues.some(q => q.length)) shuffle(queues).forEach(q => { if (q.length) out.push(q.pop()); });
+  return spreadMirrors(out.map(s => Object.assign(seaQuestion(s), { onOk: () => { stats.seaOk++; } })));
+}
+const seaCount = () => seaSeeds().length;
+// Пересобрать вопрос по его коду (r:bali, cr:vilnius…) — на текущем языке, с новыми вариантами
+function genFromKey(sec, key) {
+  try {
+    if (sec === 'res') { const r = RESORTS.find(x => 'r:' + x.id === key); return r ? resQuestion(r) : null; }
+    if (!genFromKey.sea) {
+      const cur = settings.sregs; settings.sregs = SEA_PARTS.slice();
+      genFromKey.sea = {}; seaSeeds().forEach(s => { genFromKey.sea[s.kind + ':' + (s.c || s.r || s.w).id] = s; });
+      settings.sregs = cur;
+    }
+    const s = genFromKey.sea[key];
+    return s ? Object.assign(seaQuestion(s), { onOk: () => { stats.seaOk++; } }) : null;
+  } catch (e) { return null; }
+}
+const seaCountFor = r => { const cur = settings.sregs; settings.sregs = r === 'world' ? SEA_PARTS.slice() : [r]; const n = seaSeeds().length; settings.sregs = cur; return n; };
+
+function renderSeas() {
+  const t = T(), k = genKey('sea'), best = stats.genBest[k], bt = stats.genBestTime[k];
+  $('#seas').innerHTML = `
+    <header><button class="back" data-act="home">‹ ${t.back}</button><div style="flex:1"><h1>🌊 ${t.seasTitle}</h1><div class="sub">${t.seasSub}</div></div></header>
+    <div class="card">
+      <div class="type-hint" style="margin:0 0 12px">${t.seasHint}</div>
+      <div class="label">${t.type}</div>
+      ${typeSeg('stype', settings.stype)}
+      <div class="label">${t.region}</div>
+      <div class="chips">${SEA_REGS.map(r => {
+        const on = r === 'world' ? seaAll() : (!seaAll() && settings.sregs.includes(r));
+        return `<button class="chip ${on ? 'on' : ''}" data-act="xmul" data-k="sregs" data-v="${r}">${on && r !== 'world' ? '✓ ' : ''}${t['sr_' + r]} <small>${seaCountFor(r)}</small></button>`;
+      }).join('')}</div>
+      <div class="best-line">${settings.stype === 'exam' ? `${t.examLimit(genLimit('sea'))} · ${t.examQs(seaCount())} · ${dipLine(k)}` : `${t.best}: ${best != null ? best : '—'}`}</div>
+    </div>
+    ${startBtns('gstart', 'sea', genKey('sea'))}`;
+}
+
+// ===== ОБЩИЙ ДВИЖОК (Курорты, Моря и реки) =====
+const GEN = {
+  res: { type: () => settings.rtype, build: buildResQs, menu: 'resorts', name: () => T().resorts,
+    title: () => `🏖 ${resAll() ? T().d_all : RES_PARTS.filter(d => settings.rdirs.includes(d)).map(d => T()['d_' + d].replace(/^\S+\s/, '')).join(' + ')}` },
+  sea: { type: () => settings.stype, build: buildSeaQs, menu: 'seas', name: () => T().seasTitle,
+    title: () => `🌊 ${seaAll() ? T().sr_world : SEA_PARTS.filter(r => settings.sregs.includes(r)).map(r => T()['sr_' + r]).join(' + ')}` }
+};
+const genKey = sec => sec === 'res'
+  ? `res_${settings.rtype}_${resAll() ? 'all' : settings.rdirs.slice().sort().join('+')}`
+  : `sea_${settings.stype}_${seaAll() ? 'world' : settings.sregs.slice().sort().join('+')}`;
+// лимит ошибок экзамена: курорты — 5 на направление (20 на все), моря и реки — 5 на 50 вопросов
+
+
+function startGen(sec) {
+  endGame();
+  const cfg = GEN[sec], type = cfg.type();
+  let qs = cfg.build();
+  if (!qs.length) return;
+  game = {
+    gen: true, sec, kind: 'gen', type, key: genKey(sec), qs, i: 0, asked: 0, score: 0, streak: 0, maxStreak: 0,
+    wrong: [], hintUsed: false, locked: false, xp: 0, rank0: rankIdx(stats.xp), newAch: [], over: false,
+    t0: Date.now(), lives: type === 'lives' ? 3 : 0, limit: type === 'exam' ? genLimit(sec) : 0, title: GEN[sec].title().replace(/^\S+\s/, ''), cfg: cfgOf()
+  };
+  game.rec = ghostRec();
+  go('game');
+  if (type === 'blitz') { game.deadline = Date.now() + 60000; timerId = setInterval(tickBlitz, 100); }
+  else timerId = setInterval(tickClock, 500);
+  renderGenQ();
+}
+
+function genTopRight(n) {
+  if (game.type === 'blitz') return `<b id="timerTxt">⏱ ${Math.ceil(Math.max(0, game.deadline - Date.now()) / 1000)}</b>`;
+  const clock = `<span id="clockTxt">⏱ ${fmtTime(Date.now() - game.t0)}</span>`;
+  if (game.type === 'lives') return `<span class="lives">${hearts(game.lives)}</span> · ${clock}`;
+  if (game.type === 'exam') return `${game.i + 1} / ${n} · <span class="errs">${T().examErr(game.wrong.length, game.limit)}</span> · ${clock}`;
+  return `${game.i + 1} / ${n} · ${clock}`;
+}
+function genBar(n) {
+  if (game.type === 'blitz') { const left = Math.max(0, game.deadline - Date.now()); return `<div class="bar"><i id="timerBar" class="${left < 10000 ? 'low' : ''}" style="width:${left / 600}%;transition:none"></i></div>`; }
+  if (game.type === 'lives') return `<div class="bar"><i style="width:${game.lives / 3 * 100}%;background:#e5484d"></i></div>`;
+  return `<div class="bar"><i style="width:${game.i / n * 100}%"></i></div>`;
+}
+function renderGenQ() {
+  const t = T(), q = game.qs[game.i], n = game.qs.length, hard = game.type === 'hardcore';
+  const pre = game.type === 'blitz' ? '⚡ ' : hard ? '💀 ' : game.type === 'lives' ? '❤️ ' : '';
+  const answers = hard
+    ? `<form class="hard" id="hardForm" autocomplete="off">
+         <input id="hardIn" type="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="${t.typeAnswer}">
+         <button class="btn" type="submit">${t.answerBtn}</button>
+       </form><div class="hard-hint" id="hardHint"></div>`
+    : `<div class="opts">${q.opts.map((o, k) => `<button class="opt" data-key="${k + 1}" data-act="gopt" data-id="${o.id}">${o.html}</button>`).join('')}</div>`;
+  $('#game').innerHTML = `
+    <div class="top"><span>${pre}${withCfg(game.cfg, GEN[game.sec].title)}</span><span>${genTopRight(n)}</span></div>
+    ${genBar(n)}
+    <div class="top"><span>✅ ${game.score}${ghostTag()} · ⭐ ${game.xp} XP</span><span class="stk">${game.streak >= 3 ? '🔥' : '⚡'} ${t.streak}: ${game.streak}</span></div>
+    <div class="q">${q.head}</div>
+    ${answers}
+    <div class="reveal" id="reveal"></div>
+    <div class="tools">
+      <button class="link" data-act="gquit">✕ ${t.quit}</button>
+      ${hard ? `<button class="link" data-act="gskip">${t.dontKnow}</button>` : ''}
+      <button class="link" data-act="ghint" ${game.hintUsed ? 'disabled' : ''}>${hard ? t.hintBtn : '💡 50/50'}</button>
+    </div>`;
+  game.locked = false;
+  if (hard) {
+    $('#hardForm').addEventListener('submit', e => { e.preventDefault(); answerGenTyped($('#hardIn').value); });
+    setTimeout(() => { const i = $('#hardIn'); if (i) i.focus(); }, 50);
+  }
+}
+
+function resolveGen(ok, close) {
+  const t = T(), q = game.qs[game.i];
+  let gain = 0;
+  game.asked++; stats.answered++;
+  if (ok) {
+    game.score++; game.streak++; stats.correct++;
+    game.maxStreak = Math.max(game.maxStreak, game.streak);
+    stats.bestStreak = Math.max(stats.bestStreak, game.streak);
+    if (q.onOk) q.onOk();
+    gain = Math.round((game.type === 'hardcore' ? 20 : game.type === 'blitz' ? 5 : 10) * q.m);
+    game.xp += gain; stats.xp += gain;
+    if (game.type === 'lives' && game.streak % 10 === 0 && game.lives < 3) { // 10 подряд — жизнь назад (не больше трёх)
+      game.lives++; praise(t.lifeBack, 'mega'); confetti(40); sfx('mega'); hapticImpact('heavy');
+    } else if (game.streak === 3 || (game.streak >= 5 && game.streak % 5 === 0)) {
+      praise(t.streakMsg(game.streak), 'mega'); confetti(45); sfx('mega'); hapticImpact('heavy');
+    } else {
+      praise(close ? t.almost : t.praise[Math.floor(Math.random() * t.praise.length)]);
+      confetti(game.type === 'blitz' ? 6 : 14); sfx('ok'); haptic('success');
+    }
+  } else {
+    game.streak = 0;
+    game.wrong.push(q);
+    sfx('bad'); haptic('error');
+    if (game.type === 'lives') { game.lives--; praise(game.lives > 0 ? '💔' : t.noLives, 'minus'); }
+  }
+  $('#reveal').innerHTML = `${q.reveal}${gain ? ` <span class="gain">+${gain} XP</span>` : ''}`;
+  if (game.type === 'lives') { const l = document.querySelector('#game .lives'); if (l) l.textContent = hearts(game.lives); }
+  if (game.type === 'exam') { const e = document.querySelector('#game .errs'); if (e) e.textContent = t.examErr(game.wrong.length, game.limit); }
+  checkAch(game);
+  questAnswer(ok); saveAll(); examSave(); hotMode(); ghost();
+  if (game.type === 'lives' && game.lives <= 0) { stopTimer(); failFx(); setTimeout(finishGen, 1700); return; }
+  if (game.type === 'exam' && game.wrong.length > game.limit) { game.failed = true; stopTimer(); praise('❌', 'minus'); failFx(); setTimeout(finishGen, 1700); return; }
+  setTimeout(nextGenQ, game.type === 'blitz' ? (ok ? 350 : 2500) : (ok ? 900 : 1900));
+}
+
+function answerGen(id) {
+  if (!game || !game.gen || game.locked) return;
+  game.locked = true;
+  const q = game.qs[game.i];
+  document.querySelectorAll('#game .opt').forEach(b => {
+    b.disabled = true;
+    if (b.dataset.id === q.right) b.classList.add('ok');
+    else if (b.dataset.id === id) b.classList.add('bad');
+  });
+  resolveGen(id === q.right, false);
+}
+function answerGenTyped(text) {
+  if (!game || !game.gen || game.locked) return;
+  if (!norm(text)) { const i = $('#hardIn'); if (i) i.focus(); return; }
+  game.locked = true;
+  const q = game.qs[game.i], res = q.check(text), inp = $('#hardIn');
+  inp.readOnly = true; inp.classList.add(res ? 'ok' : 'bad');
+  if (!res) inp.value = `${T().youTyped}: ${text}`;
+  resolveGen(!!res, res === 'close');
+}
+function skipGen() {
+  if (!game || !game.gen || game.locked) return;
+  game.locked = true;
+  const inp = $('#hardIn'); if (inp) { inp.readOnly = true; inp.classList.add('bad'); }
+  resolveGen(false, false);
+}
+function hintGen() {
+  if (!game || !game.gen || game.hintUsed || game.locked) return;
+  game.hintUsed = true;
+  const q = game.qs[game.i];
+  if (game.type === 'hardcore') {
+    $('#hardHint').textContent = T().hintLetter(q.answer[0].toUpperCase(), q.answer.replace(/[\s\-—'’.,]/g, '').length);
+  } else {
+    const wrong = shuffle(q.opts.map(o => o.id).filter(id => id !== q.right)).slice(0, 2);
+    document.querySelectorAll('#game .opt').forEach(b => { if (wrong.includes(b.dataset.id)) { b.classList.add('gone'); b.disabled = true; } });
+    sfx('hint'); hapticImpact('medium');
+  }
+  document.querySelector('[data-act="ghint"]').disabled = true;
+}
+function nextGenQ() {
+  if (!game || !game.gen || game.over) return;
+  game.i++;
+  if (game.i >= game.qs.length) {
+    if (endless(game.type)) game.qs = game.qs.concat(GEN[game.sec].build()); // в блице и на жизнях вопросы не кончаются
+    else return finishGen();
+  }
+  renderGenQ();
+}
+function finishGen() {
+  if (!game || !game.gen || game.over) return;
+  if (game.type === 'exam') store.del('exam');
+  game.over = true;
+  stopTimer();
+  game.time = Date.now() - game.t0;
+  stats.played++; questFinish(); dayPlayed();
+  const prev = stats.genBest[game.key] || 0;
+  let record = false, fastRec = false;
+  game.title = withCfg(game.cfg, GEN[game.sec].title).replace(/^\S+\s/, '');
+  game.exam = game.type === 'exam' ? examResult(game, withCfg(game.cfg, () => genBonus(game.sec))) : null;
+  if (!game.exam && game.score > prev) { stats.genBest[game.key] = game.score; record = true; }
+  if (game.type === 'blitz') stats.blitzBest = Math.max(stats.blitzBest, game.score);
+  checkAch(game);
+  saveAll();
+  const rankUp = rankIdx(stats.xp) > game.rank0;
+  renderGenResult(record, rankUp, fastRec);
+  go('result');
+  const total = endless(game.type) ? Math.max(game.asked, 1) : game.qs.length;
+  if (record || rankUp || (game.exam && game.exam.passed) || (!game.exam && game.score / total >= 0.7)) setTimeout(() => { confetti(rankUp || (game.exam && game.exam.passed) ? 140 : 90); sfx('win'); haptic('success'); }, 250);
+}
+function renderGenResult(record, rankUp, fastRec) {
+  const t = T(), end = endless(game.type), n = end || game.failed ? game.asked : game.qs.length;
+  const pct = n ? Math.round(game.score / n * 100) : 0;
+  const emoji = end ? (game.score >= 25 ? '🏆' : game.score >= 12 ? '🔥' : '💪') : pct >= 90 ? '🏆' : pct >= 70 ? '🎉' : pct >= 40 ? '👍' : '📚';
+  const seen = new Set(), uniq = game.wrong.filter(q => !seen.has(q.key) && seen.add(q.key));
+  const list = uniq.length
+    ? `<div class="label">${t.mist}</div>` + uniq.map(q => `<div class="item">${q.line[0]}<span>${esc(q.line[1])}</span><span class="c">${esc(q.line[2])}</span></div>`).join('')
+    : `<div style="text-align:center">${t.noMist}</div>`;
+  const achHtml = game.newAch.length
+    ? `<div class="card"><div class="label">${t.achGot}</div><div class="ach-row">${game.newAch.map(a => `<span>${a.i} ${esc(achText(a)[0])}</span>`).join('')}</div></div>` : '';
+  const best = stats.genBest[game.key], bt = stats.genBestTime[game.key];
+  $('#result').innerHTML = `
+    <div class="top"><span>${withCfg(game.cfg, GEN[game.sec].title)}</span><span></span></div>
+    ${game.exam ? examHtml(game, game.exam, game.title) : `<div class="emoji">${emoji}</div>`}
+    <div class="big-score">${end ? game.score : `${game.score}/${n}`}</div>
+    <div class="pct">${end ? `${t.answers}: ${n} · ${t.correctW}: ${game.score}` : t.timeLine(fmtTime(game.time), (game.time / 1000 / Math.max(game.asked, 1)).toFixed(1).replace('.', settings.lang === 'ru' ? ',' : '.'))}</div>
+    ${fastRec ? `<span class="badge">${t.newBestTime}</span>` : (!end && bt != null ? `<div class="pct">${t.bestTime}: ${fmtTime(bt)}</div>` : '')}
+    <div class="xp-line">⭐ ${t.gotXp(game.xp)}</div>
+    ${rankUp ? `<span class="badge">${t.newRank(rankName(rankIdx(stats.xp)))}</span>` : ''}
+    ${game.exam ? '' : record ? `<span class="badge">${t.newRecord}</span>` : `<div class="pct">${t.best}: ${best}</div>`}
+    ${game.newStamps && game.newStamps.length ? `<button class="btn pp" data-act="ppstamp">${t.ppStamp}</button>` : ''}
+    <button class="btn" data-act="share">📤 ${t.share}</button>
+    <div class="row">
+      <button class="btn sec" data-act="again">↻ ${game.exam && !game.exam.passed ? t.examRetry : t.again}</button>
+      <button class="btn sec" data-act="${GEN[game.sec].menu}">${game.sec === 'res' ? '🏖' : '🌊'} ${GEN[game.sec].name()}</button>
+    </div>
+    ${achHtml}
+    <div class="card">${list}</div>`;
+}
+
+// ===== ДЕТСКИЙ РЕЖИМ (без опыта, таймера и рекордов) =====
+const KIDS_IDS = ('RU BY FR DE IT ES PT ENG IE NL PL GR FI NO SE DK LT EE ' +
+  'CN JP IN TR TH VN KZ KR KP EG ZA MA US CA MX BR AR CU CL AU NZ').split(' ');
+const ENGLAND = { id: 'ENG', r: 'eu', en: { n: 'England', c: 'London' }, ru: { n: 'Англия', c: 'Лондон' } };
+const kidC = id => id === 'ENG' ? ENGLAND : BY_ID[id];
+// Детские моря: 4 океана и 9 морей
+const KIDW = 'pacific atlantic indian arctic black med red baltic caribbean japan caspian barents white'.split(' ');
+function kidSea(c) {
+  const cid = c.id === 'ENG' ? 'GB' : c.id;
+  const full = cWatersFull(cid), direct = cWatersDirect(cid).filter(id => KIDW.includes(id));
+  const cand = direct.length ? direct : KIDW.filter(id => full.has(id));
+  if (!cand.length) return null;
+  const right = shuffle(cand)[0], ban = new Set([...full, ...wDesc(right)]);
+  return { right, opts: shuffle([right, ...shuffle(KIDW.filter(id => !ban.has(id))).slice(0, 3)]) };
+}
+const KIDS_FLAGS = KIDS_IDS.map(kidC).filter(Boolean);
+const KIDS_CAPS = KIDS_FLAGS; // все 39 стран и во флагах, и в столицах
+function kidFlag(c, cls) {
+  const code = c.id === 'ENG' ? 'gb-eng' : c.id.toLowerCase();
+  const emo = c.id === 'ENG' ? '🏴' : emojiFlag(c.id);
+  return `<span class="fl ${cls}"><img src="https://flagcdn.com/w320/${code}.png" alt="" onerror="this.parentNode.textContent='${emo}'"></span>`;
+}
+let kgame = null;
+
+function renderKids() {
+  const t = T();
+  $('#kids').innerHTML = `
+    <header><button class="back" data-act="home">‹ ${t.back}</button><div style="flex:1"><h1>👶 ${t.kidsTitle}</h1><div class="sub">${t.kidsSub}</div></div></header>
+    <button class="daily kflag" data-act="kstart" data-v="flag"><b>${t.kFlags}</b><span>${t.kCount(KIDS_FLAGS.length)}</span></button>
+    <button class="daily kcap" data-act="kstart" data-v="cap"><b>${t.kCaps}</b><span>${t.kCount(KIDS_CAPS.length)}</span></button>
+    <button class="daily ksea" data-act="kstart" data-v="sea"><b>${t.kSea}</b><span>${t.kCount(KIDS_FLAGS.filter(c => kidSea(c)).length)}</span></button>
+    <div class="type-hint" style="text-align:center;margin-top:6px">${t.kidsNote}</div>`;
+}
+
+function startKids(mode) {
+  endGame();
+  let qs;
+  if (mode === 'sea') {
+    qs = shuffle(KIDS_FLAGS.filter(c => kidSea(c))).slice(0, 10).map(c => Object.assign({ c }, kidSea(c)));
+  } else {
+    const pool = mode === 'flag' ? KIDS_FLAGS : KIDS_CAPS;
+    qs = shuffle(pool).slice(0, 10).map(c => ({ c, right: c.id, opts: shuffle([c, ...shuffle(pool.filter(x => x.id !== c.id)).slice(0, 3)]).map(x => x.id) }));
+  }
+  kgame = { mode, qs, i: 0, score: 0, locked: false, over: false };
+  go('game');
+  renderKidsQ();
+}
+
+function renderKidsQ() {
+  const t = T(), q = kgame.qs[kgame.i], c = q.c, n = kgame.qs.length, L = settings.lang;
+  const label = id => kgame.mode === 'sea' ? wName(W[id]) : kgame.mode === 'flag' ? kidC(id)[L].n : kidC(id)[L].c;
+  const qHtml = kgame.mode === 'flag'
+    ? `${kidFlag(c, 'kid')}<small>${t.kQFlag}</small>`
+    : `${kidFlag(c, 'kid')}<small>${kgame.mode === 'sea' ? t.kQSea : t.kQCap}</small><h2>${esc(c[L].n)}</h2>`;
+  $('#game').innerHTML = `
+    <div class="top"><span>👶 ${kgame.mode === 'flag' ? t.kFlags : kgame.mode === 'sea' ? t.kSea : t.kCaps}</span><span>${kgame.i + 1} / ${n}</span></div>
+    <div class="bar"><i style="width:${kgame.i / n * 100}%"></i></div>
+    <div class="top"><span>⭐ ${kgame.score}</span><span></span></div>
+    <div class="q">${qHtml}</div>
+    <div class="opts kid">${q.opts.map((id, k) => `<button class="opt" data-key="${k + 1}" data-act="kopt" data-id="${id}">${esc(label(id))}</button>`).join('')}</div>
+    <div class="reveal" id="reveal"></div>
+    <div class="tools"><button class="link" data-act="kquit">✕ ${t.quit}</button><span></span></div>`;
+  kgame.locked = false;
+}
+
+function answerKids(id) {
+  if (!kgame || kgame.locked || kgame.over) return;
+  kgame.locked = true;
+  const t = T(), q = kgame.qs[kgame.i], ok = id === q.right, L = settings.lang;
+  document.querySelectorAll('.opt').forEach(b => {
+    b.disabled = true;
+    if (b.dataset.id === q.right) b.classList.add('ok');
+    else if (b.dataset.id === id) b.classList.add('soft'); // мягкая ошибка — без красного
+  });
+  if (ok) {
+    kgame.score++;
+    praise(t.kPraise[Math.floor(Math.random() * t.kPraise.length)]);
+    confetti(20); sfx('ok'); haptic('success');
+  } else {
+    const right = kgame.mode === 'sea' ? wName(W[q.right]) : kgame.mode === 'flag' ? q.c[L].n : q.c[L].c;
+    $('#reveal').innerHTML = `${t.kAlmost} <b>${esc(right)}</b> ${kidFlag(q.c, 'sm')}`;
+  }
+  setTimeout(nextKidsQ, ok ? 1100 : 2300);
+}
+
+function nextKidsQ() {
+  if (!kgame || kgame.over) return;
+  kgame.i++;
+  if (kgame.i >= kgame.qs.length) finishKids(); else renderKidsQ();
+}
+
+function finishKids() {
+  kgame.over = true;
+  const t = T(), s = kgame.score, n = kgame.qs.length;
+  const stars = s >= n ? '⭐⭐⭐' : s >= 7 ? '⭐⭐' : '⭐';
+  $('#result').innerHTML = `
+    <div class="top"><span>👶 ${kgame.mode === 'flag' ? t.kFlags : kgame.mode === 'sea' ? t.kSea : t.kCaps}</span><span></span></div>
+    <div class="stars">${stars}</div>
+    <div class="big-score">${t.kDone(s, n)}</div>
+    <div class="pct">${s >= 7 ? t.kGreat : t.kTry}</div>
+    <button class="btn" data-act="kstart" data-v="${kgame.mode}">↻ ${t.kAgain}</button>
+    <button class="btn sec" data-act="kids">👶 ${t.kBack}</button>`;
+  go('result');
+  setTimeout(() => { confetti(s >= 7 ? 120 : 60); sfx('win'); haptic('success'); }, 250);
+}
+
+// ===== СПРАВОЧНИК + 3D-ГЛОБУС =====
+// Координаты столиц: ISO|широта|долгота
+const GEO_RAW = `AL|41.33|19.82 AD|42.51|1.52 AT|48.21|16.37 BY|53.90|27.57 BE|50.85|4.35 BA|43.86|18.41 BG|42.70|23.32 HR|45.81|15.98 CY|35.17|33.36 CZ|50.08|14.44 DK|55.68|12.57 EE|59.44|24.75 FI|60.17|24.94 FR|48.86|2.35 DE|52.52|13.40 GR|37.98|23.73 HU|47.50|19.04 IS|64.15|-21.94 IE|53.35|-6.26 IT|41.90|12.50 LV|56.95|24.11 LI|47.14|9.52 LT|54.69|25.28 LU|49.61|6.13 MT|35.90|14.51 MD|47.01|28.86 MC|43.73|7.42 ME|42.44|19.26 NL|52.37|4.90 MK|42.00|21.43 NO|59.91|10.75 PL|52.23|21.01 PT|38.72|-9.14 RO|44.43|26.10 RU|55.76|37.62 SM|43.94|12.45 RS|44.79|20.45 SK|48.15|17.11 SI|46.06|14.51 ES|40.42|-3.70 SE|59.33|18.07 CH|46.95|7.45 UA|50.45|30.52 GB|51.51|-0.13 VA|41.90|12.45
+AF|34.53|69.17 AM|40.18|44.51 AZ|40.41|49.87 BH|26.23|50.59 BD|23.81|90.41 BT|27.47|89.64 BN|4.90|114.94 KH|11.56|104.92 CN|39.90|116.41 GE|41.72|44.79 IN|28.61|77.21 ID|-6.21|106.85 IR|35.69|51.39 IQ|33.31|44.36 IL|31.77|35.21 JP|35.68|139.69 JO|31.95|35.93 KZ|51.17|71.45 KW|29.38|47.99 KG|42.87|74.59 LA|17.98|102.63 LB|33.89|35.50 MY|3.14|101.69 MV|4.18|73.51 MN|47.89|106.91 MM|19.76|96.08 NP|27.72|85.32 KP|39.04|125.76 OM|23.59|58.41 PK|33.68|73.05 PH|14.60|120.98 QA|25.29|51.53 SA|24.71|46.68 SG|1.35|103.82 KR|37.57|126.98 LK|6.89|79.90 SY|33.51|36.28 TJ|38.56|68.79 TH|13.76|100.50 TL|-8.56|125.57 TR|39.93|32.86 TM|37.96|58.33 AE|24.45|54.38 UZ|41.30|69.24 VN|21.03|105.85 YE|15.37|44.19
+DZ|36.75|3.06 AO|-8.84|13.23 BJ|6.50|2.60 BW|-24.65|25.91 BF|12.37|-1.52 BI|-3.43|29.93 CV|14.93|-23.51 CM|3.85|11.50 CF|4.39|18.56 TD|12.13|15.06 KM|-11.70|43.26 CG|-4.26|15.24 CD|-4.44|15.27 CI|6.83|-5.29 DJ|11.59|43.15 EG|30.04|31.24 GQ|3.75|8.78 ER|15.32|38.93 SZ|-26.31|31.14 ET|9.03|38.74 GA|0.42|9.47 GM|13.45|-16.58 GH|5.60|-0.19 GN|9.64|-13.58 GW|11.86|-15.60 KE|-1.29|36.82 LS|-29.31|27.48 LR|6.30|-10.80 LY|32.89|13.19 MG|-18.88|47.51 MW|-13.96|33.79 ML|12.64|-8.00 MR|18.08|-15.98 MU|-20.16|57.50 MA|34.02|-6.83 MZ|-25.97|32.57 NA|-22.56|17.08 NE|13.51|2.11 NG|9.08|7.40 RW|-1.94|30.06 ST|0.34|6.73 SN|14.72|-17.47 SC|-4.62|55.45 SL|8.48|-13.23 SO|2.05|45.32 ZA|-25.75|28.19 SS|4.85|31.58 SD|15.50|32.56 TZ|-6.16|35.75 TG|6.13|1.22 TN|36.81|10.18 UG|0.35|32.58 ZM|-15.39|28.32 ZW|-17.83|31.05
+AG|17.12|-61.85 BS|25.05|-77.35 BB|13.10|-59.62 BZ|17.25|-88.77 CA|45.42|-75.70 CR|9.93|-84.08 CU|23.11|-82.37 DM|15.30|-61.39 DO|18.49|-69.93 SV|13.69|-89.22 GD|12.06|-61.75 GT|14.63|-90.51 HT|18.59|-72.31 HN|14.07|-87.19 JM|18.02|-76.80 MX|19.43|-99.13 NI|12.11|-86.24 PA|8.98|-79.52 KN|17.30|-62.72 LC|14.01|-60.99 VC|13.16|-61.22 TT|10.66|-61.51 US|38.91|-77.04
+AR|-34.60|-58.38 BO|-19.04|-65.26 BR|-15.79|-47.88 CL|-33.45|-70.67 CO|4.71|-74.07 EC|-0.18|-78.47 GY|6.80|-58.16 PY|-25.26|-57.58 PE|-12.05|-77.04 SR|5.85|-55.20 UY|-34.90|-56.16 VE|10.48|-66.90
+AU|-35.28|149.13 FJ|-18.14|178.44 KI|1.33|172.98 MH|7.09|171.38 FM|6.92|158.16 NR|-0.55|166.92 NZ|-41.29|174.78 PW|7.50|134.62 PG|-9.44|147.18 WS|-13.83|-171.76 SB|-9.43|159.95 TO|-21.14|-175.20 TV|-8.52|179.20 VU|-17.73|168.32`;
+const GEO = Object.fromEntries(GEO_RAW.trim().split(/\s+/).map(s => { const [id, la, lo] = s.split('|'); return [id, [+la, +lo]]; }));
+
+const GLOBE_JS = [
+  'https://cdn.jsdelivr.net/npm/globe.gl@2.27/dist/globe.gl.min.js',
+  'https://unpkg.com/globe.gl@2.27/dist/globe.gl.min.js'
+];
+const GEO_URLS = [
+  'https://cdn.jsdelivr.net/gh/vasturiano/globe.gl@master/example/datasets/ne_110m_admin_0_countries.geojson',
+  'https://raw.githubusercontent.com/vasturiano/globe.gl/master/example/datasets/ne_110m_admin_0_countries.geojson'
+];
+const REGION_VIEW = {
+  world: { lat: 25, lng: 30, altitude: 2.3 }, eu: { lat: 50, lng: 15, altitude: 1.3 },
+  as: { lat: 30, lng: 90, altitude: 1.9 }, af: { lat: 3, lng: 20, altitude: 1.7 },
+  aso: { lat: 10, lng: 115, altitude: 2.3 }, am: { lat: 8, lng: -80, altitude: 2.3 }
+};
+
+let refRegion = 'world', refQuery = '', refSel = null, refBuilt = false;
+let globe = null, globeLoading = false;
+const hasPoly = new Set();
+
+function loadScript(urls) {
+  if (window.Globe) return Promise.resolve(); // библиотека глобуса уже загружена
+  return new Promise((res, rej) => {
+    let i = 0;
+    const next = () => {
+      if (i >= urls.length) return rej(new Error('script'));
+      const s = document.createElement('script');
+      s.src = urls[i++]; s.onload = res; s.onerror = () => { s.remove(); next(); };
+      document.head.appendChild(s);
+    };
+    next();
+  });
+}
+async function fetchJSON(urls) {
+  for (const u of urls) { try { const r = await fetch(u); if (r.ok) return await r.json(); } catch (e) {} }
+  throw new Error('geo');
+}
+function isoOf(p) {
+  const bad = v => !v || v === '-99' || v === -99;
+  if (!bad(p.ISO_A2)) return p.ISO_A2;
+  if (!bad(p.ISO_A2_EH)) return p.ISO_A2_EH;
+  if (!bad(p.WB_A2) && BY_ID[p.WB_A2]) return p.WB_A2;
+  return ({ FRA: 'FR', NOR: 'NO' })[p.ADM0_A3] || null;
+}
+
+// Общая загрузка карты стран (для глобуса и для режима «Контур»)
+const FEAT = {};
+let geoPromise = null, ALL_FEATS = [];
+function loadGeo() {
+  if (!geoPromise) {
+    geoPromise = fetchJSON(GEO_URLS).then(geo => {
+      ALL_FEATS = geo.features.filter(f => f.properties.ADM0_A3 !== 'ATA');
+      geo.features.forEach(f => {
+        f.__id = isoOf(f.properties);
+        if (f.__id && BY_ID[f.__id] && !FEAT[f.__id]) { hasPoly.add(f.__id); FEAT[f.__id] = f; }
+      });
+      return geo;
+    }).catch(e => { geoPromise = null; throw e; });
+  }
+  return geoPromise;
+}
+
+// Силуэт страны в SVG (для режима «Контур»)
+const shapeCache = {};
+function shapeParts(id) {
+  if (shapeCache[id] !== undefined) return shapeCache[id];
+  const f = FEAT[id];
+  if (!f) return (shapeCache[id] = null);
+  const g = f.geometry;
+  const polys = g.type === 'Polygon' ? [g.coordinates] : g.coordinates;
+  let minL = Infinity, maxL = -Infinity;
+  polys.forEach(p => p.forEach(r => r.forEach(pt => { minL = Math.min(minL, pt[0]); maxL = Math.max(maxL, pt[0]); })));
+  const wrap = maxL - minL > 180; // страна пересекает 180-й меридиан (Россия, Фиджи)
+  const P = polys.map(p => p.map(r => r.map(([lo, la]) => [wrap && lo < 0 ? lo + 360 : lo, la])));
+  const info = P.map(p => {
+    const r = p[0]; let a = 0, cx = 0, cy = 0;
+    for (let i = 0; i < r.length; i++) { const [x1, y1] = r[i], [x2, y2] = r[(i + 1) % r.length]; a += x1 * y2 - x2 * y1; cx += x1; cy += y1; }
+    return { p, area: Math.abs(a) / 2, cx: cx / r.length, cy: cy / r.length };
+  });
+  const big = info.reduce((m, x) => x.area > m.area ? x : m);
+  // убираем далёкие мелкие владения (Аляска, Гвиана у Франции и т.п.)
+  const keep = info.filter(x => x.area >= big.area * 0.3 || Math.hypot(x.cx - big.cx, x.cy - big.cy) <= 30);
+  let pts = 0;
+  keep.forEach(x => x.p.forEach(r => { pts += r.length; }));
+  return (shapeCache[id] = { keep, pts });
+}
+const shapeOK = id => !!FEAT[id]; // на карте с соседями узнаются даже маленькие страны
+
+// «Страна на карте»: кусок карты с соседями, нужная страна подсвечена
+function featRings(f, shift) {
+  const g = f.geometry, polys = g.type === 'Polygon' ? [g.coordinates] : g.coordinates;
+  return polys.map(p => p.map(r => r.map(([lo, la]) => [shift && lo < 0 ? lo + 360 : lo, la])));
+}
+function mapSVG(id) {
+  const s = shapeParts(id);
+  if (!s) return '';
+  let x0 = Infinity, x1 = -Infinity, y0 = Infinity, y1 = -Infinity;
+  s.keep.forEach(k => k.p[0].forEach(([lo, la]) => { x0 = Math.min(x0, lo); x1 = Math.max(x1, lo); y0 = Math.min(y0, la); y1 = Math.max(y1, la); }));
+  const shift = x1 > 180; // страна через 180-й меридиан (Россия, Фиджи)
+  // окно карты: страна + соседи вокруг, не меньше ~14° по ширине
+  const cx = (x0 + x1) / 2, cy = (y0 + y1) / 2;
+  let w = Math.max((x1 - x0) * 2.2, 14), hgt = Math.max((y1 - y0) * 2.2, 10);
+  const k = Math.cos(Math.max(-75, Math.min(75, cy)) * Math.PI / 180);
+  if (w * k / hgt > 1.4) hgt = w * k / 1.4; else w = hgt * 1.4 / k; // пропорции ~ 7:5
+  const L = cx - w / 2, R = cx + w / 2, B = Math.max(-85, cy - hgt / 2), Tt = Math.min(85, cy + hgt / 2);
+  const P = (lo, la) => ((lo - L) * k).toFixed(2) + ' ' + (Tt - la).toFixed(2);
+  const path = rings => rings.map(p => p.map(r => 'M' + r.map(([lo, la]) => P(lo, la)).join('L') + 'Z').join('')).join('');
+  let others = '', target = '';
+  for (const f of ALL_FEATS) {
+    const rings = featRings(f, shift);
+    let fx0 = Infinity, fx1 = -Infinity, fy0 = Infinity, fy1 = -Infinity;
+    rings.forEach(p => p[0].forEach(([lo, la]) => { fx0 = Math.min(fx0, lo); fx1 = Math.max(fx1, lo); fy0 = Math.min(fy0, la); fy1 = Math.max(fy1, la); }));
+    if (fx1 < L || fx0 > R || fy1 < B || fy0 > Tt) continue; // вне окна
+    if (f.__id === id) target = path(rings); else others += path(rings);
+  }
+  const VW = (w * k).toFixed(2), VH = (Tt - B).toFixed(2);
+  // маленькую страну дополнительно обводим кружком
+  const tiny = Math.max((x1 - x0) * k, y1 - y0) < Math.min(w * k, hgt) * 0.08;
+  const ring = tiny ? `<circle cx="${((cx - L) * k).toFixed(2)}" cy="${(Tt - cy).toFixed(2)}" r="${(Math.min(w * k, hgt) * 0.07).toFixed(2)}" class="mring"/>` : '';
+  return `<svg class="shape map" viewBox="0 0 ${VW} ${VH}" preserveAspectRatio="xMidYMid slice"><rect width="${VW}" height="${VH}" class="sea"/><path d="${others}" class="land" fill-rule="evenodd"/><path d="${target}" class="target" fill-rule="evenodd"/>${ring}</svg>`;
+}
+function shapeSVG(id) {
+  const s = shapeParts(id);
+  if (!s) return '';
+  let minLa = Infinity, maxLa = -Infinity;
+  s.keep.forEach(x => x.p.forEach(r => r.forEach(pt => { minLa = Math.min(minLa, pt[1]); maxLa = Math.max(maxLa, pt[1]); })));
+  const k = Math.cos((minLa + maxLa) / 2 * Math.PI / 180);
+  let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity, d = '';
+  s.keep.forEach(x => x.p.forEach(r => {
+    d += 'M' + r.map(([lo, la]) => {
+      const X = lo * k, Y = -la;
+      minX = Math.min(minX, X); maxX = Math.max(maxX, X); minY = Math.min(minY, Y); maxY = Math.max(maxY, Y);
+      return X.toFixed(3) + ' ' + Y.toFixed(3);
+    }).join('L') + 'Z';
+  }));
+  const w = maxX - minX, h = maxY - minY, pad = Math.max(w, h) * 0.06;
+  return `<svg class="shape" viewBox="${(minX - pad).toFixed(3)} ${(minY - pad).toFixed(3)} ${(w + 2 * pad).toFixed(3)} ${(h + 2 * pad).toFixed(3)}" preserveAspectRatio="xMidYMid meet"><path d="${d}" fill-rule="evenodd"/></svg>`;
+}
+function polyColor(f) {
+  if (f.properties.ADM0_A3 === 'ATA') return 'rgba(236,243,250,0.95)'; // Антарктида — белый лёд
+  if (f.__id && f.__id === refSel) return '#ff8a00';
+  const c = BY_ID[f.__id];
+  if (!c) return 'rgba(150,160,155,0.5)';
+  if (refRegion !== 'world' && GRP[c.r] !== refRegion) return 'rgba(150,160,155,0.5)';
+  return '#45b36f';
+}
+function polyLabel(f) {
+  const c = BY_ID[f.__id];
+  return c ? `<div class="glabel">${esc(nm(c))}<br><b>${esc(cp(c))}</b></div>` : '';
+}
+function updateGlobe() {
+  if (!globe) return;
+  globe
+    .polygonCapColor(f => polyColor(f))
+    .polygonAltitude(f => f.__id && f.__id === refSel ? 0.05 : 0.008)
+    .htmlElementsData(refSel ? [{ id: refSel }] : []);
+}
+function flyTo(id) {
+  if (!globe || !GEO[id]) return;
+  globe.controls().autoRotate = false;
+  globe.pointOfView({ lat: GEO[id][0], lng: GEO[id][1], altitude: hasPoly.has(id) ? 1.3 : 0.7 }, 1000);
+}
+function flyRegion(r) {
+  if (!globe) return;
+  globe.controls().autoRotate = r === 'world' && !refSel;
+  globe.pointOfView(REGION_VIEW[r], 1000);
+}
+
+async function initGlobe() {
+  if (globe || globeLoading) return;
+  globeLoading = true;
+  try {
+    await loadScript(GLOBE_JS);
+    const geo = await loadGeo();
+    const feats = geo.features;
+    const box = $('#globeBox');
+    globe = Globe()(box)
+      .width(box.clientWidth || 360).height(box.clientHeight || 300)
+      .backgroundColor('rgba(0,0,0,0)')
+      .showAtmosphere(true).atmosphereColor('#7cc4ff').atmosphereAltitude(0.18)
+      .polygonsData(feats)
+      .polygonSideColor(() => 'rgba(0,0,0,0.2)')
+      .polygonStrokeColor(() => 'rgba(255,255,255,0.35)')
+      .polygonLabel(f => polyLabel(f))
+      .polygonsTransitionDuration(300)
+      .onPolygonClick(f => { if (f.__id && BY_ID[f.__id]) pickCountry(f.__id, 'globe'); })
+      .htmlLat(d => GEO[d.id][0]).htmlLng(d => GEO[d.id][1]).htmlAltitude(0.06)
+      .htmlElement(d => {
+        const el = document.createElement('div');
+        el.className = 'pin';
+        el.innerHTML = `<b>📍 ${esc(cp(BY_ID[d.id]))}</b>`;
+        return el;
+      });
+    try { globe.globeMaterial().color.set('#1f5a96'); } catch (e) {}
+    globe.controls().autoRotate = true;
+    globe.controls().autoRotateSpeed = 0.5;
+    const msg = $('#globeMsg'); if (msg) msg.remove();
+    updateGlobe();
+    if (refSel) flyTo(refSel); else globe.pointOfView(REGION_VIEW[refRegion], 0);
+    if (!$('#ref').classList.contains('active')) globe.pauseAnimation();
+  } catch (e) {
+    const msg = $('#globeMsg'); if (msg) msg.textContent = T().globeFail;
+  } finally {
+    globeLoading = false;
+  }
+}
+function resizeGlobe() {
+  if (!globe) return;
+  const box = $('#globeBox');
+  if (box.clientWidth && box.clientHeight) globe.width(box.clientWidth).height(box.clientHeight);
+}
+window.addEventListener('resize', resizeGlobe);
+if (tg && tg.onEvent) { try { tg.onEvent('viewportChanged', resizeGlobe); } catch (e) {} }
+
+const isWide = () => window.matchMedia('(min-width:768px)').matches;
+let trayT = null, trayMuteUntil = 0;
+const trayMute = ms => { trayMuteUntil = Date.now() + (ms || 500); };
+function centerCard(id, smooth) {
+  const tray = $('#reflist'), el = tray.querySelector(`[data-id="${id}"]`);
+  if (!el) return;
+  if (isWide()) { el.scrollIntoView({ block: 'nearest', behavior: smooth ? 'smooth' : 'auto' }); return; }
+  // на узком экране листается вся страница, а глобус закреплён сверху — прокручиваем так, чтобы строка была под глобусом
+  const gh = $('.ref-globe').offsetHeight;
+  const r = el.getBoundingClientRect();
+  if (r.top < gh + 8 || r.bottom > window.innerHeight) {
+    window.scrollTo({ top: window.scrollY + r.top - gh - 60, behavior: smooth ? 'smooth' : 'auto' });
+  }
+}
+
+function renderRef() {
+  const t = T();
+  if (!refBuilt) {
+    $('#ref').innerHTML = `
+      <header><button class="back" data-act="home" id="refBack"></button><h1 id="refTitle"></h1></header>
+      <div class="ref-layout">
+        <div class="ref-globe"><div class="globe-box" id="globeBox"><div class="globe-msg" id="globeMsg"></div></div></div>
+        <div class="ref-side">
+          <div class="sel-card" id="selCard"></div>
+          <div class="chips" id="refChips"></div>
+          <input class="search" id="refq">
+          <div class="tray" id="reflist"></div>
+        </div>
+      </div>`;
+    $('#refq').addEventListener('input', e => { refQuery = e.target.value; fillRef(); });
+    refBuilt = true;
+  }
+  $('#refTitle').textContent = '📖 ' + t.ref;
+  $('#refBack').textContent = '‹ ' + t.back;
+  $('#refq').placeholder = t.search;
+  const msg = $('#globeMsg'); if (msg && !globe) msg.textContent = t.globeLoading;
+  renderRefChips(); renderSel(); fillRef(); updateGlobe();
+  initGlobe();
+}
+function renderRefChips() {
+  const t = T();
+  $('#refChips').innerHTML = REGIONS.map(r => `<button class="chip ${refRegion === r ? 'on' : ''}" data-act="refreg" data-v="${r}">${t[r]}</button>`).join('');
+}
+function renderSel() {
+  const t = T();
+  if (!refSel) { $('#selCard').innerHTML = `<span style="color:var(--hint)">👆 ${t.globeHint}</span>`; return; }
+  const c = BY_ID[refSel];
+  $('#selCard').innerHTML = `${flag(c.id, 'md')}<div><b>${esc(nm(c))}</b><div style="color:var(--hint);font-size:14px;margin-top:2px">${t.capital}: <b style="color:var(--text)">${esc(cp(c))}</b> · ${t[c.r]}</div></div>`;
+}
+function fillRef() {
+  const q = refQuery.trim().toLowerCase();
+  const items = inRegion(refRegion)
+    .filter(c => !q || [c.en.n, c.en.c, c.ru.n, c.ru.c].some(s => s.toLowerCase().includes(q)))
+    .sort((a, b) => nm(a).localeCompare(nm(b), settings.lang));
+  const tray = $('#reflist');
+  tray.innerHTML = items.length
+    ? items.map(c => `<div class="tcard ${c.id === refSel ? 'sel' : ''}" data-act="pick" data-id="${c.id}">${flag(c.id, 'md')}<b>${esc(nm(c))}</b><span>${esc(cp(c))}</span></div>`).join('')
+    : '<div class="tray-empty">—</div>';
+  tray.scrollTop = 0;
+}
+function pickCountry(id, src) {
+  if (id === refSel && src === 'scroll') return;
+  refSel = id;
+  $('#reflist').querySelectorAll('.tcard').forEach(e => e.classList.toggle('sel', e.dataset.id === id));
+  renderSel(); updateGlobe(); flyTo(id);
+  try { if (tgv('6.1')) tg.HapticFeedback.selectionChanged(); } catch (e) {}
+  if (src === 'globe') centerCard(id, true); // тапнули на глобусе — подкручиваем список к стране
+}
+
+// ===== ОБРАБОТКА НАЖАТИЙ =====
+document.addEventListener('click', e => {
+  const el = e.target.closest('[data-act]');
+  if (!el || el.disabled) return;
+  const a = el.dataset.act, v = el.dataset.v;
+  if (el.classList.contains('chip') || a === 'lang') hapticSel();
+  else if (el.classList.contains('tile') || ['start', 'gstart', 'daily', 'kstart', 'exres', 'exnew', 'kids'].includes(a)) hapticImpact('light');
+  if (a === 'lang') { settings.lang = v; settings.langManual = true; document.documentElement.lang = v; saveAll(); renderHome(); }
+  else if (a === 'set') { settings[el.dataset.k] = (el.dataset.k === 'len' && v !== 'all') ? Number(v) : v; saveAll(); renderCountries(); }
+  else if (a === 'sound') { settings.sound = !settings.sound; saveAll(); renderHome(); sfx('ok'); }
+  else if (a === 'reg') { toggleRegion(v); saveAll(); renderCountries(); }
+  else if (a === 'countries') { endGame(); renderCountries(); go('countries'); }
+  else if (a === 'start') startGame('normal');
+  else if (a === 'daily') startGame('daily');
+  else if (a === 'exres') examResume();
+  else if (a === 'exdrop') { store.del('exam'); renderHome(); }
+  else if (a === 'exnew') { store.del('exam'); if (el.dataset.a === 'gstart') startGen(v); else startGame('normal'); }
+  else if (a === 'errors') startGame('errors');
+  else if (a === 'ref') { renderRef(); go('ref'); }
+  else if (a === 'refreg') { refRegion = v; refSel = null; renderRefChips(); renderSel(); fillRef(); updateGlobe(); flyRegion(v); }
+  else if (a === 'pick') pickCountry(el.dataset.id, 'tap');
+  else if (a === 'opt') answer(el.dataset.id);
+  else if (a === 'hint') useHint();
+  else if (a === 'skip') skipTyped();
+  else if (a === 'kids') { endGame(); kgame = null; renderKids(); go('kids'); }
+  else if (a === 'kstart') startKids(v);
+  else if (a === 'kopt') answerKids(el.dataset.id);
+  else if (a === 'kquit') { if (kgame) kgame.over = true; kgame = null; renderKids(); go('kids'); }
+  else if (a === 'resorts') { endGame(); renderResorts(); go('resorts'); }
+  else if (a === 'xset') {
+    const k = el.dataset.k;
+    settings[k] = ((k === 'rlen' || k === 'slen') && v !== 'all') ? Number(v) : v;
+    saveAll();
+    if (k[0] === 'r') renderResorts(); else renderSeas();
+  }
+  else if (a === 'xmul') {
+    const k = el.dataset.k;
+    settings[k] = toggleIn(settings[k], k === 'rdirs' ? RES_PARTS : SEA_PARTS, v);
+    saveAll();
+    if (k === 'rdirs') renderResorts(); else renderSeas();
+  }
+  else if (a === 'seas') { endGame(); renderSeas(); go('seas'); }
+  else if (a === 'gstart') startGen(v);
+  else if (a === 'gopt') answerGen(el.dataset.id);
+  else if (a === 'gskip') skipGen();
+  else if (a === 'ghint') hintGen();
+  else if (a === 'gquit') { const sec = game && game.sec; endGame(); if (sec === 'res') { renderResorts(); go('resorts'); } else { renderSeas(); go('seas'); } }
+  else if (a === 'ach') { renderAch(); go('ach'); }
+  else if (a === 'passport') openPassport();
+  else if (a === 'qgo') qGo(v);
+  else if (a === 'ppstamp') { const ns = (game && game.newStamps) || []; endGame(); openPassport(ppPageOf(ns[0]), ns); }
+  else if (a === 'ppgo') ppGo(v);
+  else if (a === 'ppprev' || a === 'ppnext') ppScroll(ppCur + (a === 'ppnext' ? 1 : -1));
+  else if (a === 'quit' && game && game.kind === 'normal') { endGame(); renderCountries(); go('countries'); }
+  else if (a === 'quit' || a === 'home') { endGame(); go('home'); }
+  else if (a === 'again') { if (game && game.gen) { startGen(game.sec); } else { const k = game ? game.kind : 'normal'; endGame(); startGame(k); } }
+  else if (a === 'share') share();
+});
+
+// Клавиатура на компьютере: 1–4 — выбрать вариант, Esc — назад
+document.addEventListener('keydown', e => {
+  if (e.target && e.target.tagName === 'INPUT') { if (e.key === 'Escape') e.target.blur(); return; }
+  const n = parseInt(e.key, 10);
+  if (n >= 1 && n <= 4 && $('#game').classList.contains('active')) {
+    const btn = document.querySelectorAll('#game .opt')[n - 1];
+    if (btn && !btn.disabled) { btn.click(); e.preventDefault(); }
+  } else if (e.key === 'Escape') {
+    const back = document.querySelector('.screen.active .back') || document.querySelector('.screen.active [data-act="quit"]') || document.querySelector('.screen.active [data-act="kquit"]');
+    if (back) back.click();
+  }
+});
+
+document.documentElement.lang = settings.lang;
+renderHome();
+</script>
+</body>
+</html>

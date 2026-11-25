@@ -1,0 +1,6 @@
+{
+  "name": "GeoQuiz",
+  "description": "Интерактивная географическая викторина для Telegram: страны, столицы, флаги, курорты, моря и реки, паспорт со штампами, персонаж-путешественник и магазин.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
