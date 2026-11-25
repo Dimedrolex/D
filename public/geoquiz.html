@@ -786,7 +786,8 @@ const I18N = {
     kidsTitle: 'Для детей', kidsSub: 'Самые известные страны мира', kidsNote: 'Без очков, таймера и рекордов — просто играем и учимся 🙂',
     kFlags: '🚩 Угадай флаг', kCaps: '🏙 Угадай столицу', kCount: n => `${n} вопросов`,
     kContinents: '🌍 Части света', kLandmarks: '🏛 Известные места',
-    kQContinent: 'Где находится эта страна?', kQLandmark: 'В какой стране это находится?',
+    kQContinent: 'В какой части света находится', kAllQuestions: 'Все вопросы',
+    kQIceland: 'В каком океане находится Исландия?',
     kQFlag: 'Какая это страна?', kQCap: 'Какая столица у страны',
     kPraise: ['Умница! 🌟', 'Правильно! 🎉', 'Молодец! 👏', 'Ура! 🥳', 'Супер! ⭐', 'Отлично! 🙌'],
     kAlmost: 'Почти! Правильно —', kDone: (s, n) => `${s} из ${n}`,
@@ -888,7 +889,8 @@ const I18N = {
     kidsTitle: 'For kids', kidsSub: 'The best-known countries of the world', kidsNote: 'No points, timer or records — just play and learn 🙂',
     kFlags: '🚩 Guess the flag', kCaps: '🏙 Guess the capital', kCount: n => `${n} questions`,
     kContinents: '🌍 Continents', kLandmarks: '🏛 Famous places',
-    kQContinent: 'Where is this country?', kQLandmark: 'Which country is this in?',
+    kQContinent: 'Which part of the world is home to', kAllQuestions: 'All questions',
+    kQIceland: 'Which ocean is Iceland in?',
     kQFlag: 'Which country is this?', kQCap: 'What is the capital of',
     kPraise: ['Clever! 🌟', 'Correct! 🎉', 'Well done! 👏', 'Hooray! 🥳', 'Super! ⭐', 'Great! 🙌'],
     kAlmost: 'Almost! The answer is', kDone: (s, n) => `${s} of ${n}`,
@@ -3174,33 +3176,58 @@ function renderGenResult(record, rankUp, fastRec) {
 
 // ===== ДЕТСКИЙ РЕЖИМ (без опыта, таймера и рекордов) =====
 const KIDS_IDS = ('RU BY FR DE IT ES PT ENG IE NL PL GR FI NO SE DK LT EE ' +
-  'CN JP IN TR TH VN KZ KR KP EG ZA MA US CA MX BR AR CU CL AU NZ ' +
-  'AT BE CH CZ HR HU IS LV RO UA ID MY PH SG AE SA LK NP MN KE TZ MG NG PE CO UY PA JM CR FJ').split(' ');
+  'CN JP IN TR TH VN KZ KR KP EG ZA MA US CA MX BR AR CU CL AU NZ').split(' ');
 const ENGLAND = { id: 'ENG', r: 'eu', en: { n: 'England', c: 'London' }, ru: { n: 'Англия', c: 'Лондон' } };
 const kidC = id => id === 'ENG' ? ENGLAND : BY_ID[id];
-const KID_LENGTH = 15;
+const KID_LENGTH = 20;
 const KID_MODES = { flag: 'kFlags', cap: 'kCaps', sea: 'kSea', continent: 'kContinents', landmark: 'kLandmarks' };
 const KID_CONTINENTS = [
-  { ru: 'Европа', en: 'Europe', countries: 'FR DE IT ES PT ENG IE NO SE FI PL GR AT CH' },
-  { ru: 'Азия', en: 'Asia', countries: 'CN JP IN TH VN KR ID PH SG NP MN SA' },
-  { ru: 'Африка', en: 'Africa', countries: 'ZA MA KE TZ MG NG' },
-  { ru: 'Северная Америка', en: 'North America', countries: 'CA US MX CU JM CR PA' },
-  { ru: 'Южная Америка', en: 'South America', countries: 'BR AR CL PE CO UY' },
+  { ru: 'Европа', en: 'Europe', countries: 'FR DE IT ES PT ENG NO SE FI PL GR' },
+  { ru: 'Азия', en: 'Asia', countries: 'CN JP IN TH VN KR ID PH NP' },
+  { ru: 'Африка', en: 'Africa', countries: 'ZA MA KE TZ MG DZ TN SN GH NG UG RW ET AO NA' },
+  { ru: 'Северная Америка', en: 'North America', countries: 'CA US MX CU JM CR BZ GT HN SV NI PA BS HT DO BB' },
+  { ru: 'Южная Америка', en: 'South America', countries: 'BR AR CL PE CO' },
   { ru: 'Австралия и Океания', en: 'Australia and Oceania', countries: 'AU NZ FJ' }
 ];
 const KID_CONTINENT_POOL = KID_CONTINENTS.flatMap((part, right) =>
   part.countries.split(' ').map(id => ({ c: kidC(id), right })));
+// Question, answer, and optional distractors in Russian and English.
 const KID_LANDMARKS = [
-  ['FR', 'Эйфелева башня', 'Eiffel Tower'], ['IT', 'Колизей', 'Colosseum'],
-  ['CN', 'Великая Китайская стена', 'Great Wall of China'], ['IN', 'Тадж-Махал', 'Taj Mahal'],
-  ['EG', 'Пирамиды Гизы', 'Pyramids of Giza'], ['US', 'Статуя Свободы', 'Statue of Liberty'],
-  ['BR', 'Статуя Христа в Рио', 'Christ the Redeemer'], ['AU', 'Сиднейский оперный театр', 'Sydney Opera House'],
-  ['GB', 'Биг-Бен', 'Big Ben'], ['ES', 'Саграда Фамилия', 'Sagrada Familia'],
-  ['PE', 'Мачу-Пикчу', 'Machu Picchu'], ['KH', 'Ангкор-Ват', 'Angkor Wat'],
-  ['DE', 'Бранденбургские ворота', 'Brandenburg Gate'], ['JP', 'Гора Фудзи', 'Mount Fuji'],
-  ['GR', 'Афинский Акрополь', 'Acropolis of Athens'], ['AE', 'Бурдж-Халифа', 'Burj Khalifa'],
-  ['MX', 'Чичен-Ица', 'Chichen Itza'], ['JO', 'Древний город Петра', 'Ancient city of Petra'],
-  ['RU', 'Собор Василия Блаженного', 'Saint Basil’s Cathedral'], ['SG', 'Парк «Сады у залива»', 'Gardens by the Bay']
+  ['place', 'Как называется площадь с большими экранами в Нью-Йорке?', 'What is the name of the square with giant screens in New York?', 'Таймс-сквер', 'Times Square', [['Красная площадь', 'Red Square'], ['Юнион-сквер', 'Union Square'], ['Трафальгарская площадь', 'Trafalgar Square']]],
+  ['place', 'Как называется знаменитый универмаг на Красной площади?', 'What is the name of the famous department store on Red Square?', 'ГУМ', 'GUM', [['ЦУМ', 'TSUM'], ['Харродс', 'Harrods'], ['Селфриджес', 'Selfridges']]],
+  ['city', 'В каком городе построили Парфенон?', 'In which city was the Parthenon built?', 'Афины', 'Athens'],
+  ['city', 'В каком городе находится Белый дом, где работает президент США?', 'In which city is the White House, where the US president works?', 'Вашингтон', 'Washington, D.C.'],
+  ['place', 'В каком музее выставлена «Мона Лиза»?', 'Which museum displays the Mona Lisa?', 'Лувр', 'The Louvre', [['Эрмитаж', 'The Hermitage'], ['Прадо', 'The Prado'], ['Уффици', 'The Uffizi']]],
+  ['city', 'В каком городе находится знаменитая наклонённая башня?', 'In which city is the famous leaning tower?', 'Пиза', 'Pisa'],
+  ['city', 'В каком городе находится Запретный город?', 'In which city is the Forbidden City?', 'Пекин', 'Beijing'],
+  ['city', 'В каком городе можно услышать Биг-Бен?', 'In which city can you hear Big Ben?', 'Лондон', 'London'],
+  ['city', 'В каком городе находится Тауэрский мост?', 'In which city is Tower Bridge?', 'Лондон', 'London'],
+  ['country', 'В какой стране находится пирамида Хеопса?', 'In which country is the Great Pyramid of Giza?', 'Египет', 'Egypt'],
+  ['city', 'В каком городе находится оперный театр с крышей в форме парусов?', 'In which city is the opera house with a sail-shaped roof?', 'Сидней', 'Sydney'],
+  ['place', 'Как называется самый высокий небоскрёб Дубая?', 'What is the name of the tallest skyscraper in Dubai?', 'Бурдж-Халифа', 'Burj Khalifa', [['Эмпайр-стейт-билдинг', 'Empire State Building'], ['Тайбэй 101', 'Taipei 101'], ['Шанхайская башня', 'Shanghai Tower']]],
+  ['city', 'Над каким городом стоит знаменитая статуя Христа с раскинутыми руками?', 'Which city does the Christ the Redeemer statue overlook?', 'Рио-де-Жанейро', 'Rio de Janeiro'],
+  ['city', 'В каком городе находится Кремль рядом с Красной площадью?', 'In which city is the Kremlin beside Red Square?', 'Москва', 'Moscow'],
+  ['city', 'В каком городе находится стадион «Камп Ноу»?', 'In which city is the Camp Nou stadium?', 'Барселона', 'Barcelona'],
+  ['city', 'В каком городе находится стадион «Сантьяго Бернабеу»?', 'In which city is the Santiago Bernabéu stadium?', 'Мадрид', 'Madrid'],
+  ['country', 'В какой стране находится Каппадокия, над которой летают воздушные шары?', 'In which country is Cappadocia, famous for its hot-air balloons?', 'Турция', 'Türkiye'],
+  ['country', 'В какой стране находится Тадж-Махал?', 'In which country is the Taj Mahal?', 'Индия', 'India'],
+  ['country', 'В какой стране находится знаменитая древняя стена длиной в тысячи километров?', 'In which country is the famous ancient wall that stretches for thousands of kilometres?', 'Китай', 'China'],
+  ['city', 'В каком городе можно увидеть Статую Свободы?', 'In which city can you see the Statue of Liberty?', 'Нью-Йорк', 'New York City'],
+  ['city', 'В каком городе на холме стоит надпись HOLLYWOOD?', 'In which city is the HOLLYWOOD sign on a hillside?', 'Лос-Анджелес', 'Los Angeles'],
+  ['city', 'Какой город США знаменит своими казино и яркими неоновыми вывесками?', 'Which US city is famous for its casinos and bright neon signs?', 'Лас-Вегас', 'Las Vegas'],
+  ['city', 'В каком городе по каналам ходят гондолы?', 'In which city do gondolas travel along the canals?', 'Венеция', 'Venice'],
+  ['city', 'В каком городе находится Колизей, где сражались гладиаторы?', 'In which city is the Colosseum, where gladiators fought?', 'Рим', 'Rome'],
+  ['city', 'Какой город до 1989 года был разделён стеной на две части?', 'Which city was divided in two by a wall until 1989?', 'Берлин', 'Berlin'],
+  ['city', 'Какой город Нидерландов известен каналами, узкими домами и велосипедами?', 'Which Dutch city is known for canals, narrow houses and bicycles?', 'Амстердам', 'Amsterdam'],
+  ['city', 'Какой город Австрии знаменит балами и вальсами Штрауса?', 'Which Austrian city is famous for its balls and Strauss waltzes?', 'Вена', 'Vienna'],
+  ['city', 'Через какой город проходит пролив Босфор?', 'Which city is crossed by the Bosphorus?', 'Стамбул', 'Istanbul'],
+  ['city', 'В каком городе находится Зимний дворец?', 'In which city is the Winter Palace?', 'Санкт-Петербург', 'Saint Petersburg'],
+  ['place', 'Как называется древний город, который засыпало пеплом после извержения вулкана?', 'What is the name of the ancient city buried in ash after a volcanic eruption?', 'Помпеи', 'Pompeii', [['Афины', 'Athens'], ['Спарта', 'Sparta'], ['Карфаген', 'Carthage']]],
+  ['place', 'На каком острове стоят огромные каменные статуи моаи?', 'On which island are the huge moai stone statues?', 'Остров Пасхи', 'Easter Island', [['Мадагаскар', 'Madagascar'], ['Крит', 'Crete'], ['Сицилия', 'Sicily']]],
+  ['country', 'В какой стране археологи нашли Терракотовую армию — тысячи глиняных воинов?', 'In which country did archaeologists find the Terracotta Army, with thousands of clay warriors?', 'Китай', 'China'],
+  ['country', 'В какой стране находится Стоунхендж — древний круг из огромных камней?', 'In which country is Stonehenge, an ancient circle of huge stones?', 'Великобритания', 'United Kingdom'],
+  ['country', 'В какой стране находится деревня Санта-Клауса за Полярным кругом?', 'In which country is Santa Claus Village above the Arctic Circle?', 'Финляндия', 'Finland'],
+  ['country', 'В какой стране находится древняя пирамида майя в Чичен-Ице?', 'In which country is the ancient Maya pyramid at Chichén Itzá?', 'Мексика', 'Mexico']
 ];
 // Детские моря: 4 океана и 9 морей
 const KIDW = 'pacific atlantic indian arctic black med red baltic caribbean japan caspian barents white'.split(' ');
@@ -3218,42 +3245,60 @@ function kidFlag(c, cls) {
   const emo = c.id === 'ENG' ? '🏴' : emojiFlag(c.id);
   return `<span class="fl ${cls}"><img src="https://flagcdn.com/w320/${code}.png" alt="" onerror="this.parentNode.textContent='${emo}'"></span>`;
 }
-let kgame = null;
+let kgame = null, kidAllQuestions = false;
 const kidTitle = (t, mode) => t[KID_MODES[mode]];
-function kidAnswerLabel(mode, id) {
+function kidAnswerLabel(mode, id, question) {
   const lang = settings.lang;
+  if (mode === 'landmark') return question.answers[id][lang === 'ru' ? 0 : 1];
   if (mode === 'sea') return wName(W[id]);
   if (mode === 'continent') return KID_CONTINENTS[id][lang];
   const country = kidC(id)[lang];
   return mode === 'cap' ? country.c : country.n;
 }
 const kidOptions = (right, options) => shuffle([right, ...shuffle(options.filter(id => id !== right)).slice(0, 3)]);
+const KID_SEA_COUNTRIES = KIDS_FLAGS.filter(c => kidSea(c));
+const KID_COUNTS = { flag: KIDS_FLAGS.length, cap: KIDS_FLAGS.length, sea: KID_SEA_COUNTRIES.length + 1, continent: KID_CONTINENT_POOL.length, landmark: KID_LANDMARKS.length };
+const KID_PLACE_ANSWERS = Object.fromEntries(['city', 'country'].map(kind => [kind, [...new Map(
+  KID_LANDMARKS.filter(row => row[0] === kind).map(([, , , ru, en]) => [ru, [ru, en]])
+).values()]]));
+
+function kidPool(mode) {
+  if (mode === 'sea') {
+    const questions = KID_SEA_COUNTRIES.map(c => ({ c, ...kidSea(c) }));
+    questions.push({ c: kidC('IS'), promptKey: 'kQIceland', right: 'atlantic', opts: shuffle(['atlantic', 'pacific', 'indian', 'med']) });
+    return questions;
+  }
+  if (mode === 'continent') {
+    const parts = KID_CONTINENTS.map((_, i) => i);
+    return KID_CONTINENT_POOL.map(q => ({ ...q, opts: kidOptions(q.right, parts) }));
+  }
+  if (mode === 'landmark') return KID_LANDMARKS.map(([kind, ru, en, answerRu, answerEn, distractors]) => {
+    const answer = [answerRu, answerEn];
+    const wrong = distractors || shuffle(KID_PLACE_ANSWERS[kind].filter(([label]) => label !== answerRu)).slice(0, 3);
+    const answers = [answer, ...wrong];
+    return { place: { ru, en }, answers, right: 0, opts: shuffle([0, 1, 2, 3]) };
+  });
+  const countries = KIDS_FLAGS.map(c => c.id);
+  return KIDS_FLAGS.map(c => ({ c, right: c.id, opts: kidOptions(c.id, countries) }));
+}
 
 function renderKids() {
   const t = T();
   $('#kids').innerHTML = `
     <header><button class="back" data-act="home">‹ ${t.back}</button><div style="flex:1"><h1>👶 ${t.kidsTitle}</h1><div class="sub">${t.kidsSub}</div></div></header>
-    ${Object.keys(KID_MODES).map(mode => `<button class="daily k${mode}" data-act="kstart" data-v="${mode}"><b>${kidTitle(t, mode)}</b><span>${t.kCount(KID_LENGTH)}</span></button>`).join('')}
+    <div class="sub-tabs">
+      <button class="${kidAllQuestions ? '' : 'on'}" aria-pressed="${!kidAllQuestions}" data-act="klength" data-v="short">${t.kCount(KID_LENGTH)}</button>
+      <button class="${kidAllQuestions ? 'on' : ''}" aria-pressed="${kidAllQuestions}" data-act="klength" data-v="all">${t.kAllQuestions}</button>
+    </div>
+    ${Object.keys(KID_MODES).map(mode => `<button class="daily k${mode}" data-act="kstart" data-v="${mode}"><b>${kidTitle(t, mode)}</b><span>${t.kCount(kidAllQuestions ? KID_COUNTS[mode] : KID_LENGTH)}</span></button>`).join('')}
     <div class="type-hint" style="text-align:center;margin-top:6px">${t.kidsNote}</div>`;
 }
 
 function startKids(mode) {
   if (!Object.prototype.hasOwnProperty.call(KID_MODES, mode)) return;
   endGame();
-  let pool;
-  if (mode === 'sea') {
-    pool = KIDS_FLAGS.flatMap(c => { const sea = kidSea(c); return sea ? [{ c, ...sea }] : []; });
-  } else if (mode === 'continent') {
-    const parts = KID_CONTINENTS.map((_, i) => i);
-    pool = KID_CONTINENT_POOL.map(q => ({ ...q, opts: kidOptions(q.right, parts) }));
-  } else if (mode === 'landmark') {
-    const countries = KID_LANDMARKS.map(([id]) => id);
-    pool = KID_LANDMARKS.map(([id, ru, en]) => ({ c: kidC(id), place: { ru, en }, right: id, opts: kidOptions(id, countries) }));
-  } else {
-    const countries = KIDS_FLAGS.map(c => c.id);
-    pool = KIDS_FLAGS.map(c => ({ c, right: c.id, opts: kidOptions(c.id, countries) }));
-  }
-  const qs = shuffle(pool).slice(0, KID_LENGTH);
+  const pool = shuffle(kidPool(mode));
+  const qs = kidAllQuestions ? pool : pool.slice(0, KID_LENGTH);
   kgame = { mode, qs, i: 0, score: 0, locked: false, over: false };
   go('game');
   renderKidsQ();
@@ -3262,15 +3307,15 @@ function startKids(mode) {
 function renderKidsQ() {
   const t = T(), q = kgame.qs[kgame.i], c = q.c, n = kgame.qs.length, L = settings.lang;
   const mode = kgame.mode;
-  const prompt = { flag: t.kQFlag, cap: t.kQCap, sea: t.kQSea, continent: t.kQContinent, landmark: t.kQLandmark }[mode];
-  const image = q.place ? '' : kidFlag(c, 'kid');
-  const subject = mode === 'flag' ? '' : `<h2>${esc(q.place ? q.place[L] : c[L].n)}</h2>`;
+  const prompt = q.promptKey ? t[q.promptKey] : { flag: t.kQFlag, cap: t.kQCap, sea: t.kQSea, continent: t.kQContinent, landmark: '' }[mode];
+  const image = c ? kidFlag(c, 'kid') : '';
+  const subject = mode === 'flag' || q.promptKey ? '' : `<h2>${esc(q.place ? q.place[L] : c[L].n)}${mode === 'continent' ? '?' : ''}</h2>`;
   $('#game').innerHTML = `
     <div class="top"><span>👶 ${kidTitle(t, mode)}</span><span>${kgame.i + 1} / ${n}</span></div>
     <div class="bar"><i style="width:${kgame.i / n * 100}%"></i></div>
     <div class="top"><span>⭐ ${kgame.score}</span><span></span></div>
-    <div class="q">${image}<small>${prompt}</small>${subject}</div>
-    <div class="opts kid">${q.opts.map((id, k) => `<button class="opt" data-key="${k + 1}" data-act="kopt" data-id="${id}">${esc(kidAnswerLabel(mode, id))}</button>`).join('')}</div>
+    <div class="q">${image}${prompt ? `<small>${prompt}</small>` : ''}${subject}</div>
+    <div class="opts kid">${q.opts.map((id, k) => `<button class="opt" data-key="${k + 1}" data-act="kopt" data-id="${id}">${esc(kidAnswerLabel(mode, id, q))}</button>`).join('')}</div>
     <div class="reveal" id="reveal"></div>
     <div class="tools"><button class="link" data-act="kquit">✕ ${t.quit}</button><span></span></div>`;
   kgame.locked = false;
@@ -3290,8 +3335,8 @@ function answerKids(id) {
     praise(t.kPraise[Math.floor(Math.random() * t.kPraise.length)]);
     confetti(20); sfx('ok'); haptic('success');
   } else {
-    const right = kidAnswerLabel(round.mode, q.right);
-    $('#reveal').innerHTML = `${t.kAlmost} <b>${esc(right)}</b> ${kidFlag(q.c, 'sm')}`;
+    const right = kidAnswerLabel(round.mode, q.right, q);
+    $('#reveal').innerHTML = `${t.kAlmost} <b>${esc(right)}</b> ${q.c ? kidFlag(q.c, 'sm') : ''}`;
   }
   setTimeout(() => { if (kgame === round) nextKidsQ(); }, ok ? 1100 : 2300);
 }
@@ -4316,6 +4361,7 @@ document.addEventListener('click', e => {
   else if (a === 'hint') useHint();
   else if (a === 'skip') skipTyped();
   else if (a === 'kids') { endGame(); kgame = null; renderKids(); go('kids'); }
+  else if (a === 'klength') { kidAllQuestions = v === 'all'; renderKids(); }
   else if (a === 'kstart') startKids(v);
   else if (a === 'kopt') answerKids(el.dataset.id);
   else if (a === 'kquit') { if (kgame) kgame.over = true; kgame = null; renderKids(); go('kids'); }
