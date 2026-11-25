@@ -4,6 +4,40 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>GeoQuiz</title>
+<!-- Yandex.Metrika -->
+<script>
+(function () {
+  if (location.protocol !== 'https:') return;
+  const counterId = 114678429;
+
+  window.ym = window.ym || function () {
+    (window.ym.a = window.ym.a || []).push(arguments);
+  };
+  window.ym.l = Date.now();
+
+  const tag = document.createElement('script');
+  tag.async = true;
+  tag.referrerPolicy = 'no-referrer';
+  tag.src = 'https://mc.yandex.ru/metrika/tag.js?id=' + counterId;
+  document.head.appendChild(tag);
+
+  window.ym(counterId, 'init', {
+    defer: true,
+    webvisor: false,
+    ecommerce: false,
+    clickmap: false,
+    trackLinks: false,
+    trackHash: false,
+    accurateTrackBounce: false,
+    disableYtm: true
+  });
+  window.ym(counterId, 'hit', location.origin + location.pathname, {
+    title: document.title,
+    referer: ''
+  });
+})();
+</script>
+<!-- /Yandex.Metrika -->
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <style>
@@ -4462,3 +4496,4 @@ if (typeof requestIdleCallback === 'function') {
 </script>
 </body>
 </html>
+
